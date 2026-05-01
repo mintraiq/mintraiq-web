@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — Your AI Financial Mentor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0c1322;
+            --bg-deeper: #040913;
+            --bg-card: #171e2d;
+            --text-primary: #ffffff;
+            --text-secondary: #b8c2d4;
+            --accent-green: #00ff9d;
+            --accent-red: #ff4757;
+            --accent-blue: #2f80ed;
+            --accent-purple: #bb6bd9;
+            --gradient-brand: linear-gradient(105deg, #00d4aa 0%, #00c6ff 45%, #2f80ed 78%, #1e4fd6 100%);
+            --glow-teal: 0 0 40px rgba(0, 255, 157, 0.12);
+            --glow-blue: 0 0 50px rgba(47, 128, 237, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Montserrat', 'Segoe UI', sans-serif;
+            background: var(--bg-deeper);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .gradient-text {
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .page-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse 85% 55% at 50% -20%, rgba(0, 198, 255, 0.18), transparent 56%),
+                radial-gradient(ellipse 62% 45% at 100% 24%, rgba(47, 128, 237, 0.13), transparent 50%),
+                radial-gradient(ellipse 56% 38% at 0% 62%, rgba(0, 255, 157, 0.09), transparent 47%),
+                linear-gradient(180deg, var(--bg-deeper) 0%, var(--bg-dark) 45%, var(--bg-deeper) 100%);
+        }
+
+        .wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+        }
+
+        /* Nav */
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 22px 0 36px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .nav-brand {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .nav-brand span {
+            font-weight: 800;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding: 10px 18px;
+            border-radius: 10px;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 14px 26px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(0, 255, 157, 0.15), rgba(47, 128, 237, 0.25));
+            color: var(--text-primary);
+            border: 1px solid rgba(0, 255, 157, 0.35);
+            box-shadow: var(--glow-teal);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-teal), var(--glow-blue);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .btn-ghost:hover {
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.22);
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 48px 0 56px;
+            animation: fadeUp 0.7s ease backwards;
+        }
+
+        .hero-logo {
+            max-width: min(420px, 88vw);
+            height: auto;
+            margin: 0 auto 28px;
+            display: block;
+            filter: drop-shadow(0 20px 50px rgba(0, 0, 0, 0.45));
+        }
+
+        .hero-eyebrow {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            font-size: clamp(1.75rem, 4.5vw, 2.65rem);
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.03em;
+            max-width: 720px;
+            margin: 0 auto 18px;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 20px rgba(47, 128, 237, 0.12);
+        }
+
+        .hero-lead {
+            font-size: 1.1rem;
+            color: #c4ccdb;
+            max-width: 640px;
+            margin: 0 auto 28px;
+            font-weight: 500;
+        }
+
+        .tagline {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 32px;
+        }
+
+        .hero-ctas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: center;
+        }
+
+        /* Pillars */
+        .pillars {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0;
+            background: linear-gradient(160deg, #171e2d 0%, #141b29 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+            margin-bottom: 64px;
+            animation: fadeUp 0.7s ease 0.1s backwards;
+        }
+
+        .pillar {
+            padding: 28px 16px;
+            text-align: center;
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .pillar:last-child {
+            border-right: none;
+        }
+
+        .pillar-icon {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 14px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            background: linear-gradient(145deg, rgba(0, 212, 170, 0.2), rgba(47, 128, 237, 0.25));
+            color: #7ee8ff;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .pillar-icon i {
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .pillar h3 {
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .pillar p {
+            font-size: 0.72rem;
+            color: #bec7d9;
+            line-height: 1.45;
+            font-weight: 500;
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 56px;
+        }
+
+        .section-head {
+            margin-bottom: 28px;
+            animation: fadeUp 0.6s ease backwards;
+        }
+
+        .section-head h2 {
+            font-size: clamp(1.4rem, 3vw, 1.85rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 10px;
+            color: #f7fbff;
+            text-shadow: 0 0 18px rgba(47, 128, 237, 0.1);
+        }
+
+        .section-head p {
+            color: #b9c2d2;
+            font-size: 1rem;
+            max-width: 640px;
+            font-weight: 500;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .info-card {
+            background: linear-gradient(170deg, #171e2d 0%, #151c2a 100%);
+            border-radius: 15px;
+            padding: 26px 24px;
+            border: 1px solid rgba(122, 152, 205, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            transition: border-color 0.25s, box-shadow 0.25s;
+            animation: fadeUp 0.55s ease backwards;
+        }
+
+        .info-card:nth-child(1) { animation-delay: 0.05s; }
+        .info-card:nth-child(2) { animation-delay: 0.1s; }
+        .info-card:nth-child(3) { animation-delay: 0.15s; }
+        .info-card:nth-child(4) { animation-delay: 0.2s; }
+
+        .info-card:hover {
+            border-color: rgba(0, 255, 157, 0.15);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+        }
+
+        .info-card .icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+            color: var(--accent-green);
+            background: rgba(0, 255, 157, 0.1);
+        }
+
+        .info-card:nth-child(2) .icon { color: var(--accent-blue); background: rgba(47, 128, 237, 0.12); }
+        .info-card:nth-child(3) .icon { color: var(--accent-purple); background: rgba(187, 107, 217, 0.12); }
+        .info-card:nth-child(4) .icon { color: var(--accent-red); background: rgba(255, 71, 87, 0.1); }
+
+        .info-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #f6f9ff;
+        }
+
+        .info-card p {
+            font-size: 0.9rem;
+            color: #bec7d7;
+            font-weight: 500;
+            line-height: 1.55;
+        }
+
+        /* Insights list */
+        .insights-panel {
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(30, 30, 36, 0.95) 50%, rgba(47, 128, 237, 0.08) 100%);
+            border-radius: 16px;
+            padding: 32px 28px;
+            border: 1px solid rgba(47, 128, 237, 0.2);
+            border-left: 4px solid var(--accent-blue);
+            animation: fadeUp 0.6s ease 0.1s backwards;
+        }
+
+        .insights-panel h2 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .insights-panel h2 i {
+            color: var(--accent-purple);
+        }
+
+        .insights-panel > p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 22px;
+            font-weight: 500;
+        }
+
+        .insights-list {
+            list-style: none;
+            display: grid;
+            gap: 14px;
+        }
+
+        .insights-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 0.92rem;
+            color: #d0d0d0;
+            font-weight: 500;
+        }
+
+        .insights-list li:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .insights-list .check {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(0, 255, 157, 0.12);
+            color: var(--accent-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        /* Quote / mentor */
+        .mentor-block {
+            text-align: center;
+            padding: 48px 24px;
+            border-radius: 16px;
+            background: radial-gradient(ellipse at center, rgba(0, 255, 157, 0.06) 0%, transparent 65%),
+                var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            animation: fadeUp 0.65s ease backwards;
+        }
+
+        .mentor-block p {
+            font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+            font-weight: 700;
+            line-height: 1.45;
+            max-width: 720px;
+            margin: 0 auto 20px;
+        }
+
+        .mentor-block .sub {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        /* Footer pill */
+        .footer-pill {
+            text-align: center;
+            margin-top: 48px;
+        }
+
+        .footer-pill-inner {
+            display: inline-block;
+            padding: 14px 28px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            background: linear-gradient(var(--bg-deeper), var(--bg-deeper)) padding-box,
+                var(--gradient-brand) border-box;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            color: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 0 24px rgba(0, 198, 255, 0.08);
+        }
+
+        .footer-note {
+            margin-top: 28px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(22px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .pillars {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pillar {
+                border-right: 1px solid rgba(255, 255, 255, 0.06);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            }
+
+            .pillar:nth-child(2n) {
+                border-right: none;
+            }
+
+            .pillar:nth-last-child(-n+2) {
+                border-bottom: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .nav {
+                flex-direction: column;
+                gap: 16px;
+                align-items: stretch;
+            }
+
+            .nav-links {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pillars {
+                grid-template-columns: 1fr;
+            }
+
+            .pillar {
+                border-right: none;
+            }
+
+            .pillar:not(:last-child) {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-bg" aria-hidden="true"></div>
+
+    <div class="wrap">
+        <header class="nav">
+            <a href="intro.html" class="nav-brand">Mintr<span class="gradient-text">AIQ</span></a>
+            <div class="nav-links">
+                <a href="#product">Product</a>
+                <a href="#insights">Insights</a>
+                <a href="designs.html" style="color: var(--accent-green);">Layouts</a>
+                <a href="coming-soon.html?from=google-play" title="Coming soon">Play</a>
+                <a href="coming-soon.html?from=app-store" title="Coming soon">iOS</a>
+                <a href="mock-dashboard.html" class="btn btn-ghost" style="padding: 10px 18px;">Dashboard</a>
+                <a href="get-started.html" class="btn btn-primary" style="padding: 10px 20px;">Sign in</a>
+            </div>
+        </header>
+
+        <section class="hero">
+            <p class="hero-eyebrow">Your AI financial mentor</p>
+            <img class="hero-logo" src="assets/mintraiq-logo.png" alt="MintrAIQ — Smart Money. Stronger You." width="420" height="auto">
+            <h1>Smarter money decisions, powered by <span class="gradient-text">intelligent</span> insights</h1>
+            <p class="hero-lead">
+                A powerful personal finance dashboard that turns bank statements, receipts, and daily spending into clear guidance—so you can build disciplined habits and reach your goals one smart step at a time.
+            </p>
+            <p class="tagline">
+                Smart Money. <span class="gradient-text">Stronger You.</span>
+            </p>
+            <div class="hero-ctas">
+                <a href="get-started.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Get started</a>
+                <a href="mock-dashboard.html" class="btn btn-ghost"><i class="fas fa-chart-line"></i> View dashboard</a>
+            </div>
+            <p style="margin-top: 22px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; color: var(--text-secondary);">MOBILE APPS · STUB UNTIL LAUNCH</p>
+            <div class="hero-ctas" style="margin-top: 12px;">
+                <a href="coming-soon.html?from=google-play" class="btn btn-ghost" style="border-color: rgba(0, 255, 157, 0.35); color: var(--accent-green);"><i class="fab fa-google-play"></i> Google Play</a>
+                <a href="coming-soon.html?from=app-store" class="btn btn-ghost" style="border-color: rgba(47, 128, 237, 0.45); color: var(--accent-blue);"><i class="fab fa-apple"></i> App Store</a>
+            </div>
+        </section>
+
+        <div class="pillars" role="list">
+            <div class="pillar" role="listitem">
+                <div class="pillar-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                <h3>Track</h3>
+                <p>Every transaction</p>
+            </div>
+            <div class="pillar" role="listitem">
+                <div class="pillar-icon"><i class="fas fa-chart-pie"></i></div>
+                <h3>Analyze</h3>
+                <p>AI-powered insights</p>
+            </div>
+            <div class="pillar" role="listitem">
+                <div class="pillar-icon"><i class="fas fa-bullseye"></i></div>
+                <h3>Discipline</h3>
+                <p>Build better habits</p>
+            </div>
+            <div class="pillar" role="listitem">
+                <div class="pillar-icon"><i class="fas fa-shield-halved"></i></div>
+                <h3>Plan</h3>
+                <p>Smarter financial future</p>
+            </div>
+            <div class="pillar" role="listitem">
+                <div class="pillar-icon"><i class="fas fa-arrow-trend-up"></i></div>
+                <h3>Grow</h3>
+                <p>Wealth with confidence</p>
+            </div>
+        </div>
+
+        <section id="product">
+            <div class="section-head">
+                <h2>Take control of your financial future</h2>
+                <p>
+                    An AI-powered dashboard designed to simplify, guide, and optimize your money habits—from automatic categorization to forecasts that show where your money is headed.
+                </p>
+            </div>
+            <div class="card-grid">
+                <article class="info-card">
+                    <div class="icon"><i class="fas fa-cloud-arrow-up"></i></div>
+                    <h3>Upload &amp; scan, instantly organized</h3>
+                    <p>
+                        Upload bank statements or scan receipts to categorize transactions automatically with intelligent AI. See income vs expenses, category spending, recurring payments, and rich transaction detail in visual dashboards.
+                    </p>
+                </article>
+                <article class="info-card">
+                    <div class="icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+                    <h3>Beautiful dashboards, real clarity</h3>
+                    <p>
+                        Track where your money goes with charts and breakdowns that match how you actually spend—so patterns, leaks, and wins are obvious at a glance.
+                    </p>
+                </article>
+                <article class="info-card">
+                    <div class="icon"><i class="fas fa-piggy-bank"></i></div>
+                    <h3>Goals, recurring bills, better habits</h3>
+                    <p>
+                        Set savings goals, manage recurring expenses, and stay consistent with nudges and plans tailored to your cash flow—not generic advice.
+                    </p>
+                </article>
+                <article class="info-card">
+                    <div class="icon"><i class="fas fa-globe"></i></div>
+                    <h3>Inflation, CPI &amp; everyday prices</h3>
+                    <p>
+                        Monitor economic trends that affect your spending with built-in inflation and CPI tracking, plus grocery price context so you understand how daily costs move your budget.
+                    </p>
+                </article>
+            </div>
+        </section>
+
+        <section id="insights">
+            <div class="insights-panel">
+                <h2><i class="fas fa-robot"></i> Stay ahead with smart insights</h2>
+                <p>Proactive signals and forecasts so you can adjust before small drift becomes big regret.</p>
+                <ul class="insights-list">
+                    <li>
+                        <span class="check"><i class="fas fa-check"></i></span>
+                        <span><strong>High-spend alerts</strong> warn you before budgets go off track.</span>
+                    </li>
+                    <li>
+                        <span class="check"><i class="fas fa-check"></i></span>
+                        <span><strong>Weekly and monthly spending plans</strong> personalized to your rhythm.</span>
+                    </li>
+                    <li>
+                        <span class="check"><i class="fas fa-check"></i></span>
+                        <span><strong>AI recommendations and nudges</strong> that guide smarter day-to-day decisions.</span>
+                    </li>
+                    <li>
+                        <span class="check"><i class="fas fa-check"></i></span>
+                        <span><strong>Yearly financial forecasts</strong> to predict where your money is headed.</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="mentor-block" aria-labelledby="mentor-heading">
+            <p id="mentor-heading">This isn’t just a finance tracker. <span class="gradient-text">It’s your personal financial mentor.</span></p>
+            <p class="sub">
+                Intelligent insights designed to make money management effortless—so you can focus on life while your dashboard keeps you honest, informed, and moving forward.
+            </p>
+        </section>
+
+        <div class="footer-pill">
+            <div class="footer-pill-inner">AI-powered financial intelligence for a better tomorrow</div>
+            <p class="footer-note">
+                © MintrAIQ ·
+                <a href="play-store.html" style="color: var(--accent-green); text-decoration: none; font-weight: 600;">Google Play</a>
+                ·
+                <a href="app-store.html" style="color: var(--accent-blue); text-decoration: none; font-weight: 600;">App Store</a>
+                ·
+                <a href="designs.html" style="color: var(--text-secondary); text-decoration: none;">More layouts</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

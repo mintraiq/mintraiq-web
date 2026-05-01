@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — Neon Bento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #121212;
+            --card: #1e1e24;
+            --g: #00ff9d;
+            --r: #ff4757;
+            --b: #2f80ed;
+            --p: #bb6bd9;
+            --m: #a0a0a0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            padding: 22px 18px 50px;
+        }
+        .shell { max-width: 1080px; margin: 0 auto; }
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+        .brand { font-weight: 800; font-size: 1.1rem; }
+        .brand b { color: var(--g); text-shadow: 0 0 16px rgba(0,255,157,0.4); }
+        .top-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-decoration: none;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+        .pill.play { background: rgba(0,255,157,0.1); border-color: rgba(0,255,157,0.35); }
+        .pill.apple { background: rgba(47,128,237,0.12); border-color: rgba(47,128,237,0.4); }
+        .pill:hover { transform: translateY(-1px); }
+        .pill-muted { font-size: 0.75rem; color: var(--m); text-decoration: none; font-weight: 600; padding: 8px 12px; }
+        .pill-muted:hover { color: #fff; }
+
+        .bento {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: minmax(100px, auto);
+            gap: 14px;
+        }
+        .cell {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 22px;
+            border: 1px solid rgba(255,255,255,0.06);
+            overflow: hidden;
+            position: relative;
+            transition: box-shadow 0.25s, transform 0.2s;
+        }
+        .cell:hover { transform: translateY(-2px); }
+        .c-hero {
+            grid-column: span 7;
+            grid-row: span 2;
+            border-bottom: 4px solid var(--g);
+            box-shadow: 0 0 40px rgba(0,255,157,0.08);
+        }
+        .c-logo {
+            grid-column: span 5;
+            grid-row: span 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 4px solid var(--b);
+            background: radial-gradient(circle at 50% 50%, rgba(47,128,237,0.12), transparent 65%), var(--card);
+        }
+        .c-logo img { max-width: 85%; max-height: 220px; object-fit: contain; filter: drop-shadow(0 12px 30px rgba(0,0,0,0.5)); }
+        .c-alert {
+            grid-column: span 4;
+            border-left: 4px solid var(--r);
+            background: linear-gradient(135deg, var(--card), rgba(255,71,87,0.08));
+            animation: glowr 2.5s ease-in-out infinite;
+        }
+        @keyframes glowr {
+            0%, 100% { box-shadow: 0 0 20px rgba(255,71,87,0.08); }
+            50% { box-shadow: 0 0 28px rgba(255,71,87,0.2); }
+        }
+        .c-ai {
+            grid-column: span 4;
+            border-left: 4px solid var(--p);
+            background: linear-gradient(135deg, var(--card), rgba(187,107,217,0.1));
+        }
+        .c-plan {
+            grid-column: span 4;
+            border-bottom: 4px solid var(--g);
+        }
+        .c-footer {
+            grid-column: span 12;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border: 1px solid rgba(0,255,157,0.2);
+            background: linear-gradient(90deg, rgba(0,255,157,0.06), rgba(47,128,237,0.06));
+        }
+        @media (max-width: 860px) {
+            .c-hero, .c-logo { grid-column: span 12; grid-row: span 1; }
+            .c-alert, .c-ai, .c-plan { grid-column: span 12; }
+        }
+        .c-hero h1 {
+            font-size: clamp(1.5rem, 4vw, 2.1rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            letter-spacing: -0.02em;
+        }
+        .c-hero h1 span { color: var(--g); }
+        .c-hero p { color: var(--m); font-size: 0.92rem; line-height: 1.55; margin-bottom: 20px; max-width: 520px; }
+        .hero-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+        .btn {
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-g { background: var(--g); color: #0a0a0a; }
+        .btn-d { background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,255,255,0.12); }
+        .cell h3 {
+            font-size: 0.65rem;
+            letter-spacing: 0.16em;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--m);
+        }
+        .c-alert h3 { color: var(--r); }
+        .c-ai h3 { color: var(--p); }
+        .cell p.big { font-size: 0.95rem; font-weight: 700; line-height: 1.45; }
+        .cell p.small { font-size: 0.82rem; color: var(--m); margin-top: 8px; line-height: 1.45; }
+        .c-footer p { font-size: 0.85rem; font-weight: 700; max-width: 520px; }
+        .c-footer .cta { display: flex; gap: 10px; flex-wrap: wrap; }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <header>
+            <div class="brand"><b>MINT</b>RAIQ</div>
+            <div class="top-actions">
+                <a class="pill play" href="coming-soon.html?from=google-play"><i class="fab fa-google-play"></i> GET ON ANDROID</a>
+                <a class="pill apple" href="coming-soon.html?from=app-store"><i class="fab fa-apple"></i> GET ON IOS</a>
+                <a class="pill-muted" href="designs.html">Designs</a>
+                <a class="pill-muted" href="get-started.html">Sign in</a>
+            </div>
+        </header>
+
+        <div class="bento">
+            <div class="cell c-hero">
+                <h1>The dashboard that <span>talks back</span>—with receipts, CPI, and a spine.</h1>
+                <p>Upload statements, scan receipts, watch AI categorize everything. See income vs spend, recurring leaks, and a yearly forecast that does not sugarcoat the truth.</p>
+                <div class="hero-btns">
+                    <a class="btn btn-g" href="get-started.html"><i class="fas fa-arrow-right"></i> Start free</a>
+                    <a class="btn btn-d" href="mock-dashboard.html"><i class="fas fa-chart-area"></i> Live dashboard</a>
+                </div>
+            </div>
+            <div class="cell c-logo">
+                <img src="assets/mintraiq-logo.png" alt="MintrAIQ">
+            </div>
+
+            <div class="cell c-alert">
+                <h3><i class="fas fa-triangle-exclamation"></i> ALERT STYLE</h3>
+                <p class="big">High-spend nudges match your real categories—before the month slips away.</p>
+                <p class="small">Same red pulse language as your logged-in experience.</p>
+            </div>
+            <div class="cell c-ai">
+                <h3><i class="fas fa-robot"></i> AI CORE</h3>
+                <p class="big">Recommendations and weekly plans tuned to your rhythm—not a generic blog post.</p>
+                <p class="small">Purple accent = intelligence layer across the product.</p>
+            </div>
+            <div class="cell c-plan">
+                <h3><i class="fas fa-shield-halved"></i> FUTURE-PROOF</h3>
+                <p class="big">Inflation, CPI, grocery trends—so your budget speaks macro and micro.</p>
+                <p class="small">Goals + recurring bills + discipline score in one loop.</p>
+            </div>
+
+            <div class="cell c-footer">
+                <p>This is not a tracker. It is your <strong style="color:var(--g)">financial mentor</strong>—web today, native apps loading on the store stubs.</p>
+                <div class="cta">
+                    <a class="btn btn-g" href="coming-soon.html?from=google-play">Play (stub)</a>
+                    <a class="btn btn-d" href="intro.html">Classic landing</a>
+                    <a class="btn btn-d" href="intro-neon-a.html">Neon A</a>
+                    <a class="btn btn-d" href="intro-neon-b.html">Neon B</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

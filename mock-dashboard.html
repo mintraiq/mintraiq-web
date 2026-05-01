@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ Demo Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e24;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-green: #00ff9d;
+            --accent-red: #ff4757;
+            --accent-blue: #2f80ed;
+            --accent-purple: #bb6bd9;
+            --sidebar-width: 260px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Montserrat", "Segoe UI", sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-primary); }
+        .dashboard-container { display: flex; min-height: 100vh; overflow: hidden; }
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-card);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #333;
+        }
+        .brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 36px;
+            color: var(--accent-green);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .menu-item {
+            padding: 14px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            gap: 10px;
+        }
+        .menu-item.active, .menu-item:hover { background-color: rgba(0, 255, 157, 0.1); color: var(--accent-green); }
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px;
+            background: radial-gradient(circle at top right, #1a1a2e 0%, var(--bg-dark) 100%);
+        }
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .header-right { display: flex; align-items: center; gap: 24px; }
+        .action-icon { color: #a0a0a0; text-decoration: none; position: relative; }
+        .action-icon:hover { color: #fff; }
+        .notification-bell .badge {
+            position: absolute;
+            top: -8px; right: -10px;
+            background-color: var(--accent-red); color: #fff;
+            font-size: 0.65rem; font-weight: bold;
+            padding: 2px 6px; border-radius: 12px;
+        }
+        .user-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, #bb6bd9, #2f80ed);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+        }
+        .grid-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; align-items: start; }
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            min-width: 0;
+        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .card-title { font-size: 1.1rem; color: var(--text-secondary); }
+        .metric-card .value { font-size: 1.8rem; font-weight: bold; margin: 10px 0; }
+        .trend.up { color: var(--accent-green); }
+        .trend.down { color: var(--accent-red); }
+        .metric-icon { font-size: 2rem; opacity: 0.8; }
+        .card.income { border-bottom: 3px solid var(--accent-green); }
+        .card.expense { border-bottom: 3px solid var(--accent-red); }
+        .card.investment { border-bottom: 3px solid var(--accent-blue); }
+        .card.savings { border-bottom: 3px solid var(--accent-purple); }
+        .chart-container { position: relative; height: 250px; width: 100%; }
+        .grid-span-2 { grid-column: span 2; }
+        .grid-span-3 { grid-column: span 3; }
+        .grid-row-span-2 { grid-row: span 2; }
+        .alert-card { background: linear-gradient(135deg, var(--bg-card) 60%, rgba(255, 71, 87, 0.2) 100%); border-left: 4px solid var(--accent-red); }
+        .ai-card { background: linear-gradient(135deg, var(--bg-card) 60%, rgba(187, 107, 217, 0.2) 100%); border-left: 4px solid var(--accent-purple); }
+        .forecast-value { font-size: 2rem; color: var(--accent-blue); font-weight: bold; }
+        .recommendation-list { list-style: none; }
+        .recommendation-list li { display: flex; align-items: flex-start; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #333; }
+        .rec-icon {
+            background-color: rgba(0, 255, 157, 0.1);
+            color: var(--accent-green);
+            padding: 10px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        @media (max-width: 1024px) {
+            .grid-container { grid-template-columns: repeat(2, 1fr); }
+            .grid-span-3 { grid-column: span 2; }
+            .grid-span-2 { grid-column: span 1; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .grid-container { grid-template-columns: 1fr; }
+            .grid-span-3, .grid-span-2, .grid-row-span-2 { grid-column: span 1; grid-row: span 1; }
+            .chart-container { height: 200px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="brand"><i class="fas fa-brain"></i> MintrAIQ</div>
+            <a href="mock-dashboard.html" class="menu-item active"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="#" class="menu-item"><i class="fas fa-wallet"></i> Transactions</a>
+            <a href="#" class="menu-item"><i class="fas fa-bullseye"></i> Goals</a>
+            <a href="#" class="menu-item"><i class="fas fa-robot"></i> AI Advisor</a>
+            <a href="#" class="menu-item"><i class="fas fa-file-import"></i> Statements</a>
+            <div style="flex-grow:1;"></div>
+            <a href="intro.html" class="menu-item"><i class="fas fa-arrow-left"></i> Back to site</a>
+        </aside>
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <h2 style="margin: 0; font-size: 1.8rem;">Dashboard</h2>
+                    <p style="margin: 5px 0 0 0; color: #a0a0a0; font-size: 0.95rem;">Welcome back! This is live demo data.</p>
+                </div>
+                <div class="header-right">
+                    <a href="#" class="action-icon"><i class="fas fa-cog"></i></a>
+                    <div class="action-icon notification-bell"><i class="fas fa-bell"></i><span class="badge">3</span></div>
+                    <div class="user-avatar">R</div>
+                </div>
+            </header>
+            <div class="grid-container">
+                <div class="card metric-card income">
+                    <div class="card-header"><span class="card-title">Income</span><i class="fas fa-arrow-down-up metric-icon" style="color: var(--accent-green)"></i></div>
+                    <div class="value" id="current_income"></div>
+                    <div class="trend up"><i class="fas fa-arrow-up"></i> +12% from last month</div>
+                </div>
+                <div class="card metric-card expense">
+                    <div class="card-header"><span class="card-title">Expenses</span><i class="fas fa-receipt metric-icon" style="color: var(--accent-red)"></i></div>
+                    <div class="value" id="current_expense"></div>
+                    <div class="trend down"><i class="fas fa-arrow-up"></i> +5% higher than avg</div>
+                </div>
+                <div class="card metric-card investment">
+                    <div class="card-header"><span class="card-title">Investments</span><i class="fas fa-chart-pie metric-icon" style="color: var(--accent-blue)"></i></div>
+                    <div class="value" id="current_investments"></div>
+                    <div class="trend up"><i class="fas fa-arrow-up"></i> +8.5% YTD return</div>
+                </div>
+                <div class="card metric-card savings">
+                    <div class="card-header"><span class="card-title">Total Savings</span><i class="fas fa-vault metric-icon" style="color: var(--accent-purple)"></i></div>
+                    <div class="value" id="current_savings"></div>
+                    <div class="trend"><i class="fas fa-check"></i> On track for goal</div>
+                </div>
+                <div class="card grid-span-3">
+                    <div class="card-header"><span class="card-title">Income vs Expense Trend (6 Months)</span></div>
+                    <div class="chart-container"><canvas id="trendChart"></canvas></div>
+                </div>
+                <div class="card alert-card">
+                    <div class="card-header"><span class="card-title" style="color: var(--accent-red);"><i class="fas fa-exclamation-triangle"></i> HIGH EXPENSE ALERT</span></div>
+                    <ul id="high_expense_id"></ul>
+                    <button style="background: var(--accent-red); border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer;">View Details</button>
+                </div>
+                <div class="card grid-span-2">
+                    <div class="card-header"><span class="card-title">Expense Breakdown</span></div>
+                    <div class="chart-container" style="height: 220px;"><canvas id="breakdownChart"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Next Month Forecast</span></div>
+                    <p style="color: var(--text-secondary); margin-bottom: 10px;">Based on recurring bills & habits.</p>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                        <div><small>Est. Income</small><div id="est_income" style="color: var(--accent-green); font-weight: bold;"></div></div>
+                        <div><small>Est. Expense</small><div id="est_expenses" style="color: var(--accent-red); font-weight: bold;"></div></div>
+                    </div>
+                    <small>Predicted Savings: <span id="est_savings" style="color: var(--accent-green); font-weight: bold;"></span></small>
+                    <div style="height: 6px; background: #333; border-radius: 3px; margin-top: 8px;">
+                        <div id="savings_progress_fill" style="width: 65%; height: 100%; background: var(--accent-green); border-radius: 3px;"></div>
+                    </div>
+                </div>
+                <div class="card ai-card grid-row-span-2">
+                    <div class="card-header" style="color: var(--accent-purple)"><span class="card-title" style="color: inherit;"><i class="fas fa-robot"></i> AI Yearly Forecast</span></div>
+                    <p>Projected Net Worth Growth over next 12 months based on current trajectory.</p>
+                    <div class="chart-container" style="height: 180px; margin-top: 20px;"><canvas id="aiForecastChart"></canvas></div>
+                    <div style="text-align: center; margin-top: 15px;"><small>Eoy Projection</small><div class="forecast-value" id="eoy_projection"></div></div>
+                </div>
+                <div class="card grid-span-3">
+                    <div class="card-header"><span class="card-title">Smart Recommendations</span></div>
+                    <ul class="recommendation-list" id="recommendationList"></ul>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        if (window.Chart) {
+            Chart.defaults.color = '#a0a0a0';
+            Chart.defaults.borderColor = '#333';
+        }
+    </script>
+    <script src="static/dashboard.js"></script>
+</body>
+</html>

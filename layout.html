@@ -1,0 +1,685 @@
+ <!DOCTYPE html>
+
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ninja Finance Dashboard</title>
+    <!-- Include Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!----- LOGTO SDK - CAN BE REPLACE WITH B2C or any other SDK --->
+    <script src="https://jsd.onrender.com/npm/@logto/browser@latest/dist/index.min.js"></script>
+
+    <!-- Include Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e24;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-green: #00ff9d;
+            --accent-red: #ff4757;
+            --accent-blue: #2f80ed;
+            --accent-purple: #bb6bd9;
+            --accent-yellow: #f1c40f;
+            --sidebar-width: 260px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+
+
+        /* --- Global Layout --- */
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+
+        /* Sidebar (Laptop view) */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-card);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #333;
+            transition: transform 0.3s ease-in-out;
+            z-index: 100;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            background: radial-gradient(circle at top right, #1a1a2e 0%, var(--bg-dark) 100%);
+        }
+
+        /* --- Responsive Grid (Inherited by all pages) --- */
+
+        .grid-container {
+            display: grid;
+            /* This forces exactly 4 equal columns and stops the "guessing" loop */
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 20px;
+            align-items: start;
+            width: 100%;
+        }
+
+        .card {
+            /* This prevents cards from expanding past their grid lines */
+            min-width: 0;
+            overflow: hidden;
+        }
+
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+        }
+
+        /* --- Layout & Structure --- */
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            color: var(--accent-green);
+        }
+
+        .brand i { margin-right: 10px; }
+
+        .menu-item {
+            padding: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(0, 255, 157, 0.1);
+            color: var(--accent-green);
+        }
+
+        .menu-item i { margin-right: 15px; width: 20px; text-align: center; }
+
+
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h2 { font-weight: 300; }
+        .user-info { display: flex; align-items: center; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--accent-blue); margin-left: 15px; }
+
+        /* Mobile Toggle */
+        .mobile-toggle { display: none; font-size: 1.5rem; cursor: pointer; }
+
+
+        /* --- Cards & Widgets --- */
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 1px solid transparent;
+            animation: fadeUp 0.5s ease backwards;
+        }
+
+        .card:hover {
+
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .card-title { font-size: 1.1rem; color: var(--text-secondary); }
+
+        /* Metric Cards (Top Row) */
+        .metric-card .value { font-size: 1.8rem; font-weight: bold; margin: 10px 0; }
+        .metric-card .trend { font-size: 0.9rem; display: flex; align-items: center; }
+        .trend.up { color: var(--accent-green); }
+        .trend.down { color: var(--accent-red); }
+        .metric-icon { font-size: 2rem; opacity: 0.8; }
+
+        .card.income { border-bottom: 3px solid var(--accent-green); }
+        .card.expense { border-bottom: 3px solid var(--accent-red); }
+        .card.investment { border-bottom: 3px solid var(--accent-blue); }
+        .card.savings { border-bottom: 3px solid var(--accent-purple); }
+
+        /* Chart Cards */
+        .chart-container { position: relative; height: 250px; width: 100%; }
+        .grid-span-2 { grid-column: span 2; }
+        .grid-span-3 { grid-column: span 3; }
+        .grid-row-span-2 { grid-row: span 2; }
+
+        /* Alert & AI Cards ("Flashy" elements) */
+        .alert-card {
+            background: linear-gradient(135deg, var(--bg-card) 60%, rgba(255, 71, 87, 0.2) 100%);
+            border-left: 4px solid var(--accent-red);
+            animation: pulseAlert 2s infinite;
+        }
+        .alert-header { color: var(--accent-red); display: flex; align-items: center; font-weight: bold; }
+        .alert-header i { margin-right: 10px; }
+
+        .ai-card {
+            background: linear-gradient(135deg, var(--bg-card) 60%, rgba(187, 107, 217, 0.2) 100%);
+            border-left: 4px solid var(--accent-purple);
+        }
+
+        .forecast-value { font-size: 2rem; color: var(--accent-blue); font-weight: bold; }
+
+        /* Recommendations List */
+        .recommendation-list { list-style: none; }
+        .recommendation-list li {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+        .rec-icon {
+            background-color: rgba(0, 255, 157, 0.1);
+            color: var(--accent-green);
+            padding: 10px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulseAlert {
+            0% { box-shadow: 0 4px 15px rgba(255, 71, 87, 0.1); }
+            50% { box-shadow: 0 4px 25px rgba(255, 71, 87, 0.4); }
+            100% { box-shadow: 0 4px 15px rgba(255, 71, 87, 0.1); }
+        }
+
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 1024px) {
+            .grid-container { grid-template-columns: repeat(2, 1fr); }
+            .grid-span-3 { grid-column: span 2; }
+            .grid-span-2 { grid-column: span 1; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                height: 100%;
+                transform: translateX(-100%);
+            }
+            .sidebar.active { transform: translateX(0); }
+            .mobile-toggle { display: block; }
+            .grid-container { grid-template-columns: 1fr; }
+            .grid-span-3, .grid-span-2, .grid-row-span-2 { grid-column: span 1; grid-row: span 1; }
+            .chart-container { height: 200px; }
+        }
+        /* --- AI Nudge Widget Styles --- */
+.ai-nudge-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+    display: none; /* Hidden by default until JS finds data */
+    align-items: flex-end;
+    flex-direction: column;
+}
+
+/* The Pulsing Button */
+.ai-nudge-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+    color: white;
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(187, 107, 217, 0.4);
+    position: relative;
+    border: none;
+    transition: transform 0.2s ease;
+}
+
+.ai-nudge-btn:hover {
+    transform: scale(1.05);
+}
+
+/* The Radar Pulse Animation */
+.ai-nudge-btn::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--accent-purple);
+    z-index: -1;
+    animation: radarPulse 2s infinite;
+}
+
+@keyframes radarPulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* The Expanded Card */
+.ai-nudge-card {
+    background-color: var(--bg-card);
+    border: 1px solid rgba(187, 107, 217, 0.3);
+    border-radius: 15px;
+    width: 320px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none; /* Prevents clicks when hidden */
+}
+
+.ai-nudge-card.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.nudge-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--accent-purple);
+    font-weight: bold;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
+}
+
+.nudge-item {
+    margin-bottom: 12px;
+    padding-left: 10px;
+    border-left: 3px solid var(--accent-purple);
+}
+
+.nudge-merchant { color: var(--text-primary); font-weight: bold; font-size: 1.05rem;}
+.nudge-details { color: var(--text-secondary); font-size: 0.85rem; margin-top: 3px; }
+.nudge-amount { color: var(--accent-red); font-weight: bold; float: right; }
+        /* --- Restrict height and add scrolling to the list area --- */
+#aiNudgeContent {
+    max-height: 400px; /* Limits the height to roughly 5-6 items */
+    overflow-y: auto;  /* Adds a scrollbar only when needed */
+    padding-right: 10px; /* Adds breathing room so text doesn't hit the scrollbar */
+    margin-right: -5px;  /* Aligns the scrollbar nicely with the edge */
+}
+
+/* --- Custom Scrollbar Styling (Webkit) --- */
+#aiNudgeContent::-webkit-scrollbar {
+    width: 6px; /* Super thin, modern scrollbar */
+}
+
+#aiNudgeContent::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+#aiNudgeContent::-webkit-scrollbar-thumb {
+    background: var(--accent-purple); /* Matches your radar pulse color */
+    border-radius: 10px;
+}
+
+#aiNudgeContent::-webkit-scrollbar-thumb:hover {
+    background: #a058c0; /* Slightly lighter purple on hover */
+}
+
+       /* Container for the entire banner */
+.top-header {
+    display: flex;
+    justify-content: space-between; /* This is what pushes the icons to the far right! */
+    align-items: center; /* Vertically centers the right side with the left side */
+    width: 100%;
+    padding-bottom: 20px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Optional subtle line */
+}
+
+/* Right Side Icon Container */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 25px; /* Creates perfect, even spacing between all your icons */
+}
+
+/* Common Icon Styling */
+.action-icon {
+    color: #a0a0a0;
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    text-decoration: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.action-icon:hover {
+    color: #ffffff;
+}
+
+/* Specific Notification Badge Styling */
+.notification-bell .badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background-color: #ff4757; /* Accent Red */
+    color: white;
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 50%;
+    border: 2px solid #121212; /* Creates a cutout effect against the dark background */
+}
+
+/* Logout Button */
+.logout-btn {
+    color: #ff4757;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity 0.2s;
+}
+
+.logout-btn:hover {
+    opacity: 0.8;
+}
+
+/* Avatar Styling */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #bb6bd9, #2f80ed); /* Ninja Purple to Blue */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 10px rgba(47, 128, 237, 0.3);
+    transition: transform 0.2s ease;
+}
+
+.user-avatar:hover {
+    transform: scale(1.05);
+}
+        /* Just a reminder of the animation CSS you need in your main stylesheet */
+.empty-state-card {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: var(--accent-green, #27ae60); /* Using green here for growth/money! */
+    animation: subtlePulse 2.5s infinite ease-in-out;
+}
+
+@keyframes subtlePulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; text-shadow: 0 0 20px rgba(39, 174, 96, 0.4); }
+    100% { transform: scale(1); opacity: 0.8; }
+}
+        /* Add this to your main stylesheet */
+.empty-state-wrapper {
+    margin-top: 20px;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.ai-pulse {
+    font-size: 4rem;
+    /* Matching the purple from your UI */
+    color: #a855f7;
+    margin-bottom: 20px;
+    animation: aiThinking 2.5s infinite ease-in-out;
+}
+
+@keyframes aiThinking {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; text-shadow: 0 0 25px rgba(168, 85, 247, 0.6); }
+    100% { transform: scale(1); opacity: 0.8; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="brand">
+            <i class="fas fa-user-ninja"></i> Ninja Finance
+        </div>
+        <!--div id="auth-nav-container" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #333;"></div-->
+        <a href="{{ url_for('home') }}" class="menu-item active"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="{{ url_for('expenses') }}" class="menu-item"><i class="fas fa-wallet"></i> Transactions</a>
+        <!-- a href="{{ url_for('monthly') }}" class="menu-item"><i class="fas fa-wallet"></i> Search By Date</a>-->
+        <a href="#" class="menu-item"><i class="fas fa-piggy-bank"></i> Investments</a>
+        <a href="/account/goals" class="menu-item"><i class="fas fa-bullseye"></i> Goals</a>
+        <a href="{{ url_for('cpi_guru') }}" class="menu-item"><i class="fas fa-robot"></i> Personal CPI Chart</a>
+
+        <a href="{{ url_for('budget_planner') }}" class="menu-item"><i class="fas fa-robot"></i> AI Advisor</a>
+        <a href="{{ url_for('weekly_planner') }}" class="menu-item"><i class="fas fa-robot"></i> Weekly Budget Planner</a>
+       <a href="{{ url_for('financial_score') }}" class="menu-item"><i class="fas fa-robot"></i> Financial Discipline</a>
+
+
+        <div style="flex-grow: 1"></div>
+        <a href="{{ url_for('camera') }}" class="menu-item">
+            <i class="fa-solid fa-file-invoice-dollar"></i> Scan Receipts
+        </a>
+        <a href="{{ url_for('upload_receipts') }}" class="menu-item">
+            <i class="fa-solid fa-file-invoice-dollar"></i> Upload Receipts
+        </a>
+        <a href="{{ url_for('upload') }}" class="menu-item">
+            <i class="fa-solid fa-file-import"></i> Bank Statements
+        </a>
+        <a href="#" class="menu-item"><i class="fas fa-cog"></i> Settings</a>
+    </nav>
+
+        <main class="main-content">
+            <header>
+                <div class="top-header">
+    <div class="header-left">
+        <h2 style="margin: 0; font-size: 1.8rem; color: white;">Dashboard</h2>
+        <p class="welcome-text" style="margin: 5px 0 0 0; color: #a0a0a0; font-size: 0.95rem;">Welcome back! Ram.</p>
+    </div>
+
+    <div class="header-right">
+        <a href="/profile" class="action-icon" title="Settings">
+            <i class="fas fa-cog"></i>
+        </a>
+
+        <div class="action-icon notification-bell" title="Notifications">
+            <i class="fas fa-bell"></i>
+            <span class="badge">3</span>
+        </div>
+
+        <a href="/logout" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+
+        <a href="{{ url_for('account_settings', tab='profile') }}" style="text-decoration: none;">
+            <div class="user-avatar" title="User Profile">
+                R
+            </div>
+        </a>
+    </div>
+</div>
+            </header>
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+<div class="ai-nudge-container" id="aiNudgeContainer">
+    <div class="ai-nudge-card" id="aiNudgeCard">
+        <div class="nudge-header">
+            <span><i class="fas fa-robot"></i> AI Reserve Alert</span>
+            <i class="fas fa-times" style="cursor: pointer; color: var(--text-secondary);" onclick="toggleNudgeCard()"></i>
+        </div>
+        <div id="aiNudgeContent">
+            </div>
+    </div>
+
+    <button class="ai-nudge-btn" onclick="toggleNudgeCard()">
+        <i class="fas fa-bolt"></i>
+    </button>
+</div>
+</body>
+<script>
+    // 1. Grab the token passed from Flask Jinja
+    // Using a default filter ensures it doesn't break if token is missing
+    const isLoggedIn = {{ 'true' if is_logged_in else 'false' }};
+    // 2. The Definitive Secure Fetch Wrapper
+    window.fetchSecureAPI = async function(endpoint, method, body) {
+        console.log(method, body,endpoint)
+        const options = {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            // CRITICAL: This line forces the browser to attach your HttpOnly cookie
+            credentials: 'include'
+        };
+
+        if (body && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+            options.body = JSON.stringify(body);
+        }
+
+        try {
+            const response = await fetch(endpoint, options);
+            // THE INTERCEPTOR: Handle expired tokens
+            if (response.status === 401 && !isRetry) {
+                console.warn("Token expired. Attempting silent background refresh...");
+
+                // Call our new Flask refresh route
+                const refreshResponse = await fetch('/auth/refresh', { method: 'POST' });
+
+                if (refreshResponse.ok) {
+                    console.log("Session refreshed successfully! Retrying API call...");
+                    // Try the exact same request again, setting isRetry to true
+                    return await window.fetchSecureAPI(endpoint, method, body, true);
+                } else {
+                    console.error("Refresh token expired. Forcing logout.");
+                    window.location.href = '/login';
+                    return null;
+                }
+            }
+
+            // Catch the Tier restriction
+            if (response.status === 403) {
+                const errorData = await response.json();
+                // Trigger a beautiful "Upgrade to Premium" modal instead of crashing
+                // If it's a 403, the user needs to upgrade. Redirect them to the profile page.
+                window.location.href = '/profile?upgrade_required=true';
+
+                return null; // Stop execution
+            }
+
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status} - ${response.statusText}`);
+            }
+
+            // Automatically parse and return the JSON
+            return await response.json();
+
+        } catch (error) {
+            console.error(`Secure API Fetch Failed for ${endpoint}:`, error);
+            // Rethrow the error so the calling script knows it failed
+            throw error;
+        }
+    };
+    console.log(isLoggedIn)
+    document.addEventListener('DOMContentLoaded', () => {
+        const authContainer = document.getElementById('auth-nav-container');
+        const greetingContainer = document.getElementById('user-greeting-container');
+
+        // 2. Check if token exists and is valid
+        if (authContainer && greetingContainer) {
+            if (isLoggedIn) {
+                authContainer.innerHTML = `<a href="{{ url_for('logout') }}" class="menu-item" style="color: var(--accent-red);"><i class="fas fa-sign-out-alt"></i>Logout</a>`;
+            } else {
+                authContainer.innerHTML = `<a href="{{ url_for('login') }}" class="menu-item" style="color: var(--accent-green);"><i class="fas fa-sign-in-alt"></i>Login</a>`;
+                greetingContainer.innerHTML = `<p style="color: var(--text-secondary)">Welcome, Guest.</p>`;
+            }
+        }
+
+        // Mobile Sidebar Logic
+        const mobileToggle = document.getElementById('mobileToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (mobileToggle && sidebar) {
+            mobileToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768 && !sidebar.contains(e.target) && e.target !== mobileToggle && !mobileToggle.contains(e.target)) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        }
+    });
+
+
+
+</script>
+</html>

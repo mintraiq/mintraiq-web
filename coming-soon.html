@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — Coming soon</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #121212;
+            --card: #1e1e24;
+            --green: #00ff9d;
+            --red: #ff4757;
+            --blue: #2f80ed;
+            --purple: #bb6bd9;
+            --muted: #a0a0a0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', system-ui, sans-serif;
+            min-height: 100vh;
+            background: radial-gradient(ellipse 100% 80% at 50% -20%, rgba(0, 255, 157, 0.08), transparent 50%),
+                radial-gradient(ellipse 60% 50% at 100% 100%, rgba(47, 128, 237, 0.1), transparent 45%),
+                var(--bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 20px;
+            text-align: center;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--green);
+            text-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
+            margin-bottom: 20px;
+        }
+        .card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 40px 28px 36px;
+            max-width: 440px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 0 1px rgba(0, 255, 157, 0.15), 0 20px 50px rgba(0, 0, 0, 0.5),
+                0 0 60px rgba(0, 255, 157, 0.08);
+        }
+        .icon-wrap {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 22px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, rgba(0, 255, 157, 0.15), rgba(47, 128, 237, 0.2));
+            color: var(--green);
+            animation: pulse 2.2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.25); }
+            50% { box-shadow: 0 0 0 12px rgba(0, 255, 157, 0); }
+        }
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            line-height: 1.25;
+        }
+        h1 span { color: var(--green); }
+        p.lead {
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+        .dots span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: bounce 1.2s ease infinite;
+        }
+        .dots span:nth-child(1) { background: var(--green); animation-delay: 0s; }
+        .dots span:nth-child(2) { background: var(--red); animation-delay: 0.15s; }
+        .dots span:nth-child(3) { background: var(--blue); animation-delay: 0.3s; }
+        .dots span:nth-child(4) { background: var(--purple); animation-delay: 0.45s; }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); opacity: 0.5; }
+            50% { transform: translateY(-6px); opacity: 1; }
+        }
+        a.home {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--bg);
+            background: var(--green);
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 14px 26px;
+            border-radius: 12px;
+            box-shadow: 0 0 24px rgba(0, 255, 157, 0.35);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        a.home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 32px rgba(0, 255, 157, 0.5);
+        }
+        footer {
+            margin-top: 36px;
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+        footer a { color: var(--blue); text-decoration: none; font-weight: 600; }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="badge"><i class="fas fa-hard-hat"></i> Under construction</div>
+    <div class="card">
+        <div class="icon-wrap"><i class="fas fa-mobile-screen-button"></i></div>
+        <h1 id="titleLine">MintrAIQ on <span id="storeName">mobile</span></h1>
+        <p class="lead" id="desc">
+            We are finishing the native apps. Soon you will download from the store links on our site—same neon-smart experience, in your pocket.
+        </p>
+        <div class="dots" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <a class="home" href="intro.html"><i class="fas fa-arrow-left"></i> Back to MintrAIQ</a>
+    </div>
+    <footer>
+        Stub page · Replace store URLs in your main site when apps are live ·
+        <a href="designs.html">Compare landing designs</a>
+    </footer>
+    <script>
+        (function () {
+            var q = new URLSearchParams(window.location.search);
+            var from = (q.get('from') || q.get('store') || '').toLowerCase();
+            var name = document.getElementById('storeName');
+            var title = document.getElementById('titleLine');
+            var desc = document.getElementById('desc');
+            if (from === 'google-play' || from === 'android' || from === 'play') {
+                name.textContent = 'Google Play';
+                document.title = 'MintrAIQ — Google Play (coming soon)';
+                desc.textContent = 'The Android app is in active development. This placeholder page will become your real Play Store listing link when the build is approved.';
+            } else if (from === 'app-store' || from === 'ios' || from === 'apple') {
+                name.textContent = 'the App Store';
+                document.title = 'MintrAIQ — App Store (coming soon)';
+                desc.textContent = 'The iOS app is in active development. This placeholder page will become your real App Store link when the build is ready for download.';
+            } else if (from === 'get-started' || from === 'signup' || from === 'signin' || from === 'web' || from === 'login') {
+                name.textContent = 'web access';
+                document.title = 'MintrAIQ — Web app access (coming soon)';
+                title.innerHTML = 'Web app access is <span>coming soon</span>';
+                desc.textContent = 'This static link is safe for CDN hosting. Replace it with your production auth URL when the login service is ready.';
+            } else {
+                name.textContent = 'this link';
+                title.innerHTML = 'This page is <span>almost ready</span>';
+                desc.textContent = 'You followed a link that is not live yet—mobile stores, beta invites, or partner pages may open here until launch.';
+            }
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — Landing design gallery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #121212;
+            --card: #1e1e24;
+            --g: #00ff9d;
+            --r: #ff4757;
+            --b: #2f80ed;
+            --p: #bb6bd9;
+            --m: #a0a0a0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            padding: 40px 22px 60px;
+        }
+        .inner { max-width: 900px; margin: 0 auto; }
+        h1 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        h1 span { color: var(--g); text-shadow: 0 0 20px rgba(0, 255, 157, 0.4); }
+        .sub { color: var(--m); margin-bottom: 36px; font-size: 0.95rem; line-height: 1.5; }
+        .grid {
+            display: grid;
+            gap: 18px;
+        }
+        @media (min-width: 640px) {
+            .grid { grid-template-columns: 1fr 1fr; }
+        }
+        a.tile {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 22px 20px;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+        a.tile:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+        }
+        a.tile:nth-child(1) { border-bottom: 3px solid var(--g); }
+        a.tile:nth-child(1):hover { border-color: rgba(0,255,157,0.4); box-shadow: 0 0 30px rgba(0,255,157,0.12); }
+        a.tile:nth-child(2) { border-bottom: 3px solid var(--r); }
+        a.tile:nth-child(2):hover { box-shadow: 0 0 28px rgba(255,71,87,0.15); }
+        a.tile:nth-child(3) { border-bottom: 3px solid var(--b); }
+        a.tile:nth-child(3):hover { box-shadow: 0 0 28px rgba(47,128,237,0.2); }
+        a.tile:nth-child(4) { border-bottom: 3px solid var(--p); }
+        a.tile:nth-child(4):hover { box-shadow: 0 0 28px rgba(187,107,217,0.2); }
+        .tile h2 { font-size: 1.05rem; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+        .tile p { font-size: 0.82rem; color: var(--m); line-height: 1.45; }
+        .tile .go { margin-top: 14px; font-size: 0.78rem; font-weight: 700; color: var(--g); }
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--m);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 28px;
+        }
+        .back:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="inner">
+        <a class="back" href="intro.html"><i class="fas fa-arrow-left"></i> Default landing</a>
+        <h1>Pick a <span>landing</span> vibe</h1>
+        <p class="sub">Four static options: the original gradient brand page, plus three neon layouts that match your dashboard energy (green / red / blue / purple). Open each in a new tab, compare, then rename your favorite to ship.</p>
+        <div class="grid">
+            <a class="tile" href="intro.html">
+                <h2><i class="fas fa-gem" style="color:var(--b)"></i> Original · Brand gradient</h2>
+                <p>Teal-to-blue hero, softer glows, logo-forward. Best if you want the illustrated MintrAIQ identity front and center.</p>
+                <span class="go">Open intro.html →</span>
+            </a>
+            <a class="tile" href="intro-neon-a.html">
+                <h2><i class="fas fa-bolt" style="color:var(--g)"></i> Neon A · Billboard</h2>
+                <p>Massive headline, metric-style feature row with dashboard bottom-border colors, store badges up front.</p>
+                <span class="go">Open Neon A →</span>
+            </a>
+            <a class="tile" href="intro-neon-b.html">
+                <h2><i class="fas fa-columns" style="color:var(--r)"></i> Neon B · Split screen</h2>
+                <p>Copy on the left, logo in a neon frame on the right—great for wide desktops and “product + story” balance.</p>
+                <span class="go">Open Neon B →</span>
+            </a>
+            <a class="tile" href="intro-neon-c.html">
+                <h2><i class="fas fa-grip" style="color:var(--p)"></i> Neon C · Bento grid</h2>
+                <p>Asymmetric tiles, alert-style insight strip, cyber fin-tech feel—closest to living inside the dashboard UI.</p>
+                <span class="go">Open Neon C →</span>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

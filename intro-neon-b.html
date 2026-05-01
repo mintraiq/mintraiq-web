@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — Neon Split</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #121212;
+            --card: #1e1e24;
+            --g: #00ff9d;
+            --r: #ff4757;
+            --b: #2f80ed;
+            --p: #bb6bd9;
+            --m: #a0a0a0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+        }
+        .page {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 100vh;
+        }
+        @media (max-width: 900px) {
+            .page { grid-template-columns: 1fr; }
+        }
+        .left {
+            padding: 36px 40px 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+        @media (min-width: 901px) {
+            .left { margin: 0; padding-left: max(40px, calc(50vw - 520px)); }
+        }
+        .eyebrow {
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.25em;
+            color: var(--r);
+            margin-bottom: 18px;
+            text-shadow: 0 0 18px rgba(255,71,87,0.45);
+        }
+        h1 {
+            font-size: clamp(1.85rem, 3.8vw, 2.75rem);
+            font-weight: 800;
+            line-height: 1.12;
+            letter-spacing: -0.03em;
+            margin-bottom: 20px;
+        }
+        h1 em {
+            font-style: normal;
+            color: var(--g);
+            text-shadow: 0 0 28px rgba(0,255,157,0.35);
+        }
+        .left > p {
+            color: var(--m);
+            font-size: 1rem;
+            line-height: 1.65;
+            margin-bottom: 28px;
+        }
+        .bullets { list-style: none; margin-bottom: 32px; }
+        .bullets li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        .bullets i {
+            margin-top: 3px;
+            color: var(--b);
+            filter: drop-shadow(0 0 8px rgba(47,128,237,0.5));
+        }
+        .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 22px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--p), var(--b));
+            color: #fff;
+            box-shadow: 0 8px 28px rgba(187,107,217,0.35);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(47,128,237,0.4); }
+        .btn-line {
+            border: 2px solid rgba(0,255,157,0.5);
+            color: var(--g);
+            background: rgba(0,255,157,0.06);
+        }
+        .btn-line:hover { box-shadow: 0 0 24px rgba(0,255,157,0.2); }
+        .stores-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .stores-row span { font-size: 0.7rem; color: var(--m); font-weight: 700; letter-spacing: 0.08em; margin-right: 4px; }
+        .mini-store {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-decoration: none;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+        .mini-store.gp { background: rgba(0,255,157,0.12); border-color: rgba(0,255,157,0.35); }
+        .mini-store.as { background: rgba(47,128,237,0.15); border-color: rgba(47,128,237,0.4); }
+        .mini-store:hover { transform: scale(1.02); }
+        .subnav { margin-top: auto; padding-top: 32px; font-size: 0.78rem; }
+        .subnav a { color: var(--m); text-decoration: none; font-weight: 600; margin-right: 16px; }
+        .subnav a:hover { color: var(--g); }
+
+        .right {
+            background: radial-gradient(ellipse at 70% 40%, rgba(0,255,157,0.15), transparent 50%),
+                radial-gradient(ellipse at 30% 70%, rgba(255,71,87,0.1), transparent 45%),
+                linear-gradient(160deg, #16161c 0%, var(--bg) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 32px;
+            position: relative;
+            border-left: 1px solid rgba(255,255,255,0.06);
+        }
+        @media (max-width: 900px) {
+            .right { border-left: none; border-top: 1px solid rgba(255,255,255,0.06); min-height: 420px; }
+        }
+        .frame {
+            position: relative;
+            padding: 16px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, rgba(0,255,157,0.25), rgba(47,128,237,0.25), rgba(187,107,217,0.2));
+            box-shadow: 0 0 60px rgba(0,255,157,0.15), 0 0 80px rgba(47,128,237,0.1);
+        }
+        .frame-inner {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 28px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .frame img {
+            max-width: min(340px, 85vw);
+            display: block;
+        }
+        .float-card {
+            position: absolute;
+            bottom: 18%;
+            left: 8%;
+            background: var(--card);
+            border-left: 4px solid var(--r);
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 20px rgba(255,71,87,0.2);
+            max-width: 200px;
+            animation: float 3s ease-in-out infinite;
+        }
+        .float-card span { display: block; color: var(--r); font-size: 0.65rem; margin-bottom: 4px; letter-spacing: 0.06em; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        @media (max-width: 900px) {
+            .float-card { left: 50%; transform: translateX(-50%); bottom: 12%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="left">
+            <p class="eyebrow">PERSONAL FINANCE · REIMAGINED</p>
+            <h1>Your money, <em>laser-lit</em> and finally honest.</h1>
+            <p>MintrAIQ reads receipts and statements so you do not have to. Same neon energy as your dashboard—alerts, forecasts, and discipline nudges in one flow.</p>
+            <ul class="bullets">
+                <li><i class="fas fa-bolt"></i> High-spend warnings before the damage is done</li>
+                <li><i class="fas fa-bolt"></i> Weekly &amp; monthly plans that fit real life</li>
+                <li><i class="fas fa-bolt"></i> CPI, inflation, and grocery context baked in</li>
+            </ul>
+            <div class="actions">
+                <a class="btn btn-primary" href="get-started.html"><i class="fas fa-unlock"></i> Sign in</a>
+                <a class="btn btn-line" href="mock-dashboard.html"><i class="fas fa-table-columns"></i> Open dashboard</a>
+            </div>
+            <div class="stores-row">
+                <span>MOBILE</span>
+                <a class="mini-store gp" href="coming-soon.html?from=google-play"><i class="fab fa-google-play"></i> Play</a>
+                <a class="mini-store as" href="coming-soon.html?from=app-store"><i class="fab fa-apple"></i> App Store</a>
+            </div>
+            <div class="subnav">
+                <a href="designs.html">Compare layouts</a>
+                <a href="intro.html">Brand gradient version</a>
+                <a href="intro-neon-c.html">Bento layout →</a>
+            </div>
+        </div>
+        <div class="right">
+            <div class="frame">
+                <div class="frame-inner">
+                    <img src="assets/mintraiq-logo.png" alt="MintrAIQ logo">
+                </div>
+            </div>
+            <div class="float-card">
+                <span>HIGH EXPENSE ALERT</span>
+                Dining out is 40% over your 4-week average—tap to rebalance.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

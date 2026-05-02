@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+
+
+
+{% extends "layout.html" %}
+
+{% block page_title %}Search Transactions{% endblock %}
+
+{% block content %}
+<style>
+    /* Aligning with Ninja Dashboard Theme */
+    .filter-section {
+        margin-bottom: 30px;
+    }
+
+    .ninja-form {
+        display: flex;
+        gap: 20px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    /* The 'name' attribute is critical for sending form data */
+    .ninja-input {
+        background-color: var(--bg-dark);
+        border: 1px solid #333;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+    .ninja-input:focus { border-color: var(--accent-green); }
+
+    /* Custom Styled Date Inputs */
+    .ninja-date-input {
+        background-color: var(--bg-dark);
+        border: 1px solid #333;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+    .ninja-date-input:focus {
+        border-color: var(--accent-green);
+    }
+
+    /* Search Button to match Dashboard UI */
+    .btn-ninja-search {
+        background-color: var(--accent-green);
+        color: var(--bg-dark);
+        border: none;
+        padding: 11px 25px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: transform 0.2s;
+    }
+
+    .btn-ninja-search:hover {
+        transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+        .ninja-form { flex-direction: column; align-items: stretch; }
+        .btn-ninja-search { justify-content: center; }
+    }
+    /* Table Container & Scroll for Mobile */
+    .table-responsive-ninja {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 15px;
+    }
+
+    /* Override DataTables/Bootstrap Defaults */
+    #{{ table_id }}_wrapper {
+        color: var(--text-primary);
+        padding: 10px;
+    }
+
+    .ninja-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        background-color: transparent !important;
+    }
+
+    .ninja-table th {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: var(--text-secondary) !important;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        padding: 15px !important;
+        border-bottom: 1px solid #333 !important;
+    }
+
+    .ninja-table td {
+        padding: 15px !important;
+        border-bottom: 1px solid #222 !important;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+
+    /* Search Input Styling */
+    .dataTables_filter input {
+        background: var(--bg-dark) !important;
+        border: 1px solid #333 !important;
+        color: white !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+        margin-left: 10px;
+    }
+
+    /* Pagination Styling */
+    .paginate_button {
+        background: transparent !important;
+        border: 1px solid #333 !important;
+        color: var(--text-secondary) !important;
+        border-radius: 5px !important;
+        margin: 0 3px;
+    }
+
+    .paginate_button.current {
+        background: rgba(0, 255, 157, 0.1) !important;
+        border-color: var(--accent-green) !important;
+        color: var(--accent-green) !important;
+    }
+
+    /* Export Button styling */
+    .btn-ninja-export {
+        background: var(--accent-blue);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        cursor: pointer;
+    }
+
+    .btn-ninja-export:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(47, 128, 237, 0.4);
+    }
+
+    /* Pagination Styling */
+    .paginate_button {
+        background: transparent !important;
+        border: 1px solid #333 !important;
+        color: var(--text-secondary) !important;
+        border-radius: 5px !important;
+        margin: 0 3px;
+    }
+
+    .paginate_button.current {
+        background: rgba(0, 255, 157, 0.1) !important;
+        border-color: var(--accent-green) !important;
+        color: var(--accent-green) !important;
+    }
+    /* --- Fix for Horizontal Pagination --- */
+        .dataTables_paginate {
+            margin-top: 15px !important;
+            display: flex !important;
+            justify-content: flex-end !important;
+        }
+
+        /* Force list items to sit in a row */
+        .dataTables_paginate ul.pagination {
+            display: flex !important;
+            flex-direction: row !important;
+            list-style: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Style the individual page buttons */
+        .paginate_button {
+            background: transparent !important;
+            border: 1px solid #333 !important;
+            color: var(--text-secondary) !important;
+            padding: 5px 12px !important;
+            margin-left: 5px !important;
+            border-radius: 4px !important;
+            cursor: pointer !important;
+            text-decoration: none !important;
+        }
+
+        /* Highlight the active page */
+        .paginate_button.active, .paginate_button.current {
+            background: rgba(0, 255, 157, 0.1) !important;
+            border-color: var(--accent-green) !important;
+            color: var(--accent-green) !important;
+        }
+
+        /* Hide default bullet points */
+        .dataTables_paginate li {
+            list-style: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+
+</style>
+<div class="grid-container">
+
+  <div class="card grid-span-3 filter-card">
+        <div class="card-header">
+            <span class="card-title"><i class="fas fa-calendar-alt"></i> Date Range Filter</span>
+        </div>
+
+       <form action='/monthly' method="POST" class="ninja-form">
+
+       <div class="form-group">
+           <div class="button-container">
+                <label>Start Date</label>
+                <input type="date" class="ninja-input" placeholder="Start Date" name="startDate" id="startDate">
+
+                <label>End Date</label>
+                <input type="date" placeholder="End Date" class="ninja-input" name="endDate" id="endDate">
+
+            <button type="submit" class="btn-ninja-search" id="filterBtn">
+                <i class="fas fa-search"></i> Search
+            </button>
+</div>
+       </div>
+
+
+       </form>
+   </div>
+
+</div>
+{% if success %}
+
+   <div class="grid-container">
+    <div class="card grid-span-3" style="animation-delay: 0.1s">
+        <div class="card-header">
+            <span class="card-title"><i class="fas fa-list"></i> {{ table_title }}</span>
+            <div class="trend up"><i class="fas fa-file-excel"></i> Ready to Export</div>
+        </div>
+
+        <div class="table-responsive-ninja">
+            <table id="{{ table_id }}" class="ninja-table table" style="width:100%">
+                <thead>
+                    <tr>
+                        {% for column in columns %}
+                        <th>{{ column|capitalize }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </div>
+    </div>
+   </div>
+{% endif %}
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+
+{{ script|safe }}
+<script>
+    window.onload = function (){
+     var date = new Date();
+
+     var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+     var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+     document.getElementById("startDate").value = firstDay.getFullYear() + '-' + ('0' + (firstDay.getMonth() + 1)).slice(-2) + '-' + ('0' + firstDay.getDate()).slice(-2);
+     var date = new Date();
+     var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+     document.getElementById("endDate").value = lastDay.getFullYear() + '-' + ('0' + (lastDay.getMonth() + 1)).slice(-2) + '-' + ('0' + lastDay.getDate()).slice(-2);
+
+   }
+</script>
+
+{% endblock content %}

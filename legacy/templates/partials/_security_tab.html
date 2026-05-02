@@ -1,0 +1,45 @@
+<div class="page-header">
+            <h1>Security Settings</h1>
+            <p>Manage your password, two-factor authentication, and account access.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-key"></i><h3>Change Password</h3>
+            </div>
+            <form id="securityForm">
+                <div style="display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 400px;">
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        <input type="password" id="currentPassword" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="password" id="newPassword" class="form-control" required minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <input type="password" id="confirmPassword" class="form-control" required minlength="8">
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button type="submit" class="btn-save">Update Password</button>
+                    <span id="securityStatus" style="color: var(--accent-green); margin-left: 10px; display: none;">Password Updated!</span>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-mobile-alt"></i><h3>Multi-Factor Authentication (MFA)</h3>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                <div>
+                    <h4 style="margin: 0 0 5px 0;">Authenticator App</h4>
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Add an extra layer of security to your account.</p>
+                </div>
+                <button type="button" onclick="alert('Redirecting to Auth setup...')" class="btn-save" style="background: var(--bg-card); border: 1px solid var(--accent-blue);">
+                    Enable MFA
+                </button>
+            </div>
+        </div>

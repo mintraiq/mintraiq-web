@@ -1,0 +1,217 @@
+{% extends "layout.html" %}
+{% block page_title %}Upload Bank Statement{% endblock %}
+
+{% block content %}
+<style>
+    .upload-area {
+        border: 2px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 50px 20px;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .upload-area:hover, .upload-area.dragover {
+        border-color: var(--accent-blue);
+        background: rgba(47, 128, 237, 0.05);
+    }
+
+    .upload-icon {
+        font-size: 4rem;
+        color: var(--accent-blue);
+        margin-bottom: 20px;
+    }
+
+    /* Hidden actual file input */
+    #statementFile {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        opacity: 0; cursor: pointer;
+    }
+
+    /* Results Card Styling */
+    .result-card {
+        background: linear-gradient(135deg, rgba(0,255,157,0.1), rgba(0,0,0,0.2));
+        border: 1px solid var(--accent-green);
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 25px;
+        display: none;
+    }
+
+    .result-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-top: 15px;
+    }
+    
+    .result-item span {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        display: block;
+    }
+    .result-item strong {
+        color: white;
+        font-size: 1.1rem;
+    }
+</style>
+
+<div class="grid-container" style="display: flex; justify-content: center; align-items: flex-start; min-height: 70vh;">
+    <div class="card" style="max-width: 600px; width: 100%;">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-file-import"></i> Upload Bank Statement</h3>
+        </div>
+
+       <form id="uploadForm">
+            <div class="form-group" style="margin-bottom: 20px; text-align: left;">
+                <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.9rem;">Select Bank</label>
+                <select id="bankSelect" class="form-control" required>
+                    <option value="" disabled selected>Choose the statement source</option>
+                    <option value="ASB">ASB</option>
+                    <option value="ANZ">ANZ</option>
+                    <option value="BNZ">BNZ</option>
+                    <option value="Westpac">Westpac</option>
+                    <option value="Kiwibank">Kiwibank</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="upload-area" id="dropZone">
+                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                <h3 style="color: white; margin-bottom: 10px;">Drag & Drop your CSV here</h3>
+                <p style="color: var(--text-secondary);">or click to browse files</p>
+                <input type="file" id="statementFile" accept=".csv, .xls, .xlsx" required>
+            </div>
+
+            <div id="filePreview" style="display: none; margin-top: 15px; text-align: center; color: var(--accent-blue); font-weight: bold;">
+                <i class="fas fa-file-csv"></i> <span id="fileNameDisplay">No file selected</span>
+            </div>
+
+            <button type="submit" id="uploadBtn" class="btn-save" style="width: 100%; margin-top: 25px; padding: 15px; font-size: 1.1rem; background: var(--accent-blue); border: none; border-radius: 8px; color: white; cursor: pointer; display: none;">
+                Process Statement
+            </button>
+        </form>
+
+        <div id="resultCard" class="result-card">
+            <h3 style="color: var(--accent-green); margin-bottom: 5px;"><i class="fas fa-check-circle"></i> Upload Successful</h3>
+            <p id="resultMessage" style="color: var(--text-secondary);"></p>
+            
+            <div class="result-grid">
+                <div class="result-item">
+                    <span>Bank</span>
+                    <strong id="resBank">-</strong>
+                </div>
+                <div class="result-item">
+                    <span>Format</span>
+                    <strong id="resFormat" style="text-transform: uppercase;">-</strong>
+                </div>
+                <div class="result-item">
+                    <span>Transactions Processed</span>
+                    <strong id="resCount">-</strong>
+                </div>
+                <div class="result-item">
+                    <span>Statement ID</span>
+                    <strong id="resId" style="font-family: monospace; font-size: 0.9rem;">-</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('statementFile');
+    const dropZone = document.getElementById('dropZone');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const filePreview = document.getElementById('filePreview');
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const resultCard = document.getElementById('resultCard');
+
+    // UI: File Selection Handling
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            fileNameDisplay.textContent = this.files[0].name;
+            filePreview.style.display = 'block';
+            uploadBtn.style.display = 'block';
+            resultCard.style.display = 'none'; // Hide previous results
+            dropZone.style.borderColor = 'var(--accent-green)';
+        }
+    });
+
+    // Helper: Extract secure cookie token
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    const bankSelect = document.getElementById('bankSelect'); // Grab the new select element
+
+    // Submit Handling
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (!fileInput.files[0]) return;
+        if (!bankSelect.value) {
+            alert("Please select a bank first.");
+            return;
+        }
+
+        // UI: Loading State
+        const originalBtnText = uploadBtn.innerHTML;
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Categorizing & Saving...';
+        uploadBtn.disabled = true;
+
+        // Prepare FormData
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('bank', bankSelect.value); // <--- THIS IS THE MAGIC LINE
+
+        const token = getCookie('ninja_access_token');
+
+        try {
+            const response = await fetch('http://localhost:8000/upload-statement', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`Upload failed: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            // Handle success response
+            if (data.success) {
+                document.getElementById('resultMessage').textContent = data.message;
+                document.getElementById('resBank').textContent = data.bank;
+                document.getElementById('resFormat').textContent = data.format;
+                document.getElementById('resCount').textContent = data.count;
+                document.getElementById('resId').textContent = data.statement_id;
+
+                resultCard.style.display = 'block';
+                uploadBtn.style.display = 'none';
+                filePreview.style.display = 'none';
+                dropZone.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+
+                fileInput.value = '';
+                // Optionally reset the bank dropdown: bankSelect.value = '';
+            }
+
+        } catch (error) {
+            console.error("Upload Error:", error);
+            alert("An error occurred during upload. Please check console.");
+        } finally {
+            uploadBtn.innerHTML = originalBtnText;
+            uploadBtn.disabled = false;
+        }
+    });
+</script>
+{% endblock %}

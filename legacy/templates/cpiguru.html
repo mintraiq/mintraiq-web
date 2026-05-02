@@ -1,0 +1,309 @@
+{% extends "layout.html" %}
+
+{% block page_title %}CPI Guru: Personal Inflation Tracker{% endblock %}
+
+{% block content %}
+<style>
+    /* CRITICAL LAYOUT FIXES: Forces cards to span the correct web columns */
+    .grid-span-4 { grid-column: span 4; }
+    .grid-span-2 { grid-column: span 2; }
+    .grid-span-1 { grid-column: span 1; }
+
+    .guru-card {
+        background: linear-gradient(135deg, var(--bg-card) 40%, rgba(47, 128, 237, 0.1) 100%);
+        border-left: 4px solid var(--accent-blue);
+    }
+
+    .tax-highlight {
+        font-size: 3.5rem;
+        font-weight: bold;
+        color: var(--accent-red);
+        text-shadow: 0 0 20px rgba(255, 71, 87, 0.3);
+        margin: 20px 0;
+    }
+
+    .breakdown-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .sim-container {
+        background: rgba(0,0,0,0.2);
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 15px;
+    }
+
+    .sim-row {
+        display: grid;
+        grid-template-columns: 2fr 3fr 1fr;
+        gap: 15px;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    input[type=range] {
+        width: 100%;
+        accent-color: var(--accent-blue);
+        cursor: pointer;
+    }
+
+    .positive-inf { color: var(--accent-red); font-weight: bold; }
+    .negative-inf { color: var(--accent-green); font-weight: bold; }
+
+    /* Prevents nested grid containers from looking like nested boxes */
+    #resultsContainer { padding: 0; background: transparent; border: none; box-shadow: none; }
+
+    /* New Styles for Transparency & Confidence */
+    .confidence-badge {
+        display: inline-block; padding: 5px 12px; border-radius: 20px;
+        font-size: 0.85rem; font-weight: bold; margin-top: 10px;
+    }
+    .conf-high { background: rgba(0, 255, 157, 0.1); color: var(--accent-green); border: 1px solid var(--accent-green); }
+    .conf-medium { background: rgba(241, 196, 15, 0.1); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
+    .conf-low { background: rgba(255, 71, 87, 0.1); color: var(--accent-red); border: 1px solid var(--accent-red); }
+
+    .show-math-btn {
+        background: transparent; border: 1px solid var(--accent-blue); color: var(--accent-blue);
+        padding: 5px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;
+        transition: all 0.2s; margin-top: 10px; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .show-math-btn:hover { background: rgba(47, 128, 237, 0.1); }
+
+    .math-explanation {
+        display: none; background: rgba(0,0,0,0.3); border: 1px dashed rgba(255,255,255,0.2);
+        padding: 15px; border-radius: 8px; margin-top: 15px; text-align: left; font-family: monospace;
+    }
+    .math-explanation.active { display: block; }
+</style>
+
+<div class="grid-container">
+
+    <div class="card grid-span-4 guru-card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-balance-scale"></i> The Purchasing Power Reality Check</h3>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 1.05rem; line-height: 1.5;">
+            National inflation averages don't tell the whole story. The CPI Guru analyzes your specific historical spending patterns to calculate your exact "Personal Inflation Rate" and the invisible monthly tax you are paying to maintain your current lifestyle.
+        </p>
+    </div>
+
+    <div id="loadingState" class="card grid-span-4" style="text-align: center; padding: 80px;">
+        <i class="fas fa-spinner fa-spin fa-3x" style="color: var(--accent-blue); margin-bottom: 20px;"></i>
+        <h2>Calculating Personal Inflation...</h2>
+    </div>
+
+    <div id="resultsContainer" class="grid-container grid-span-4" style="display: none;">
+
+       <div class="card metric-card grid-span-2" style="text-align: center; padding: 40px 20px; display: flex; flex-direction: column; justify-content: center;">
+            <h3 class="card-title" style="margin-bottom: 10px;">Your Monthly Inflation Tax</h3>
+            <div id="resTax" class="tax-highlight">$0.00</div>
+
+            <div>
+                <button id="showMathBtn" class="show-math-btn"><i class="fas fa-calculator"></i> See the Math</button>
+            </div>
+
+            <div id="mathBox" class="math-explanation">
+                <div style="color: var(--text-secondary); margin-bottom: 10px;">Formula: Baseline Avg × (Govt Rate ÷ 100)</div>
+                <div id="mathDetails" style="font-size: 0.9rem; line-height: 1.6; color: var(--text-primary);">
+                    </div>
+            </div>
+        </div>
+
+        <div class="card metric-card grid-span-1" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div class="card-header"><h3 class="card-title">Personal Inflation Rate</h3></div>
+            <div class="value" id="resRate" style="color: var(--accent-blue); font-size: 2.5rem; margin: 15px 0;">0.0%</div>
+
+            <div class="trend" id="resComparison" style="margin-bottom: 10px; text-align: center;">Calculating vs National Average...</div>
+
+            <div id="confidenceBadge" class="confidence-badge conf-high">
+                <i class="fas fa-shield-alt"></i> Data Confidence: High
+            </div>
+            <div id="confidenceDisclaimer" style="font-size: 0.8rem; color: var(--text-secondary); text-align: center; margin-top: 8px; line-height: 1.3;">
+                </div>
+        </div>
+        <div class="card metric-card grid-span-1" style="display: flex; flex-direction: column; justify-content: center;">
+            <div class="card-header"><h3 class="card-title">Historical Baseline Spend</h3></div>
+            <div class="value" id="resBase" style="font-size: 2.5rem; margin: 15px 0;">$0.00</div>
+            <div class="trend" style="color: var(--text-secondary)"><i class="fas fa-wallet"></i> Your average monthly expenses</div>
+        </div>
+
+        <div class="card grid-span-2">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-search-dollar"></i> What's Driving Your Costs?</h3>
+            </div>
+            <div id="breakdownList" style="max-height: 400px; overflow-y: auto; padding-right: 15px;">
+                </div>
+        </div>
+
+        <div class="card grid-span-2">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-sliders-h"></i> Interactive Inflation Simulator</h3>
+            </div>
+            <p style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.4;">Adjust your category spending to see how cutting back immediately reduces your inflation tax.</p>
+
+            <div id="simulatorContainer" class="sim-container">
+                </div>
+
+            <div style="margin-top: 20px; text-align: center; padding: 20px; background: rgba(0, 255, 157, 0.1); border-radius: 8px; border: 1px solid rgba(0, 255, 157, 0.3);">
+                <strong>Simulated Monthly Tax: </strong>
+                <span id="simulatedTax" style="font-size: 1.8rem; color: var(--accent-green); font-weight: bold; margin-left: 10px;">$0.00</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+
+    // Elements
+    const loading = document.getElementById("loadingState");
+    const results = document.getElementById("resultsContainer");
+
+    try {
+        // Fetch data from backend
+        const data = await window.fetchSecureAPI('/cpi-guru', 'POST');
+
+        if (data && data.status === "SUCCESS") {
+            renderResults(data);
+        } else {
+            throw new Error("Not enough data to calculate inflation.");
+        }
+    } catch (error) {
+        console.error("CPI Guru failed:", error);
+        loading.innerHTML = `<i class="fas fa-exclamation-triangle fa-3x" style="color: var(--accent-red); margin-bottom: 20px;"></i>
+                             <h2>Not Enough Historical Data</h2>
+                             <p style="color: var(--text-secondary);">We need a few more months of transaction history to establish your baseline.</p>`;
+    }
+
+    function renderResults(data) {
+        loading.style.display = "none";
+        results.style.display = "grid";
+
+        // 1. Populate Metrics
+        document.getElementById("resTax").innerText = `$${data.metrics.monthly_inflation_tax.toFixed(2)}`;
+        document.getElementById("resRate").innerText = `${data.metrics.personal_inflation_rate.toFixed(1)}%`;
+        document.getElementById("resBase").innerText = `$${data.metrics.total_baseline_spend.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+        // Contextual Comparison (assuming national average is ~4.0%)
+        const compText = document.getElementById("resComparison");
+        if (data.metrics.personal_inflation_rate > 4.0) {
+            compText.innerHTML = `<i class="fas fa-arrow-up" style="color: var(--accent-red)"></i> Tracking higher than national average`;
+        } else {
+            compText.innerHTML = `<i class="fas fa-arrow-down" style="color: var(--accent-green)"></i> Beating the national inflation average`;
+        }
+
+        // 2. Populate Breakdown List & Build Simulator
+        const list = document.getElementById("breakdownList");
+        const sim = document.getElementById("simulatorContainer");
+        list.innerHTML = "";
+        sim.innerHTML = "";
+
+        // Only take the top 4 impacting categories for the simulator to keep UI clean
+        const topCategories = data.breakdown.slice(0, 4);
+
+        data.breakdown.forEach(item => {
+            // Render Breakdown Row
+            const infClass = item.inflation_rate > 0 ? 'positive-inf' : 'negative-inf';
+            const infSign = item.inflation_rate > 0 ? '+' : '';
+
+            list.innerHTML += `
+                <div class="breakdown-row">
+                    <div>
+                        <strong style="font-size: 1.1rem;">${item.category}</strong>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 5px;">Avg Spend: $${item.baseline_spend.toFixed(0)}/mo</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="${infClass}" style="font-size: 1.1rem;">${infSign}${item.inflation_rate}% YoY</span>
+                        <div style="font-size: 0.95rem; font-weight: bold; color: var(--text-primary); margin-top: 5px;">+$${item.inflation_tax.toFixed(2)} Tax</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // 3. Build Interactive Simulator
+        topCategories.forEach((item, index) => {
+            sim.innerHTML += `
+                <div class="sim-row">
+                    <label style="font-weight: bold; font-size: 1.05rem;">${item.category}</label>
+                    <input type="range" class="sim-slider" data-rate="${item.inflation_rate}" min="0" max="${Math.round(item.baseline_spend * 1.5)}" value="${item.baseline_spend}">
+                    <span class="sim-val" style="text-align: right; color: var(--accent-blue); font-weight: bold; font-size: 1.1rem;">$${item.baseline_spend.toFixed(0)}</span>
+                </div>
+            `;
+        });
+
+        // Bind Simulator Logic
+        const sliders = document.querySelectorAll(".sim-slider");
+        const simTaxDisplay = document.getElementById("simulatedTax");
+
+        function updateSimulator() {
+            let newTotalTax = 0;
+            sliders.forEach(slider => {
+                const currentSpend = parseFloat(slider.value);
+                const rate = parseFloat(slider.getAttribute("data-rate"));
+
+                // Update specific text label
+                slider.nextElementSibling.innerText = `$${currentSpend.toFixed(0)}`;
+
+                // Calculate tax for this slider
+                newTotalTax += currentSpend * (rate / 100);
+            });
+
+            // Add the static tax from categories NOT in the top 4 simulator
+            const staticTax = data.breakdown.slice(4).reduce((sum, item) => sum + item.inflation_tax, 0);
+
+            simTaxDisplay.innerText = `$${(newTotalTax + staticTax).toFixed(2)}`;
+        }
+        // --- Populating Confidence ---
+        const confBadge = document.getElementById("confidenceBadge");
+        const confText = data.meta.confidence_level;
+
+        confBadge.innerHTML = `<i class="fas fa-shield-alt"></i> Data Confidence: ${confText}`;
+        confBadge.className = "confidence-badge"; // reset classes
+        if (confText === "High") confBadge.classList.add("conf-high");
+        else if (confText === "Medium") confBadge.classList.add("conf-medium");
+        else confBadge.classList.add("conf-low");
+
+        document.getElementById("confidenceDisclaimer").innerText = data.meta.disclaimer;
+
+        // --- Populating Transparency Math ---
+        const mathDetails = document.getElementById("mathDetails");
+        mathDetails.innerHTML = "";
+
+        // Take top 3 categories to show the math clearly
+        const sampleCategories = data.breakdown.slice(0, 3);
+        sampleCategories.forEach(item => {
+            mathDetails.innerHTML += `
+                <div style="display: flex; justify-content: space-between;">
+                    <span>${item.category}: $${item.baseline_spend.toFixed(0)} × ${item.inflation_rate}%</span>
+                    <span style="color: var(--accent-red);">+$${item.inflation_tax.toFixed(2)}</span>
+                </div>
+            `;
+        });
+        mathDetails.innerHTML += `<div style="border-top: 1px solid #444; margin-top: 5px; padding-top: 5px; color: var(--text-secondary);">...plus other categories.</div>`;
+
+        // Toggle Math Box Visibility
+        document.getElementById("showMathBtn").addEventListener("click", function() {
+            const mathBox = document.getElementById("mathBox");
+            mathBox.classList.toggle("active");
+            if (mathBox.classList.contains("active")) {
+                this.innerHTML = `<i class="fas fa-times"></i> Hide Math`;
+            } else {
+                this.innerHTML = `<i class="fas fa-calculator"></i> See the Math`;
+            }
+        });
+        // Run once to set initial state, then bind listeners with frame syncing to stop flicker
+        updateSimulator();
+        sliders.forEach(slider => {
+            slider.addEventListener("input", () => {
+                requestAnimationFrame(updateSimulator);
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="grid-container">
+    <div class="card grid-span-4" style="text-align: center; padding: 50px 20px;">
+        <h1 style="color: var(--accent-green); font-size: 2.5rem; margin-bottom: 15px;">Welcome to the Dojo</h1>
+        <p style="color: var(--text-secondary); font-size: 1.1rem;">Your path to financial mastery starts with your first mission.</p>
+    </div>
+
+    <div class="card grid-span-2 onboarding-card" onclick="window.location.href='/upload-receipts'" style="cursor: pointer; transition: transform 0.3s;">
+        <div class="card-header">
+            <span class="card-title" style="color: var(--accent-blue);"><i class="fas fa-bullseye"></i> MISSION 01</span>
+        </div>
+        <div style="text-align: center; padding: 20px;">
+            <i class="fa-solid fa-file-invoice-dollar" style="font-size: 3rem; color: var(--accent-blue); margin-bottom: 15px;"></i>
+            <h3>Scan Your First Receipt</h3>
+            <p style="color: var(--text-secondary);">Test our AI extraction with a single JPEG or PNG.</p>
+        </div>
+    </div>
+
+    <div class="card grid-span-2 onboarding-card" onclick="window.location.href='/upload-statements'" style="cursor: pointer; transition: transform 0.3s;">
+        <div class="card-header">
+            <span class="card-title" style="color: var(--accent-green);"><i class="fas fa-university"></i> MISSION 02</span>
+        </div>
+        <div style="text-align: center; padding: 20px;">
+            <i class="fas fa-file-csv" style="font-size: 3rem; color: var(--accent-green); margin-bottom: 15px;"></i>
+            <h3>Upload a Statement</h3>
+            <p style="color: var(--text-secondary);">Import a 1-month CSV to see your spending patterns.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .onboarding-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--accent-green);
+        background: rgba(0, 255, 157, 0.05);
+    }
+</style>
+{% endblock %}

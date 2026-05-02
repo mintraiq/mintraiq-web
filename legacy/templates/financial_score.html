@@ -1,0 +1,363 @@
+{% extends "layout.html" %}
+
+{% block page_title %}AI Financial Discipline Engine{% endblock %}
+
+{% block content %}
+<style>
+    /* CRITICAL LAYOUT FIXES: Forces cards to span the correct columns */
+    .grid-span-4 { grid-column: span 4; }
+    .grid-span-2 { grid-column: span 2; }
+    .grid-span-1 { grid-column: span 1; }
+
+    /* Modernized Slider & Control Panel */
+    .slider-wrapper {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(187, 107, 217, 0.3);
+        border-radius: 12px;
+        padding: 25px;
+        margin-top: 20px;
+        transform: translateZ(0);
+        will-change: transform;
+    }
+
+    .slider-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+    }
+
+    .target-highlight {
+        font-size: 1.5rem;
+        color: var(--accent-purple);
+        font-weight: bold;
+        background: rgba(187, 107, 217, 0.1);
+        padding: 5px 15px;
+        border-radius: 8px;
+    }
+
+    .slider-track-container {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    input[type=range] {
+        flex-grow: 1;
+        accent-color: var(--accent-purple);
+        height: 8px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .slider-limits {
+        color: var(--text-secondary);
+        font-weight: bold;
+        min-width: 50px;
+    }
+
+    .generate-btn {
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+        color: white; border: none; padding: 12px 30px; border-radius: 8px;
+        font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: transform 0.2s, opacity 0.2s;
+        width: 100%; margin-top: 20px;
+    }
+    .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(187, 107, 217, 0.4); }
+    .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* Tables & Lists */
+    .budget-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    .budget-table th { text-align: left; padding: 12px; color: var(--text-secondary); border-bottom: 2px solid rgba(255,255,255,0.1); }
+    .budget-table td { padding: 15px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .budget-table tr:hover { background: rgba(255,255,255,0.02); }
+
+    .cut-amount { color: var(--accent-green); font-weight: bold; }
+    .target-amount { color: var(--accent-blue); font-weight: bold; }
+
+    .alert-list { list-style: none; margin-top: 15px; }
+    .alert-list li {
+        padding: 15px; margin-bottom: 10px; border-radius: 8px;
+        display: flex; align-items: flex-start; gap: 15px;
+    }
+    .alert-list.nudges li { background: rgba(255, 71, 87, 0.1); border-left: 4px solid var(--accent-red); }
+    .alert-list.leaks li { background: rgba(241, 196, 15, 0.1); border-left: 4px solid var(--accent-yellow); }
+
+    .score-circle {
+        width: 90px; height: 90px; border-radius: 50%; display: flex;
+        align-items: center; justify-content: center; font-size: 2.5rem;
+        font-weight: bold; margin: 10px auto;
+    }
+
+    /* Prevents the nested grid from having extra padding that squishes elements */
+    #resultsContainer { padding: 0; background: transparent; border: none; box-shadow: none; }
+    .ai-pulse {
+        animation: aiThinking 2.5s infinite ease-in-out;
+    }
+
+    @keyframes aiThinking {
+        0% { transform: scale(1); opacity: 0.8; }
+        50% { transform: scale(1.1); opacity: 1; text-shadow: 0 0 25px rgba(168, 85, 247, 0.6); }
+        100% { transform: scale(1); opacity: 0.8; }
+    }
+</style>
+
+<div class="grid-container" id="plannerGrid">
+
+    <div class="card grid-span-4 ai-card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-brain"></i> AI Discipline & Optimization Engine</h3>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;">
+            Define your monthly savings goal below. The AI will audit your transaction history, calculate your financial discipline score, locate hidden spending leaks, and generate a painless budget reduction plan.
+        </p>
+
+        <div class="slider-wrapper">
+            <div class="slider-header">
+                <span>Monthly Target Savings</span>
+                <span class="target-highlight">$<span id="targetValue">1000</span></span>
+            </div>
+            <div class="slider-track-container">
+                <span class="slider-limits">$100</span>
+                <input type="range" id="savingsSlider" min="100" max="5000" step="100" value="1000">
+                <span class="slider-limits" style="text-align: right;">$5000</span>
+            </div>
+        </div>
+
+        <button id="generateBtn" class="generate-btn">
+            <i class="fas fa-cogs"></i> Run AI Diagnostics
+        </button>
+    </div>
+
+    <div id="loadingState" class="card grid-span-4" style="display: none; text-align: center; padding: 60px 20px;">
+        <i class="fas fa-spinner fa-spin fa-3x" style="color: var(--accent-purple); margin-bottom: 20px;"></i>
+        <h2>Analyzing Financial Discipline...</h2>
+        <p style="color: var(--text-secondary); margin-top: 10px;">Calculating scores, detecting micro-leaks, and optimizing your budget.</p>
+    </div>
+<div id="aiEmptyState" class="card grid-span-4" style="display: none; text-align: center; padding: 60px 20px;">
+        <i class="fas fa-brain ai-pulse" style="font-size: 4rem; color: #a855f7; margin-bottom: 20px;"></i>
+        <h3 style="margin-bottom: 15px;">AI Needs More Fuel</h3>
+        <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 30px auto; line-height: 1.5;">
+            Your AI Advisor needs at least one full month of transaction data to accurately predict budgets and detect hidden spending leaks.
+        </p>
+        <button class="generate-btn" style="width: auto;" onclick="window.location.href='/upload'">
+            <i class="fas fa-cloud-upload-alt"></i> Upload Statements
+        </button>
+    </div>
+    <div id="resultsContainer" class="grid-container grid-span-4" style="display: none; margin-top: 0;">
+
+        <div class="card metric-card grid-span-1" style="text-align: center;">
+            <div class="card-header" style="justify-content: center;"><h3 class="card-title">Discipline Score</h3></div>
+            <div id="resScoreCircle" class="score-circle">0</div>
+            <div class="trend" style="justify-content: center; margin-top: 5px; color: var(--text-secondary);">Out of 100</div>
+        </div>
+
+        <div class="card metric-card grid-span-1">
+            <div class="card-header"><h3 class="card-title">Gap to Goal</h3></div>
+            <div class="value" id="resGap" style="color: var(--accent-red); font-size: 2.2rem; margin: 15px 0;">$0</div>
+            <div class="trend"><i class="fas fa-bullseye"></i> Target: $<span id="resTarget">1000</span></div>
+        </div>
+
+        <div class="card metric-card grid-span-2">
+            <div class="card-header"><h3 class="card-title">AI Predicted Base Budget</h3></div>
+            <div class="value" id="resBudget" style="font-size: 2.2rem; margin: 15px 0;">$0</div>
+            <div class="trend" style="color: var(--text-secondary)"><i class="fas fa-chart-line"></i> Your expected monthly spend before cuts</div>
+        </div>
+
+        <div class="card grid-span-2">
+            <div class="card-header">
+                <h3 class="card-title" style="color: var(--accent-red);"><i class="fas fa-exclamation-triangle"></i> Spending Spikes</h3>
+            </div>
+            <ul id="nudgesList" class="alert-list nudges">
+                </ul>
+        </div>
+
+        <div class="card grid-span-2">
+            <div class="card-header">
+                <h3 class="card-title" style="color: var(--accent-yellow);"><i class="fas fa-search-dollar"></i> Hidden Leaks Detected</h3>
+            </div>
+            <ul id="leaksList" class="alert-list leaks">
+                </ul>
+        </div>
+
+        <div class="card grid-span-4">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-cut"></i> Optimized Reduction Plan</h3>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="budget-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Historical Avg Spend</th>
+                            <th>Suggested Cut</th>
+                            <th>New Target Spend</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cutsTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    // UI Elements
+    const slider = document.getElementById("savingsSlider");
+    const targetValue = document.getElementById("targetValue");
+    const btn = document.getElementById("generateBtn");
+    const loading = document.getElementById("loadingState");
+    const results = document.getElementById("resultsContainer");
+
+    // Update slider text in real-time WITHOUT flickering
+    slider.addEventListener("input", (e) => {
+        // Tells the browser to wait for the next exact screen refresh before updating the text
+        requestAnimationFrame(() => {
+            targetValue.innerText = parseInt(e.target.value).toLocaleString();
+        });
+    });
+
+    btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        results.style.display = "none";
+        loading.style.display = "block";
+
+        const date = new Date();
+        const formatLocalDate = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+        const payload = {
+            start_date: formatLocalDate(firstDay),
+            end_date: formatLocalDate(lastDay),
+            savings_goal: parseFloat(slider.value)
+        };
+
+        try {
+               const response =
+                    await fetch('/api/financial-score', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' // Tells Flask to expect JSON
+                    },
+                    body: JSON.stringify(payload)});
+
+                const data = await response.json();
+                console.log(data)
+                renderResults(data);
+
+        } catch (error) {
+            console.error("Discipline Engine failed:", error);
+            alert("The AI encountered an error generating your diagnostics.");
+        } finally {
+            btn.disabled = false;
+            loading.style.display = "none";
+        }
+    });
+
+    function renderResults(data) {
+    const emptyState = document.getElementById('aiEmptyState');
+
+
+        // Check if the data is missing, empty, or lacks enough history
+        if (!data || data.status === 'DATA_MISSING' || data.transactionCount === 0) {
+            // Show the nice empty state
+            emptyState.style.display = 'block';
+            // Hide the ugly zeros
+            results.style.display = 'none';
+            return;
+        }
+
+        // Otherwise, we have data!
+        emptyState.style.display = 'none';
+
+        results.style.display = "grid"; // Required to restore grid layout inside the results
+
+        // --- 1. Top Level Metrics ---
+        const scoreCircle = document.getElementById("resScoreCircle");
+        const score = data.score || 0;
+        scoreCircle.innerText = score;
+
+        if (score >= 70) {
+            scoreCircle.style.background = "rgba(0, 255, 157, 0.1)";
+            scoreCircle.style.color = "var(--accent-green)";
+            scoreCircle.style.border = "3px solid var(--accent-green)";
+        } else if (score >= 40) {
+            scoreCircle.style.background = "rgba(241, 196, 15, 0.1)";
+            scoreCircle.style.color = "var(--accent-yellow)";
+            scoreCircle.style.border = "3px solid var(--accent-yellow)";
+        } else {
+            scoreCircle.style.background = "rgba(255, 71, 87, 0.1)";
+            scoreCircle.style.color = "var(--accent-red)";
+            scoreCircle.style.border = "3px solid var(--accent-red)";
+        }
+
+        document.getElementById("resGap").innerText = `$${(data.optimization?.gap_to_close || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        document.getElementById("resTarget").innerText = data.optimization?.target_savings || 0;
+        document.getElementById("resBudget").innerText = `$${(data.predicted_budget_used || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+        // --- 2. Nudges (Spikes) ---
+        const nudgesList = document.getElementById("nudgesList");
+        nudgesList.innerHTML = "";
+        if (data.nudges && data.nudges.length > 0) {
+            data.nudges.forEach(nudge => {
+                nudgesList.innerHTML += `
+                    <li>
+                        <div style="margin-top: 5px;"><i class="fas fa-arrow-trend-up fa-2x" style="color: var(--accent-red)"></i></div>
+                        <div>
+                            <strong style="font-size: 1.1rem;">${nudge.category} Spike</strong>
+                            <p style="font-size: 0.95rem; color: var(--text-secondary); margin-top: 5px; line-height: 1.4;">${nudge.message}</p>
+                        </div>
+                    </li>
+                `;
+            });
+        } else {
+            nudgesList.innerHTML = `<li style="background: transparent; border: none; color: var(--text-secondary);">No major spending spikes detected recently!</li>`;
+        }
+
+        // --- 3. Leaks ---
+        const leaksList = document.getElementById("leaksList");
+        leaksList.innerHTML = "";
+        if (data.leaks && data.leaks.length > 0) {
+            data.leaks.forEach(leak => {
+                leaksList.innerHTML += `
+                    <li>
+                        <div style="margin-top: 5px;"><i class="fas fa-tint fa-2x" style="color: var(--accent-yellow)"></i></div>
+                        <div>
+                            <strong style="font-size: 1.1rem;">${leak.category}</strong>
+                            <p style="font-size: 0.95rem; color: var(--text-secondary); margin-top: 5px; line-height: 1.4;">Averaging $${leak.average_monthly.toFixed(2)} / month in micro-transactions.</p>
+                        </div>
+                    </li>
+                `;
+            });
+        } else {
+            leaksList.innerHTML = `<li style="background: transparent; border: none; color: var(--text-secondary);">No hidden micro-leaks detected!</li>`;
+        }
+
+        // --- 4. Optimization Table ---
+        const tbody = document.getElementById("cutsTableBody");
+        tbody.innerHTML = "";
+        const cuts = data.optimization?.recommended_cuts || [];
+
+        if (cuts.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 30px; color: var(--text-secondary);">You are on track to hit your goal without extra cuts!</td></tr>`;
+        } else {
+            cuts.forEach(cut => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${cut.category}</strong></td>
+                        <td>$${cut.current_avg_spend.toFixed(2)}</td>
+                        <td class="cut-amount">-$${cut.suggested_cut.toFixed(2)}</td>
+                        <td class="target-amount">$${cut.new_target.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+        }
+    }
+});
+</script>
+{% endblock %}

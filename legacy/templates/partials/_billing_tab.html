@@ -1,0 +1,165 @@
+<style>
+    /* Pricing Grid Styles */
+    .pricing-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .pricing-header h2 { font-size: 1.8rem; margin-bottom: 10px; }
+    .pricing-header p { color: var(--text-secondary); }
+
+    .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .pricing-card {
+        background-color: var(--bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Shadow Master Highlight styling */
+    .pricing-card.highlight {
+        border: 2px solid var(--accent-purple);
+        box-shadow: 0 0 20px rgba(187, 107, 217, 0.15);
+    }
+
+    /* The Ninja Pro Ribbon */
+    .ribbon {
+        position: absolute;
+        top: 20px;
+        right: -35px;
+        background-color: var(--accent-purple);
+        color: white;
+        padding: 5px 40px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        letter-spacing: 1px;
+        transform: rotate(45deg);
+    }
+
+    .tier-name { text-align: center; font-size: 1.2rem; margin-bottom: 15px; font-weight: 600; }
+    .highlight .tier-name { color: var(--accent-purple); }
+
+    .tier-price { text-align: center; font-size: 2.5rem; font-weight: bold; margin-bottom: 30px; }
+    .tier-price span { font-size: 1rem; color: var(--text-secondary); font-weight: normal; }
+
+    .feature-list { list-style: none; padding: 0; margin: 0 0 30px 0; flex-grow: 1; }
+    .feature-list li { margin-bottom: 15px; font-size: 0.9rem; display: flex; align-items: center; }
+
+    /* Icon styling */
+    .fa-check { color: var(--accent-green); margin-right: 10px; }
+    .fa-times { color: rgba(255,255,255,0.2); margin-right: 10px; }
+    .disabled-text { color: rgba(255,255,255,0.4); }
+
+    /* Buttons */
+    .btn-tier {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+        background: transparent;
+        color: var(--text-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .btn-tier:hover { border-color: white; color: white; }
+
+    .btn-tier.active-trial {
+        background-color: #f1c40f; /* Yellow from screenshot */
+        color: #000;
+        border: none;
+    }
+    .btn-tier.active-trial:hover { background-color: #f39c12; }
+
+    /* Promo section matching screenshot */
+    .promo-section {
+        max-width: 300px;
+        margin: 0 auto;
+    }
+    .promo-input-group {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        display: flex;
+        padding: 5px;
+    }
+    .promo-input-group input {
+        background: transparent;
+        border: none;
+        color: white;
+        padding: 10px;
+        width: 100%;
+        outline: none;
+    }
+</style>
+
+<div class="pricing-header">
+    <h2>Choose Your Path</h2>
+    <p>Upgrade to unlock AI forecasting and the CPI Guru.</p>
+</div>
+
+<div class="pricing-grid">
+    <div class="pricing-card">
+        <div class="tier-name">Ninja Initiate</div>
+        <div class="tier-price">$0<span>/mo</span></div>
+        <ul class="feature-list">
+            <li><i class="fas fa-check"></i> Basic Dashboard</li>
+            <li><i class="fas fa-check"></i> 1 Month History</li>
+            <li class="disabled-text"><i class="fas fa-times"></i> Receipt Scanner</li>
+            <li class="disabled-text"><i class="fas fa-times"></i> AI Forecasting</li>
+            <li class="disabled-text"><i class="fas fa-times"></i> Nudges & Alerts</li>
+        </ul>
+        <button class="btn-tier" onclick="startCheckout('free')">Downgrade to Free</button>
+    </div>
+
+    <div class="pricing-card">
+        <div class="tier-name">Ninja Warrior</div>
+        <div class="tier-price">$4.99<span>/mo</span></div>
+        <ul class="feature-list">
+            <li><i class="fas fa-check"></i> 6 Months Transaction Storage</li>
+            <li><i class="fas fa-check"></i> 10 Receipt Scans / mo</li>
+            <li><i class="fas fa-check"></i> Limited AI Forecasting</li>
+            <li class="disabled-text"><i class="fas fa-times"></i> CPI Guru Inflation Tax</li>
+            <li><i class="fas fa-check"></i> Budget & Goal Setting</li>
+        </ul>
+        <button class="btn-tier" onclick="startCheckout('basic')">Choose Basic</button>
+    </div>
+
+    <div class="pricing-card highlight">
+        <div class="ribbon">NINJA PRO</div>
+        <div class="tier-name">Shadow Master</div>
+        <div class="tier-price">$9.99<span>/mo</span></div>
+        <ul class="feature-list">
+            <li><i class="fas fa-check"></i> Unlimited Everything</li>
+            <li><i class="fas fa-check"></i> CPI Guru Inflation Tracker</li>
+            <li><i class="fas fa-check"></i> Advanced AI Forecasting</li>
+            <li><i class="fas fa-check"></i> High Expense Alerts & Nudges</li>
+            <li><i class="fas fa-check"></i> Weekly/Monthly Planners</li>
+        </ul>
+
+        {% if user.tier == 'pro_trial' %}
+            <button class="btn-tier active-trial" onclick="startCheckout('premium')">
+                <i class="far fa-clock"></i> Trial Active ({{ user.trial_days_left }} days left)
+            </button>
+        {% elif user.tier == 'premium' %}
+            <button class="btn-tier" style="border-color: var(--accent-purple); color: var(--accent-purple);">Current Plan</button>
+        {% else %}
+            <button class="btn-tier active-trial" onclick="startCheckout('premium')">Upgrade to Pro</button>
+        {% endif %}
+    </div>
+</div>
+
+<div class="promo-section">
+    <div class="promo-input-group">
+        <input type="text" id="promoCode" placeholder="Have a VIP Promo Code?">
+    </div>
+</div>

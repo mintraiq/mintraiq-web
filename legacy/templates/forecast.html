@@ -1,0 +1,35 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+{% extends "layout.html" %}
+{% block content %}
+<head>
+   <meta charset="UTF-8">
+   <title>DataTables with Flask and MongoDB</title>
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+   <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+</head>
+<body>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js"></script>
+<div class="container mt-5">
+   <div class="card">
+      <h2>📊 Spending Forecast</h2>
+
+    <div id="forecast-chart">
+
+    <script>
+        var graph = {{ graphJSON | safe }};
+        alert(graph)
+        Plotly.newPlot('forecast-chart', graph.data, graph.layout);
+    </script>
+    </div>
+   </div>
+
+</div>
+</body>
+{% endblock content %}
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — Signing you in…</title>
+    <style>
+        :root { --bg: #0c1322; --m: #b8c2d4; }
+        body {
+            margin: 0; min-height: 100vh; font-family: system-ui, sans-serif;
+            background: var(--bg); color: #fff;
+            display: flex; align-items: center; justify-content: center; padding: 24px;
+        }
+        #status { max-width: 560px; text-align: center; color: var(--m); }
+        pre { text-align: left; background: #111827; padding: 12px; border-radius: 8px; overflow: auto; }
+    </style>
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
+</head>
+<body>
+    <p id="status">Completing sign-in…</p>
+    <script type="module" src="./callback.js"></script>
+</body>
+</html>

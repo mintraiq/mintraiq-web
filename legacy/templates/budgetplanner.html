@@ -1,0 +1,256 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+
+/* Fix for the MISSION: REDUCE GAP card */
+.status-card {
+    display: flex;
+    flex-direction: column; /* Stacks title and amount vertically */
+    gap: 10px; /* Space between "Mission: Reduce" and the "$5286" gap */
+    justify-content: center;
+}
+
+.status-card h1 {
+    font-size: clamp(1.2rem, 4vw, 1.8rem); /* Fluid typography */
+    line-height: 1.1;
+}
+
+.status-card .gap-amount {
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    text-align: right;
+}
+.table-responsive {
+    width: 100%;
+    overflow-x: auto; /* Enables horizontal scroll on mobile */
+    max-height: 500px; /* Adds a vertical scroll if the list is too long */
+    overflow-y: auto;
+}
+
+.ninja-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px; /* Adds Ninja-style spacing between rows */
+}
+
+/* Ensure long numbers don't break the layout */
+.ninja-table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Added to fix the repititive elements */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Force 4 columns */
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Mobile adjustments to prevent dispositioning */
+@media (max-width: 1024px) {
+    .grid-container { grid-template-columns: repeat(2, 1fr); }
+    .grid-span-4, .grid-span-3 { grid-column: span 2; }
+}
+
+@media (max-width: 768px) {
+    .grid-container { grid-template-columns: 1fr; }
+    .grid-span-4, .grid-span-3, .grid-span-2 { grid-column: span 1; }
+}
+/* Ninja Mission Alert Component */
+.ninja-alert-banner {
+    background: rgba(255, 71, 87, 0.1);
+    border: 1px solid var(--accent-red);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    animation: pulseAlert 2s infinite;
+}
+
+.ninja-alert-icon {
+    background: var(--accent-red);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 0 15px var(--accent-red);
+}
+
+.ninja-alert-content h3 {
+    color: var(--accent-red);
+    margin: 0 0 5px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@keyframes pulseAlert {
+    0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(255, 71, 87, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+}
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const budgetData = {{ data.cuts | tojson }};
+    const categories = Object.keys(budgetData);
+    const originalValues = categories.map(cat => budgetData[cat].original);
+    const suggestedValues = categories.map(cat => budgetData[cat].suggested);
+
+    const ctx = document.getElementById('budgetComparisonChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: categories,
+            datasets: [
+                {
+                    label: 'Current Spending',
+                    data: originalValues,
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    borderColor: '#444',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Ninja Suggested',
+                    data: suggestedValues,
+                    backgroundColor: 'rgba(0, 255, 157, 0.2)',
+                    borderColor: '#00ff9d',
+                    borderWidth: 2,
+                    borderRadius: 5
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y', // Horizontal bars for easier reading of categories
+            scales: {
+                x: {
+                    grid: { color: '#222' },
+                    ticks: { color: '#888', callback: value => '$' + value }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: '#fff' }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { color: '#fff', font: { family: 'Inter' } }
+                },
+                tooltip: {
+                    backgroundColor: '#1a1a1a',
+                    titleColor: '#00ff9d',
+                    bodyColor: '#fff',
+                    borderColor: '#333',
+                    borderWidth: 1
+                }
+            }
+        }
+    });
+});
+</script>
+{% if data.summary.status == "GOAL_TOO_AGGRESSIVE" %}
+<div class="ninja-alert-banner">
+    <div class="ninja-alert-icon"><i class="fas fa-skull-crossbones"></i></div>
+    <div class="ninja-alert-content">
+        <h3>Mission Risk: Critical</h3>
+        <p>Your current savings goal of <strong>${{ data.summary.savings_goal }}</strong> is unsustainable. Even with maximum cuts, the projected deficit is <strong>${{ data.summary.total_savings_after_cuts }}</strong>.</p>
+    </div>
+</div>
+{% endif %}
+
+<div class="card grid-span-4">
+    <div class="card-header">
+        <span class="card-title"><i class="fas fa-chart-bar"></i> Original vs. Suggested Expenditure</span>
+    </div>
+    <div class="card grid-span-4" style="min-height: 600px;"> <canvas id="budgetComparisonChart"></canvas>
+</div>
+</div>
+<div class="grid-container">
+    <div class="card grid-span-2 status-card" style="border-left: 5px solid var(--accent-red);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 style="color: var(--accent-red); margin: 0;">MISSION: REDUCE GAP</h3>
+                <p style="color: var(--text-secondary);">STATUS: <strong>{{ data.summary.status }}</strong></p>
+            </div>
+            <div style="text-align: right;">
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">ESTIMATED GAP</span>
+                <h2 style="margin: 0;">${{ data.summary.gap_to_close }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="card grid-span-1">
+        <span class="card-label">MONTHLY INCOME</span>
+        <h3 style="color: var(--accent-green);">${{ data.summary.monthly_income }}</h3>
+    </div>
+    <div class="card grid-span-1">
+        <span class="card-label">CURRENT SAVINGS</span>
+        <h3 style="color: var(--accent-red);">${{ data.summary.current_savings }}</h3>
+    </div>
+    </div>
+    <div class="card grid-span-1">
+        <div class="coach-bubble">
+            <i class="fas fa-user-ninja"></i>
+            <p>"{{ data.coach_advice[:500] }}..."</p>
+        </div>
+    </div>
+
+    <div class="card grid-span-1">
+        <div class="card-header">
+            <span class="card-title"><i class="fas fa-scissors"></i> TARGETED EXPENDITURE CUTS</span>
+        </div>
+        <div class="table-responsive">
+            <table class="ninja-table">
+                <thead>
+                    <tr>
+                        <th>CATEGORY</th>
+                        <th>CURRENT</th>
+                        <th>SUGGESTED</th>
+                        <th>CUT AMOUNT</th>
+                        <th>IMPACT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category, details in data.cuts.items() %}
+                    <tr>
+                        <td><strong>{{ category }}</strong></td>
+                        <td>${{ details.original }}</td>
+                        <td style="color: var(--accent-green);">${{ details.suggested }}</td>
+                        <td style="color: var(--accent-red);">-${{ details.cut_amount }}</td>
+                        <td>
+                            <div class="impact-bar-bg">
+                                <div class="impact-bar-fill" style="width: {{ details.impact_score * 100 }}%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<style>
+    .status-card { background: rgba(255, 71, 87, 0.05); }
+    .card-label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; }
+    .coach-bubble { display: flex; align-items: start; gap: 15px; font-style: italic; color: #ddd; }
+    .coach-bubble i { font-size: 1.5rem; color: var(--accent-green); }
+    
+    /* Impact Bar for Table */
+    .impact-bar-bg { width: 100px; height: 6px; background: #222; border-radius: 3px; }
+    .impact-bar-fill { height: 100%; background: var(--accent-blue); box-shadow: 0 0 8px var(--accent-blue); border-radius: 3px; }
+    
+    .table-responsive { overflow-x: auto; margin-top: 15px; }
+    .ninja-table { width: 100%; border-collapse: collapse; }
+    .ninja-table th, .ninja-table td { padding: 12px; text-align: left; border-bottom: 1px solid #1a1a1a; }
+</style>
+{% endblock %}

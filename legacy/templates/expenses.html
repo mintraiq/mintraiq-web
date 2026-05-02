@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html lang="en">
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    /* Table Container & Scroll for Mobile */
+    .table-responsive-ninja {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 15px;
+    }
+
+    /* Override DataTables/Bootstrap Defaults */
+    #{{ table_id }}_wrapper {
+        color: var(--text-primary);
+        padding: 10px;
+    }
+
+    .ninja-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        background-color: transparent !important;
+    }
+
+    .ninja-table th {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: var(--text-secondary) !important;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        padding: 15px !important;
+        border-bottom: 1px solid #333 !important;
+    }
+
+    .ninja-table td {
+        padding: 15px !important;
+        border-bottom: 1px solid #222 !important;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+
+    /* Search Input Styling */
+    .dataTables_filter input {
+        background: var(--bg-dark) !important;
+        border: 1px solid #333 !important;
+        color: white !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+        margin-left: 10px;
+    }
+
+    /* Pagination Styling */
+    .paginate_button {
+        background: transparent !important;
+        border: 1px solid #333 !important;
+        color: var(--text-secondary) !important;
+        border-radius: 5px !important;
+        margin: 0 3px;
+    }
+
+    .paginate_button.current {
+        background: rgba(0, 255, 157, 0.1) !important;
+        border-color: var(--accent-green) !important;
+        color: var(--accent-green) !important;
+    }
+    /* --- Fix for Horizontal Pagination --- */
+        .dataTables_paginate {
+            margin-top: 15px !important;
+            display: flex !important;
+            justify-content: flex-end !important;
+        }
+
+        /* Force list items to sit in a row */
+        .dataTables_paginate ul.pagination {
+            display: flex !important;
+            flex-direction: row !important;
+            list-style: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Style the individual page buttons */
+        .paginate_button {
+            background: transparent !important;
+            border: 1px solid #333 !important;
+            color: var(--text-secondary) !important;
+            padding: 5px 12px !important;
+            margin-left: 5px !important;
+            border-radius: 4px !important;
+            cursor: pointer !important;
+            text-decoration: none !important;
+        }
+
+        /* Highlight the active page */
+        .paginate_button.active, .paginate_button.current {
+            background: rgba(0, 255, 157, 0.1) !important;
+            border-color: var(--accent-green) !important;
+            color: var(--accent-green) !important;
+        }
+
+        /* Hide default bullet points */
+        .dataTables_paginate li {
+            list-style: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+
+    /* Export Button styling */
+    .btn-ninja-export {
+        background: var(--accent-blue);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        cursor: pointer;
+    }
+
+    .btn-ninja-export:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(47, 128, 237, 0.4);
+    }
+</style>
+<div class="grid-container">
+    <div class="card grid-span-3" style="animation-delay: 0.1s">
+        <div class="card-header">
+            <span class="card-title"><i class="fas fa-list"></i> {{ table_title }}</span>
+            <div class="trend up"><i class="fas fa-file-excel"></i> Ready to Export</div>
+        </div>
+
+        <div class="table-responsive-ninja">
+            <table id="{{ table_id }}" class="ninja-table table" style="width:100%">
+                <thead>
+                    <tr>
+                        {% for column in columns %}
+                        <th>{{ column|capitalize }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </div>
+    </div>
+   </div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+
+{{ script|safe }}
+<script>
+   $('#exportButton').on('click', function() {
+      var table = $('#{{ table_id }}').DataTable();
+      var searchValue = table.search();
+      var order = table.order();
+
+      var params = $.param({
+         'search[value]': searchValue,
+         'order[0][column]': order[0][0],
+         'order[0][dir]': order[0][1]
+      });
+
+      window.location.href = "/export/ninja?" + params;
+   });
+</script>
+{% endblock content %}
+

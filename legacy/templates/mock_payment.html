@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+{% block page_title %}Sandbox Payment{% endblock %}
+
+{% block content %}
+<div class="grid-container" style="display: flex; justify-content: center; align-items: center; min-height: 60vh;">
+    <div class="card" style="max-width: 500px; width: 100%; border: 2px dashed var(--accent-blue); background: rgba(47, 128, 237, 0.05);">
+        
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="background: var(--accent-blue); color: white; padding: 5px 15px; border-radius: 20px; display: inline-block; font-size: 0.85rem; font-weight: bold; margin-bottom: 15px;">
+                <i class="fas fa-vial"></i> TEST MODE
+            </div>
+            <h2>Simulated Checkout</h2>
+            <p style="color: var(--text-secondary);">You are purchasing the <strong>{{ tier|title }}</strong> tier.</p>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span>Ninja Pro Subscription</span>
+                <strong>$9.99 / mo</strong>
+            </div>
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
+            <div style="display: flex; justify-content: space-between; color: var(--text-secondary); font-size: 0.9rem;">
+                <span>Mock Credit Card</span>
+                <span>**** **** **** 4242</span>
+            </div>
+        </div>
+
+        <button id="payBtn" class="btn-save" style="width: 100%; padding: 15px; font-size: 1.1rem; background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));">
+            Simulate Successful Payment
+        </button>
+        
+        <div style="text-align: center; margin-top: 15px;">
+            <a href="/profile" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem;">Cancel and return to profile</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('payBtn').addEventListener('click', async (e) => {
+        const btn = e.target;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Fake Payment...';
+        btn.disabled = true;
+
+        try {
+            const response = await window.fetchSecureAPI('/api/process-mock-payment', 'POST', { tier: '{{ tier }}' });
+            // Inside mock_payment.html
+
+            if (response && response.status === 'success') {
+                btn.innerHTML = '<i class="fas fa-check"></i> Success!';
+                btn.style.background = 'var(--accent-green)';
+                // Redirect back to profile page
+                //setTimeout(() => window.location.href = response.redirect_url, 1000);
+                window.location.href = '/profile?success=true';
+            }
+        } catch (error) {
+            alert("Mock payment failed!");
+            btn.innerHTML = 'Simulate Successful Payment';
+            btn.disabled = false;
+        }
+    });
+</script>
+{% endblock %}

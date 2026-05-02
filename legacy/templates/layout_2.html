@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8">
+   <title>DataTables with Flask and MongoDB</title>
+   <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .sidebar-active { color: #10b981; border-right: 4px solid #10b981; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+
+<div class="flex h-screen">
+    <div class="w-64 bg-white shadow-lg hidden md:block">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold text-emerald-500 tracking-tight">PERSONAL FINANCE</h1>
+        </div>
+        <nav class="mt-6 text-sm">
+            <p class="px-6 py-2 text-xs font-semibold text-gray-400 uppercase">Navigation</p>
+            <a href="#" class="flex items-center px-6 py-3 sidebar-active bg-emerald-50 bg-opacity-50">
+                <i class="fa-solid fa-chart-line mr-3"></i> Assets
+            </a>
+            <a href="{{ url_for('expenses') }}" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50">
+                <i class="fa-solid fa-wallet mr-3"></i> Expenses
+            </a>
+             <a href="{{ url_for('monthly') }}" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50">
+                <i class="fa-solid fa-robot mr-3"></i> Monthly Expenses
+            </a>
+            <a href="{{ url_for('forecast') }}" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50">
+                <i class="fa-solid fa-robot mr-3"></i> AI Insights
+            </a>
+            <a href="{{ url_for('display') }}" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50">
+                <i class="fa-solid fa-robot mr-3"></i> Dashboard
+            </a>
+            <a href="{{ url_for('upload') }}" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50">
+                <i class="fa-solid fa-robot mr-3"></i> Upload Expenses
+            </a>
+            <a href="{{ url_for('camera') }}" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50">
+                <i class="fa-solid fa-robot mr-3"></i> Receipt Scanner
+            </a>
+
+        </nav>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-8">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <p class="text-gray-400 text-sm">Wednesday, May 10, 2023</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="font-semibold text-gray-700">Sarah US</span>
+                <img src="https://ui-avatars.com/api/?name=Sarah+US" class="w-10 h-10 rounded-full border-2 border-white shadow-sm">
+            </div>
+        </div>
+    </div>
+ {% block content %}
+  {% endblock %}
+</body>
+</html>

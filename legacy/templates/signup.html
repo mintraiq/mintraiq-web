@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Ninja Finance</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e24;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-green: #00ff9d;
+            --accent-blue: #2f80ed;
+            --accent-purple: #bb6bd9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+        body {
+            background: radial-gradient(circle at top right, #1a1a2e 0%, var(--bg-dark) 100%);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-card {
+            background-color: var(--bg-card);
+            border-radius: 15px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+            animation: fadeUp 0.5s ease backwards;
+        }
+
+        .brand-header { text-align: center; margin-bottom: 30px; }
+        .brand-header i { font-size: 2.5rem; color: var(--accent-green); margin-bottom: 10px; }
+        .brand-header h2 { font-weight: 300; letter-spacing: 1px; }
+
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.9rem; }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            color: var(--text-secondary);
+        }
+        .input-wrapper input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 10px rgba(47, 128, 237, 0.2);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(187, 107, 217, 0.4);
+        }
+
+        .auth-footer { text-align: center; margin-top: 25px; font-size: 0.9rem; color: var(--text-secondary); }
+        .auth-footer a { color: var(--accent-blue); text-decoration: none; font-weight: bold; }
+        .auth-footer a:hover { text-decoration: underline; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-card">
+        <div class="brand-header">
+            <i class="fas fa-user-ninja"></i>
+            <h2>Join Ninja Finance</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 5px;">Master your wealth today.</p>
+        </div>
+
+        <form id="signupForm">
+            <div class="input-group">
+                <label>Full Name</label>
+                <div class="input-wrapper">
+                    <i class="far fa-user"></i>
+                    <input type="text" id="name" placeholder="Enter your name" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Email Address</label>
+                <div class="input-wrapper">
+                    <i class="far fa-envelope"></i>
+                    <input type="email" id="email" placeholder="ninja@example.com" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="Create a strong password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">
+                Begin Training <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Already have an account? <a href="/login">Sign In</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            btn.disabled = true;
+
+            const payload = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const response = await fetch('/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    btn.innerHTML = '<i class="fas fa-check"></i> Account Created!';
+                    btn.style.background = 'var(--accent-green)';
+                    setTimeout(() => window.location.href = '/login', 1500);
+                } else {
+                    throw new Error(result.error || "Registration failed");
+                }
+            } catch (error) {
+                alert(error.message);
+                btn.innerHTML = 'Begin Training <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

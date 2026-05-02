@@ -1,0 +1,29 @@
+<div class="page-header">
+            <h1>AI Advisor Settings</h1>
+            <p>Tune how the AI interacts with your financial data.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-robot"></i><h3>AI Personality</h3>
+            </div>
+            <form id="aiSettingsForm">
+                <div class="form-group">
+                    <label>How should the AI talk to you?</label>
+                    <select id="aiTone" class="form-control">
+                        <option value="professional">Professional & Direct</option>
+                        <option value="encouraging">Encouraging & Gentle</option>
+                        <option value="strict">Strict & Disciplined (Tough Love)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>
+                        <input type="checkbox" id="autoCategorize" checked style="margin-right: 10px;">
+                        Allow AI to auto-correct my manual categorizations
+                    </label>
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="submit" class="btn-save">Update AI</button>
+                </div>
+            </form>
+        </div>

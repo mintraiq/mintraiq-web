@@ -1,0 +1,4 @@
+# Local overrides (never commit secrets)
+portal/js/config.local.js
+.env
+.env.local

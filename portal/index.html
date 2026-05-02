@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — Sign in</title>
+    <style>
+        :root { --bg: #0c1322; --card: #171e2d; --g: #00ff9d; --m: #b8c2d4; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; min-height: 100vh; font-family: system-ui, sans-serif;
+            background: radial-gradient(ellipse at 50% 0%, rgba(0, 198, 255, 0.12), transparent 55%), var(--bg);
+            color: #fff; display: flex; align-items: center; justify-content: center; padding: 24px;
+        }
+        .card {
+            background: var(--card); border: 1px solid rgba(122, 152, 205, 0.2);
+            border-radius: 16px; padding: 28px 24px; max-width: 420px; width: 100%;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.35);
+        }
+        h1 { font-size: 1.35rem; margin: 0 0 8px; }
+        p { color: var(--m); font-size: 0.92rem; line-height: 1.5; margin: 0 0 20px; }
+        button {
+            width: 100%; padding: 14px; border-radius: 12px; border: none; cursor: pointer;
+            font-weight: 700; font-size: 0.95rem; background: var(--g); color: #0a0a0a;
+            box-shadow: 0 0 24px rgba(0,255,157,0.25);
+        }
+        button:hover { filter: brightness(1.05); }
+        #status { margin-top: 14px; font-size: 0.85rem; color: var(--m); min-height: 1.2em; }
+        a { color: #7ee8ff; font-size: 0.85rem; }
+    </style>
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
+</head>
+<body>
+    <div class="card">
+        <h1>Sign in to MintrAIQ</h1>
+        <p>Uses Logto (OIDC). After sign-in we call your finance API <code>/bootstrap</code> with a Bearer token, then take you to the right screen.</p>
+        <button type="button" id="signIn">Continue with Logto</button>
+        <p id="status"></p>
+        <p><a href="../intro.html">← Back to marketing site</a></p>
+    </div>
+    <script type="module" src="./index.js"></script>
+</body>
+</html>

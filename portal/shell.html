@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — Session</title>
+    <style>
+        :root { --bg: #0c1322; --card: #171e2d; --g: #00ff9d; --m: #b8c2d4; }
+        body { margin: 0; font-family: system-ui, sans-serif; background: var(--bg); color: #fff; padding: 24px; }
+        .card { max-width: 640px; margin: 0 auto; background: var(--card); border-radius: 16px; padding: 22px; border: 1px solid rgba(122,152,205,0.2); }
+        pre { background: #111827; padding: 12px; border-radius: 8px; overflow: auto; font-size: 0.82rem; color: #e5e7eb; }
+        .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+        button, a.btn {
+            display: inline-block; padding: 12px 18px; border-radius: 10px; font-weight: 700; text-decoration: none;
+            border: none; cursor: pointer; font-size: 0.9rem;
+        }
+        .primary { background: var(--g); color: #0a0a0a; }
+        .ghost { background: transparent; color: var(--m); border: 1px solid rgba(255,255,255,0.2); }
+    </style>
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
+</head>
+<body>
+    <div class="card">
+        <h1 style="margin-top:0;font-size:1.2rem">Signed in</h1>
+        <p style="color:var(--m);margin:0 0 12px">Bootstrap payload from finance API (if you landed here directly, open the portal first).</p>
+        <pre id="payload">{}</pre>
+        <div class="row">
+            <a class="btn primary" href="../mock-dashboard.html">Open demo dashboard</a>
+            <button type="button" class="btn ghost" id="logout">Sign out</button>
+            <a class="btn ghost" href="./index.html">Portal home</a>
+        </div>
+    </div>
+    <script type="module" src="./shell.js"></script>
+</body>
+</html>

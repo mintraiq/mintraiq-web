@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savings Goals - Ninja Finance</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e24;
+            --accent-blue: #2f80ed;
+            --accent-green: #00ff9d;
+            --accent-purple: #bb6bd9;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --sidebar-width: 280px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- Settings Dedicated Sidebar --- */
+        .settings-sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-card);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .back-to-dash {
+            display: inline-block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.2s;
+        }
+
+        .back-to-dash:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .back-to-dash i {
+            margin-right: 8px;
+        }
+
+        .nav-group {
+            margin-bottom: 30px;
+        }
+
+        .nav-group-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 10px;
+            padding-left: 15px;
+            font-weight: bold;
+        }
+
+        .settings-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .settings-nav a i {
+            width: 24px;
+            font-size: 1.1rem;
+            margin-right: 10px;
+        }
+
+        .settings-nav a:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+            color: white;
+        }
+
+        .settings-nav a.active {
+            background-color: rgba(47, 128, 237, 0.1);
+            color: var(--accent-blue);
+            font-weight: bold;
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        /* --- Main Content Area --- */
+        .settings-content {
+            margin-left: var(--sidebar-width);
+            padding: 50px 60px;
+            flex-grow: 1;
+            max-width: 900px;
+        }
+
+        .page-header {
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 20px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2rem;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: var(--text-secondary);
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-header i {
+            color: var(--accent-green);
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.9rem; }
+        .form-control {
+            width: 100%; padding: 12px 15px; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white; border-radius: 8px; box-sizing: border-box;
+        }
+        .form-control:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(47, 128, 237, 0.2); }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+            border: none; padding: 12px 25px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+        }
+
+        .status-msg {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .status-success { background: rgba(0, 255, 157, 0.1); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .status-error { background: rgba(255, 71, 87, 0.1); color: #ff4757; border: 1px solid #ff4757; }
+    </style>
+</head>
+<body>
+
+    <nav class="settings-sidebar">
+        <a href="/home" class="back-to-dash">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+
+        <div class="nav-group">
+            <div class="nav-group-title">Account</div>
+            <div class="settings-nav">
+                <a href="/account/profile"><i class="far fa-user-circle"></i> Personal Profile</a>
+                <a href="/account/billing"><i class="fas fa-bolt"></i> Billing & Plan</a>
+                <a href="/account/security"><i class="fas fa-shield-alt"></i> Security</a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-title">Preferences</div>
+            <div class="settings-nav">
+                <a href="/account/goals" class="active"><i class="fas fa-bullseye"></i> Savings Goals</a>
+                <a href="/account/financial-setup"><i class="fas fa-university"></i> Banks & Income</a>
+                <a href="/account/categories"><i class="fas fa-tags"></i> Custom Categories</a>
+                <a href="/account/ai-settings"><i class="fas fa-robot"></i> AI Advisor Settings</a>
+            </div>
+        </div>
+
+        <div style="margin-top: auto;">
+             <a href="/logout" style="color: rgba(255,71,87,0.8); text-decoration: none; display: flex; align-items: center; padding: 10px 15px; transition: color 0.2s;">
+                 <i class="fas fa-sign-out-alt" style="margin-right: 10px;"></i> Logout
+             </a>
+        </div>
+    </nav>
+
+   <main class="settings-content">
+        <div class="page-header">
+            <h1>Savings Goals</h1>
+            <p>Define your financial targets and let the AI help you achieve them.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-bullseye"></i>
+                <h3>Set Your Target</h3>
+            </div>
+            <form id="goalsForm">
+                <div class="form-group">
+                    <label>Savings Goal Amount ($)</label>
+                    <input type="number" id="goalAmount" class="form-control" placeholder="e.g. 500" required step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Frequency</label>
+                    <select id="interval" class="form-control">
+                        <option value="monthly">Monthly</option>
+                        <option value="weekly">Weekly</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-save">Save Goal</button>
+            </form>
+            <div id="statusMsg" class="status-msg"></div>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--accent-purple);">
+            <div class="card-header">
+                <i class="fas fa-lightbulb" style="color: var(--accent-purple);"></i>
+                <h3>Pro Tip</h3>
+            </div>
+            <p style="color: var(--text-secondary); line-height: 1.6;">
+                Setting a realistic goal is the first step toward financial discipline. 
+                Our AI Advisor uses these targets to generate your <strong>Budget Plan</strong> 
+                and <strong>Financial Discipline Score</strong>. 
+                Start with a small, achievable goal and increase it as you build better habits!
+            </p>
+        </div>
+   </main>
+
+   <script>
+        document.getElementById('goalsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const statusMsg = document.getElementById('statusMsg');
+            
+            const payload = {
+                goal_amount: parseFloat(document.getElementById('goalAmount').value),
+                interval: document.getElementById('interval').value
+            };
+
+            btn.disabled = true;
+            btn.innerText = 'Saving...';
+            statusMsg.style.display = 'none';
+
+            try {
+                const response = await fetch('/account/goals', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                statusMsg.style.display = 'block';
+                if (result.status === 'success') {
+                    statusMsg.className = 'status-msg status-success';
+                    statusMsg.innerText = result.message;
+                } else {
+                    statusMsg.className = 'status-msg status-error';
+                    statusMsg.innerText = result.detail || 'Failed to save goal.';
+                }
+            } catch (err) {
+                statusMsg.style.display = 'block';
+                statusMsg.className = 'status-msg status-error';
+                statusMsg.innerText = 'Network error. Please try again.';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Save Goal';
+            }
+        });
+   </script>
+</body>
+</html>

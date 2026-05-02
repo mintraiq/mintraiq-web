@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+{% extends "layout.html" %}
+{% block content %}
+<head>
+   <meta charset="UTF-8">
+   <title>DataTables with Flask and MongoDB</title>
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+   <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+   <div class="card">
+      <div class="card-header">
+         <h3 class="card-title">{{ table_title }}</h3>
+      </div>
+      <div class="card-body">
+         <table id="{{ table_id }}" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+            <tr>
+               {% for column in columns %}
+               <th>{{ column|capitalize }}</th>
+               {% endfor %}
+            </tr>
+            </thead>
+            <tbody></tbody>
+         </table>
+         <button id="exportButton" class="btn btn-dark">Export to Excel</button>
+      </div>
+   </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+
+{{ script|safe }}
+<script>
+   $('#exportButton').on('click', function() {
+      var table = $('#{{ table_id }}').DataTable();
+      var searchValue = table.search();
+      var order = table.order();
+
+      var params = $.param({
+         'search[value]': searchValue,
+         'order[0][column]': order[0][0],
+         'order[0][dir]': order[0][1]
+      });
+
+      window.location.href = "/export/mac_db?" + params;
+   });
+</script>
+</body>
+{% endblock content %}
+</html>

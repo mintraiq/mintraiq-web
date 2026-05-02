@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+
+
+
+{% extends "layout.html" %}
+
+{% block page_title %}Search Transactions{% endblock %}
+
+{% block content %}
+<style>
+   /* Table Container & Controls */
+.table-container {
+    background-color: var(--bg-card, #1e1e24);
+    border-radius: 12px;
+    padding: 20px;
+    color: var(--text-primary, #ffffff);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.table-controls, .specific-filters, .table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 15px;
+}
+
+.specific-filters {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Inputs & Selects */
+.table-container input, .table-container select {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-primary, #ffffff);
+    padding: 8px 12px;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.table-container input:focus, .table-container select:focus {
+    border-color: var(--accent-green, #00ff9d);
+}
+
+/* The Table Itself */
+.ninja-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+    table-layout: fixed; /* Prevents squished columns */
+}
+
+.ninja-table th {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 12px;
+    text-align: left;
+    font-size: 0.85rem;
+    color: var(--text-secondary, #a0a0a0);
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.ninja-table th:hover { background-color: rgba(255, 255, 255, 0.1); }
+
+.ninja-table td {
+    padding: 15px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.95rem;
+}
+
+.ninja-table tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
+
+/* Alignment Utilities */
+.align-right { text-align: right !important; }
+.clear-btn { background: transparent; border: 1px solid var(--accent-red, #ff4757); color: var(--accent-red); padding: 8px 15px; border-radius: 6px; cursor: pointer; }
+
+/* Pagination Buttons */
+.pagination button {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 8px 12px;
+    margin-left: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.pagination button:hover:not(:disabled) { background-color: var(--accent-green, #00ff9d); color: black; }
+.pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+.pagination button.active { background-color: var(--accent-green, #00ff9d); color: black; border-color: var(--accent-green); }
+
+</style>
+
+<div class="table-container">
+    <div class="table-controls">
+        <div class="length-control">
+            Show
+            <select id="pageSize" onchange="grid.changePageSize()">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+            </select>
+            entries
+        </div>
+        <div class="search-control">
+            Search: <input type="text" id="globalSearch" placeholder="Search all columns..." onkeyup="grid.applyFilters()">
+        </div>
+    </div>
+
+    <div class="specific-filters">
+        <div class="date-range-group" style="display: flex; align-items: center; gap: 8px;">
+            <input type="date" id="filterStartDate" onchange="grid.applyFilters()" title="Start Date">
+            <span style="color: var(--text-secondary); font-size: 0.9rem;">to</span>
+            <input type="date" id="filterEndDate" onchange="grid.applyFilters()" title="End Date">
+        </div>
+
+        <input type="text" id="filterDesc" placeholder="Filter Description..." onkeyup="grid.applyFilters()">
+        <select id="filterCategory" onchange="grid.applyFilters()">
+            <option value="">All Categories</option>
+            <option value="Internal Transfers">Internal Transfers</option>
+            <option value="Income">Income</option>
+            <option value="Utilities">Utilities</option>
+        </select>
+
+        <!--button class="clear-btn" onclick="grid.clearFilters()">
+            <i class="fas fa-globe"></i> All Time
+        </button -->
+    </div>
+
+    <table class="ninja-table">
+        <thead>
+            <tr>
+                <th onclick="grid.sortBy('date')">DATE <i class="fas fa-sort"></i></th>
+                <th onclick="grid.sortBy('amount')" class="align-right">EXPENSES <i class="fas fa-sort"></i></th>
+                <th onclick="grid.sortBy('description')">DESCRIPTION <i class="fas fa-sort"></i></th>
+                <th onclick="grid.sortBy('category')">CATEGORY <i class="fas fa-sort"></i></th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            </tbody>
+    </table>
+
+    <div class="table-footer">
+        <div id="tableInfo" class="table-info">Showing 0 to 0 of 0 entries</div>
+        <div class="pagination" id="paginationControls">
+            </div>
+    </div>
+</div>
+<script src="/static/datagrid.js"></script>
+{% endblock %}

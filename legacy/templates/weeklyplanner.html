@@ -1,0 +1,269 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="grid-container">
+    <div class="card grid-span-2 status-card" style="border-left: 5px solid var(--accent-blue);">
+        <div class="mission-header">
+            <div>
+                <span class="card-label">MISSION WINDOW</span>
+                <h2 style="margin: 0; color: #fff;">{{ data.meta.week_label }}</h2>
+            </div>
+            <div class="status-badge {{ data.goal_progress.status_color }}">
+                {{ data.goal_progress.status_label }}
+            </div>
+        </div>
+    </div>
+    <div class="card grid-span-2">
+        <div class="card-header">
+            <span class="card-title"><i class="fas fa-calendar-day"></i> DAILY COMBAT ALLOWANCE</span>
+        </div>
+        <div class="daily-planner-grid">
+            {% for day in data.daily_planner %}
+            <div class="day-pill {{ day.status }} {{ 'is-today' if day.is_today }}">
+                <span class="day-name">{{ day.day }}</span>
+                <span class="day-date">{{ day.date }}</span>
+                <span class="day-budget">${{ "%.2f"|format(day.daily_budget) }}</span>
+                {% if day.is_today %}<span class="today-tag">ACTIVE</span>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+
+    <div class="card grid-span-2">
+        <div class="card-header">
+            <span class="card-title"><i class="fas fa-bullseye"></i> SAVINGS PROGRESS</span>
+        </div>
+        <div class="progress-container">
+            <div class="progress-labels">
+                <span>{{ data.goal_progress.percentage }}% Target</span>
+                <span>${{ data.goal_progress.achieved_monthly }} / ${{ data.goal_progress.target_monthly }}</span>
+            </div>
+            <div class="ninja-progress-bg">
+                <div class="ninja-progress-fill" style="width: {{ data.goal_progress.percentage }}%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card grid-span-2 coach-card">
+        <div class="coach-info">
+            <span class="coach-avatar">{{ data.ai_coach.avatar_emoji }}</span>
+            <strong>{{ data.ai_coach.coach_name }}</strong>
+        </div>
+        <p class="coach-message">
+            {% if data.ai_coach.message == "(AI coach unavailable)" %}
+            "Your blade is sharp, Alex. You are currently 100% on track. Maintain discipline in the 'Payments' sector to secure the monthly win."
+            {% else %}
+            "{{ data.ai_coach.message }}"
+            {% endif %}
+        </p>
+    </div>
+  {% for key, item in data.summary.items() %}
+    <div class="card grid-span-1 metric-card">
+        <div class="card-icon icon-{{ item.color }}">
+            <i class="fas fa-{{ item.icon }}"></i>
+        </div>
+        <div class="metric-content">
+            <span class="card-label">{{ item.label }}</span>
+            <h3 class="neon-text-{{ item.color }}">{{ item.value }}</h3>
+            <span class="helper-text">{{ item.sublabel }}</span>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+    <div class="card grid-span-4">
+        <div class="card-header">
+            <span class="card-title"><i class="fas fa-shuriken"></i> SECTOR BREAKDOWN</span>
+
+        </div>
+        <div class="ninja-table-scroll">
+            <table class="ninja-table">
+                <thead>
+                    <tr>
+                        <th>CATEGORY</th>
+                        <th>WEEKLY BUDGET</th>
+                        <th>DAILY LIMIT</th>
+                        <th>MONTHLY IMPACT</th>
+                        <th>NINJA TIP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cat in data.categories %}
+                    <tr class="{{ 'win-row' if cat.has_cut }}">
+                        <td>
+                            <span class="cat-icon">{{ cat.emoji }}</span>
+                            <strong>{{ cat.name }}</strong>
+                            <span class="badge {{ cat.badge.color }}">{{ cat.badge.label }}</span>
+                        </td>
+                        <td>{{ cat.weekly_budget }}</td>
+                        <td>{{ cat.daily_allowance }}</td>
+                        <td class="impact-cell">{{ cat.monthly_saving }}</td>
+                        <td class="tip-cell">{{ cat.tip }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+<style>
+    /* Specific styling for the Weekly Mission UI */
+    .mission-header { display: flex; justify-content: space-between; align-items: center; }
+    
+    .status-badge.success { 
+        background: rgba(0, 255, 157, 0.1); 
+        color: var(--accent-green); 
+        border: 1px solid var(--accent-green);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+
+    /* Icon Colors */
+    .icon-blue { color: #00d2ff; background: rgba(0, 210, 255, 0.1); }
+    .icon-green { color: #00ff9d; background: rgba(0, 255, 157, 0.1); }
+    .icon-purple { color: #a349ff; background: rgba(163, 73, 255, 0.1); }
+    .icon-orange { color: #ff9f43; background: rgba(255, 159, 67, 0.1); }
+
+    /* Daily Planner */
+    .daily-planner-grid { 
+        display: grid; 
+        grid-template-columns: repeat(7, 1fr); 
+        gap: 12px; 
+        margin-top: 15px; 
+    }
+    .day-pill { 
+        background: #1a1a1c; 
+        padding: 15px 5px; 
+        border-radius: 10px; 
+        text-align: center; 
+        border: 1px solid #333;
+        transition: transform 0.3s;
+    }
+    .day-pill.is-today { 
+        border-color: var(--accent-blue); 
+        background: rgba(0, 210, 255, 0.05);
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+    }
+    .day-pill.past { opacity: 0.5; }
+    .day-name { font-size: 0.7rem; color: #888; text-transform: uppercase; display: block; }
+    .day-budget { font-weight: bold; color: var(--accent-green); display: block; margin-top: 5px; }
+    .today-tag { font-size: 0.6rem; background: var(--accent-blue); color: #000; padding: 2px 5px; border-radius: 4px; font-weight: bold; }
+
+    /* Table Adjustments */
+    .win-row { background: rgba(0, 255, 157, 0.03); }
+    .badge.success { background: var(--accent-green); color: #000; }
+    .badge.secondary { background: #444; color: #fff; }
+    .impact-cell { color: var(--accent-green); font-weight: bold; }
+    .tip-cell { font-style: italic; color: #888; font-size: 0.85rem; }
+     .card {
+        background: #1a1a1c;
+        border-radius: 12px;
+        /* Creates internal 'breathing room' for content */
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        height: 100%; /* Ensures all cards in a row have equal height */
+        box-sizing: border-box;
+    }
+
+    /* Spacing between Card Header and Card Content (Charts/Tables) */
+    .card-header {
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    /* Core Dashboard Grid */
+    .grid-container {
+        display: grid;
+        /* Forces a clean 4-column layout on desktop */
+        grid-template-columns: repeat(4, 1fr);
+        /* Standardizes spacing between ALL cards and tables */
+        gap: 20px;
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Responsiveness: Collapses columns as screen size shrinks */
+    @media (max-width: 1100px) {
+        .grid-container { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+        .grid-container { grid-template-columns: 1fr; }
+    }
+    .ninja-table {
+        width: 100%;
+        border-collapse: separate;
+        /* Adds vertical spacing between individual rows */
+        border-spacing: 0 8px;
+    }
+
+    .ninja-table th, .ninja-table td {
+        padding: 12px 16px; /* Horizontal spacing between columns */
+        text-align: left;
+        background: rgba(255, 255, 255, 0.02); /* Slight row contrast */
+    }
+    /* Scrollable Container */
+    .ninja-table-scroll {
+        max-height: 400px; /* Limits the height of the table area */
+        overflow-y: auto;  /* Adds vertical scroll bar */
+        overflow-x: auto;  /* Adds horizontal scroll for mobile screens */
+        padding-right: 5px; /* Space for the scrollbar */
+    }
+
+    /* Custom Scrollbar Styling (Webkit Browsers) */
+    .ninja-table-scroll::-webkit-scrollbar {
+        width: 6px;  /* Slim width */
+        height: 6px; /* Slim height for horizontal scroll */
+    }
+
+    .ninja-table-scroll::-webkit-scrollbar-track {
+        background: #111; /* Dark track to match card background */
+        border-radius: 10px;
+    }
+
+    .ninja-table-scroll::-webkit-scrollbar-thumb {
+        background: var(--accent-green); /* Use your Ninja Green color */
+        border-radius: 10px;
+        box-shadow: 0 0 5px var(--accent-green); /* Glowing effect */
+    }
+
+    .ninja-table-scroll::-webkit-scrollbar-thumb:hover {
+        background: #00cc7e; /* Slightly darker on hover */
+    }
+
+    /* Ensure Table Headers stay visible while scrolling */
+    .ninja-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #1a1a1c; /* Must match card background to hide row overlap */
+    }
+    /* Fixes for narrow category names */
+    .ninja-table td:first-child {
+        border-radius: 8px 0 0 8px;
+        min-width: 150px;
+    }
+    .status-card {
+        display: flex;
+        flex-direction: row; /* Aligns "Mission" and "Gap" side-by-side */
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .mission-text-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .gap-display {
+        text-align: right;
+    }
+</style>
+{% endblock %}

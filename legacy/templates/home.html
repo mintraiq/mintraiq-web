@@ -1,0 +1,194 @@
+
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .empty-state-card {
+        background-color: var(--bg-card, #1e1e24);
+        border: 1px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 60px 20px;
+        text-align: center;
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        color: var(--accent-purple, #bb6bd9);
+        margin-bottom: 20px;
+        /* The Animation */
+        animation: subtlePulse 2s infinite ease-in-out;
+    }
+
+    .empty-state-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    .empty-state-card p {
+        color: var(--text-secondary, #a0a0a0);
+        max-width: 400px;
+        margin-bottom: 30px;
+        line-height: 1.5;
+    }
+
+    @keyframes subtlePulse {
+        0% { transform: scale(1); opacity: 0.8; }
+        50% { transform: scale(1.1); opacity: 1; text-shadow: 0 0 15px rgba(187, 107, 217, 0.4); }
+        100% { transform: scale(1); opacity: 0.8; }
+    }
+</style>
+    <!-- Main Content -->
+    <main class="main-content">
+
+
+        <!-- Dashboard Grid -->
+        <div class="grid-container">
+            <!-- Row 1: Key Metrics -->
+            <div class="card metric-card income" style="animation-delay: 0.1s">
+                <div class="card-header">
+                    <span class="card-title">Income</span>
+                    <i class="fas fa-arrow-down-up metric-icon" style="color: var(--accent-green)"></i>
+                </div>
+                <div class="value" id="current_income"> </div>
+                <div class="trend up"><i class="fas fa-arrow-up"></i>&nbsp; +12% from last month</div>
+            </div>
+            <div class="card metric-card expense" style="animation-delay: 0.2s">
+                <div class="card-header">
+                    <span class="card-title">Expenses</span>
+                    <i class="fas fa-receipt metric-icon" style="color: var(--accent-red)"></i>
+                </div>
+                <div class="value" id="current_expense"></div>
+                <div class="trend down"><i class="fas fa-arrow-up"></i>&nbsp; +5% higher than avg</div>
+            </div>
+            <div class="card metric-card investment" style="animation-delay: 0.3s">
+                <div class="card-header">
+                    <span class="card-title">Investments</span>
+                    <i class="fas fa-chart-pie metric-icon" style="color: var(--accent-blue)"></i>
+                </div>
+                <div class="value" id="current_investments">$45,900</div>
+                <div class="trend up"><i class="fas fa-arrow-up"></i>&nbsp; +8.5% YTD return</div>
+            </div>
+            <div class="card metric-card savings" style="animation-delay: 0.4s">
+                <div class="card-header">
+                    <span class="card-title">Total Savings</span>
+                    <i class="fas fa-vault metric-icon" style="color: var(--accent-purple)"></i>
+                </div>
+                <div class="value" id="current_savings"></div>
+                <div class="trend"><i class="fas fa-check"></i>&nbsp; On track for goal</div>
+            </div>
+
+            <!-- Row 2: Main Charts & Alerts -->
+            <div class="card grid-span-3" style="animation-delay: 0.5s">
+                <div class="card-header">
+                    <span class="card-title">Income vs Expense Trend (6 Months)</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card alert-card" style="animation-delay: 0.6s">
+                <div class="alert-header">
+                    <i class="fas fa-exclamation-triangle"></i> HIGH EXPENSE ALERT
+                </div>
+                <ul class="high-expense-alert" id="high_expense_id">
+
+
+                 </ul>
+                <button style="background: var(--accent-red); border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer;">View Details</button>
+            </div>
+
+            <!-- Row 3: Forecasts & Breakdown -->
+            <div class="card grid-span-2" style="animation-delay: 0.7s">
+                 <div class="card-header">
+                    <span class="card-title">Expense Breakdown</span>
+                </div>
+                 <div class="chart-container" style="height: 220px;">
+                    <canvas id="breakdownChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card" style="animation-delay: 0.8s">
+                <div class="card-header">
+                    <span class="card-title">Next Month Forecast</span>
+                </div>
+                <p style="color: var(--text-secondary); margin-bottom: 10px;">Based on recurring bills & habits.</p>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <div>
+                        <small>Est. Income</small>
+                        <div id="est_income" style="color: var(--accent-green); font-weight: bold;"></div>
+                    </div>
+                    <div>
+                        <small>Est. Expense</small>
+                        <div id="est_expenses" style="color: var(--accent-red); font-weight: bold;">~</div>
+                    </div>
+                </div>
+                <small>Predicted Savings: <div id="est_savings" style="color: var(--accent-red); font-weight: bold;">~</div></small>
+                <div style="height: 6px; background: #333; border-radius: 3px; margin-top: 5px;">
+                    <div style="width: 65%; height: 100%; background: var(--accent-green); border-radius: 3px;"></div>
+                </div>
+            </div>
+
+            <div class="card ai-card grid-row-span-2" style="animation-delay: 0.9s">
+                <div class="card-header" style="color: var(--accent-purple)">
+                    <span class="card-title" style="color: inherit;"><i class="fas fa-robot"></i> AI Yearly Forecast</span>
+                </div>
+                <p>Projected Net Worth Growth over next 12 months based on current trajectory.</p>
+                <div class="chart-container" style="height: 180px; margin-top: 20px;">
+                     <canvas id="aiForecastChart"></canvas>
+                </div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <small>Eoy Projection</small>
+                    <div class="forecast-value" id="eoy_projection"></div>
+                </div>
+            </div>
+
+            <!-- Row 4: Recommendations -->
+             <div class="card grid-span-3" style="animation-delay: 1.0s">
+                <div class="card-header">
+                    <span class="card-title">Smart Recommendations</span>
+                </div>
+                 <ul class="recommendation-list" id="recommendationList">
+
+
+                 </ul>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="/static/dashboard.js"></script>
+<!-- JavaScript for Interactivity and Charts -->
+<script>
+
+    // Mobile Sidebar Toggle
+    const mobileToggle = document.getElementById('mobileToggle');
+    const sidebar = document.getElementById('sidebar');
+    mobileToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+    });
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768 && !sidebar.contains(e.target) && e.target !== mobileToggle && !mobileToggle.contains(e.target)) {
+            sidebar.classList.remove('active');
+        }
+    });
+
+    // Chart.js Defaults for Dark Theme
+    Chart.defaults.color = '#a0a0a0';
+    Chart.defaults.borderColor = '#333';
+
+
+
+
+
+
+</script>
+{% endblock %}
+                    

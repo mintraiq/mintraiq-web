@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial discipline — Ninja Finance</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
+</head>
+<body data-active-nav="score">
+<script src="../config/runtime-env.defaults.js"></script>
+<script src="../config/runtime-env.js"></script>
+<div class="dashboard-container">
+    <aside class="sidebar" id="app-sidebar"></aside>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="main-wrap">
+        <div class="mobile-bar">
+            <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+            <span style="font-weight:600;color:var(--accent-green)">Discipline</span>
+        </div>
+        <main class="main-content">
+            <header class="top-header">
+                <div>
+                    <h2 style="margin:0">AI financial discipline</h2>
+                    <p style="color:var(--text-secondary);margin-top:6px">Flask <code style="color:var(--accent-purple)">POST /financial-score</code> forwards to your AI service.</p>
+                </div>
+            </header>
+            <p class="api-hint">Payload uses <code>start_date</code>, <code>end_date</code>, and <code>savings_goal</code> (see your FastAPI contract at <a href="http://localhost:5000/api/docs" target="_blank" rel="noopener">/api/docs</a>).</p>
+
+            <div class="grid-container" id="plannerGrid">
+                <div class="card grid-span-4 ai-card">
+                    <div class="card-header"><h3 class="card-title"><i class="fas fa-brain"></i> Discipline &amp; optimization</h3></div>
+                    <p style="color:var(--text-secondary);font-size:0.95rem;line-height:1.5">
+                        Set a monthly savings target. The service scores discipline, surfaces spikes and leaks, and suggests cuts.
+                    </p>
+                    <div class="slider-wrapper">
+                        <div class="slider-header">
+                            <span>Monthly target savings</span>
+                            <span class="target-highlight">$<span id="targetValue">1000</span></span>
+                        </div>
+                        <div class="slider-track-container">
+                            <span class="slider-limits">$100</span>
+                            <input type="range" id="savingsSlider" min="100" max="5000" step="100" value="1000">
+                            <span class="slider-limits" style="text-align:right">$5000</span>
+                        </div>
+                    </div>
+                    <button type="button" id="generateBtn" class="generate-btn"><i class="fas fa-cogs"></i> Run diagnostics</button>
+                </div>
+
+                <div id="loadingState" class="card grid-span-4" style="display:none;text-align:center;padding:60px 20px">
+                    <i class="fas fa-spinner fa-spin fa-3x" style="color:var(--accent-purple);margin-bottom:20px"></i>
+                    <h2>Analyzing…</h2>
+                </div>
+
+                <div id="aiEmptyState" class="card grid-span-4" style="display:none;text-align:center;padding:60px 20px">
+                    <i class="fas fa-brain" style="font-size:4rem;color:#a855f7;margin-bottom:20px"></i>
+                    <h3 style="margin-bottom:15px">Need more data</h3>
+                    <p style="color:var(--text-secondary);max-width:500px;margin:0 auto 24px;line-height:1.5">Upload at least a month of transactions.</p>
+                    <a class="btn-primary" href="upload.html"><i class="fas fa-cloud-upload-alt"></i> Upload CSV</a>
+                </div>
+
+                <div id="resultsContainer" class="grid-container grid-span-4" style="display:none;margin-top:0">
+                    <div class="card metric-card grid-span-1" style="text-align:center">
+                        <div class="card-header" style="justify-content:center"><h3 class="card-title">Score</h3></div>
+                        <div id="resScoreCircle" class="score-circle">0</div>
+                        <div class="trend" style="color:var(--text-secondary)">Out of 100</div>
+                    </div>
+                    <div class="card metric-card grid-span-1">
+                        <div class="card-header"><h3 class="card-title">Gap to goal</h3></div>
+                        <div class="value" id="resGap" style="color:var(--accent-red);font-size:2rem">$0</div>
+                        <div class="trend">Target: $<span id="resTarget">1000</span></div>
+                    </div>
+                    <div class="card metric-card grid-span-2">
+                        <div class="card-header"><h3 class="card-title">Predicted base budget</h3></div>
+                        <div class="value" id="resBudget" style="font-size:2rem">$0</div>
+                    </div>
+                    <div class="card grid-span-2">
+                        <div class="card-header"><h3 class="card-title" style="color:var(--accent-red)"><i class="fas fa-exclamation-triangle"></i> Spikes</h3></div>
+                        <ul id="nudgesList" class="alert-list nudges"></ul>
+                    </div>
+                    <div class="card grid-span-2">
+                        <div class="card-header"><h3 class="card-title" style="color:var(--accent-yellow)"><i class="fas fa-search-dollar"></i> Leaks</h3></div>
+                        <ul id="leaksList" class="alert-list leaks"></ul>
+                    </div>
+                    <div class="card grid-span-4">
+                        <div class="card-header"><h3 class="card-title"><i class="fas fa-cut"></i> Reduction plan</h3></div>
+                        <div style="overflow-x:auto">
+                            <table class="budget-table">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Avg spend</th>
+                                        <th>Suggested cut</th>
+                                        <th>New target</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cutsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<script src="../legacy/static-app/js/api-client.js"></script>
+<script src="js/flask-shell-nav.js"></script>
+<script src="../legacy/static-app/js/financial-score-page.js"></script>
+</body>
+</html>

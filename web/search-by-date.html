@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search by date — Ninja Finance</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
+</head>
+<body data-active-nav="search">
+<script src="../config/runtime-env.defaults.js"></script>
+<script src="../config/runtime-env.js"></script>
+<div class="dashboard-container">
+    <aside class="sidebar" id="app-sidebar"></aside>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="main-wrap">
+        <div class="mobile-bar">
+            <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+            <span style="font-weight:600;color:var(--accent-green)">By date</span>
+        </div>
+        <main class="main-content">
+            <header class="top-header">
+                <div>
+                    <h2 style="margin:0">Expenses by date range</h2>
+                    <p style="color:var(--text-secondary);margin-top:6px">Flask <code style="color:var(--accent-purple)">GET /list/expenses?startDate=&amp;endDate=</code></p>
+                </div>
+            </header>
+            <div class="card">
+                <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-bottom:16px">
+                    <div class="form-group" style="margin:0">
+                        <label for="startDate">Start</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    <div class="form-group" style="margin:0">
+                        <label for="endDate">End</label>
+                        <input type="date" id="endDate">
+                    </div>
+                    <button type="button" class="btn-primary" id="runSearch"><i class="fas fa-search"></i> Load</button>
+                </div>
+                <p id="searchStatus" style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:8px"></p>
+                <div style="overflow-x:auto">
+                    <table class="ninja-table" id="dateTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<script src="../legacy/static-app/js/api-client.js"></script>
+<script src="js/flask-shell-nav.js"></script>
+<script src="../legacy/static-app/js/search-by-date.js"></script>
+</body>
+</html>

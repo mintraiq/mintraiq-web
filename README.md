@@ -7,6 +7,7 @@ Static marketing pages, a **Logto-powered portal** (`portal/`), **FastAPI refere
 | Path | Purpose |
 |------|---------|
 | `intro*.html`, `mock-dashboard.html`, … | Static marketing + demo dashboard |
+| **`web/`** | **Ninja Finance** static shell (Flask `layout.html`–style nav). Same pages as `http://localhost:5000/…` mapped to `web/*.html`; API base from `config/runtime-env` → `legacyFlaskBase`. Entry: `web/home.html` or `web/index.html`. |
 | `portal/` | Logto sign-in, callback → `POST …/bootstrap`, then **`portal/dashboard.html`** (live `POST …/generate` + charts) |
 | `finance_api.py` | Reference copy of your FastAPI app (`validate_token`, `BootstrapPayload`, CORS). Run the real app from your backend repo with `config.settings`. |
 | `legacy/templates/` | Original Jinja templates (not CDN-ready until converted) |
@@ -101,6 +102,25 @@ Open `http://localhost:8080/portal/index.html`.
 8. **FastAPI CORS:** Allow your Vercel origin (e.g. `https://mintraiq-xxx.vercel.app`) in the backend `allow_origins` so the portal can call the API with Bearer tokens.
 
 Local build before push (optional): `npm install && npm run build:env` — creates **`config/runtime-env.js`** from **`env.public`** or exported **`PUBLIC_*`** vars.
+
+### Ninja Finance static app (`web/`)
+
+| Flask (localhost:5000) | Vercel / static file |
+|------------------------|----------------------|
+| `/home` | `web/home.html` |
+| `/expenses` | `web/transactions.html` |
+| `/upload` | `web/upload.html` |
+| `/budget-planner` | `web/budget-planner.html` (iframe to Flask until JSON exists) |
+| `/weekly-planner` | `web/weekly-planner.html` |
+| `/financial-score` | `web/financial-score.html` |
+| `/forecast` | `web/forecast.html` |
+| `/cpi-guru` | `web/cpi-guru.html` |
+| `/account/goals` | `web/goals.html` |
+| `/account/profile` (tabs) | `web/account-profile.html` + `web/settings.html` |
+| `/camera` | `web/scan-receipts.html` |
+| `/upload-receipt` | `web/upload-receipts.html` |
+
+Set **`PUBLIC_LEGACY_FLASK_BASE`** (or defaults in `config/runtime-env.defaults.js`) to your Flask origin so sidebar hints and `fetch` calls match.
 
 ## Oracle CDN
 

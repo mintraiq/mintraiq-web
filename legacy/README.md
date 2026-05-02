@@ -4,7 +4,7 @@ This folder holds the original **Flask + Jinja** templates and static assets cop
 
 - `templates/` — Jinja sources (`{% extends %}`, `{{ url_for(...) }}`). Not CDN-safe until converted.
 - `static-flask/` — Scripts written for the Flask shell (`window.fetchSecureAPI`, session cookies).
-- **`pages/`** — Static HTML + **`static-app/`** JS/CSS aligned with `mock-dashboard.html` (dark shell, responsive sidebar). Use these when serving the UI as static files against the same Flask app (`expense_loader.py` reference).
+- **`pages/`** — Static HTML + **`static-app/`** (MintrAIQ-branded). Prefer repo-root **`web/`** for a **Ninja Finance** shell that tracks Flask `layout.html` navigation and the same `static-app` JS for API calls.
 
 ## Running the static app UI
 

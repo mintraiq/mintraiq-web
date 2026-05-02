@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — Transactions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="./css/portal-app.css">
+    <script src="../config/runtime-env.defaults.js"></script>
+    <script src="../config/runtime-env.js"></script>
+    <script src="./env.js"></script>
+</head>
+<body data-portal-nav="transactions">
+    <div class="dashboard-container">
+        <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <div class="main-wrap">
+            <div class="mobile-bar">
+                <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+                <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
+            </div>
+            <main class="main-content">
+                <header class="top-header">
+                    <div class="header-left">
+                        <h2 style="margin:0;font-size:1.75rem">Transactions</h2>
+                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">Browse and filter movements</p>
+                    </div>
+                </header>
+                <div class="card" style="max-width:640px">
+                    <p style="color:var(--text-secondary);margin:0 0 16px">The authenticated portal uses your FastAPI finance bundle for the dashboard. A dedicated transactions grid in this shell is planned to call the same API.</p>
+                    <p style="margin:0 0 16px">For the static Ninja Finance mirror (session cookie + Flask), open:</p>
+                    <a href="../web/transactions.html" class="btn-primary" style="display:inline-flex"><i class="fas fa-external-link-alt"></i> Open web/transactions</a>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script type="module" src="./js/portal-nav.js"></script>
+    <script type="module" src="./js/portal-page-boot.js"></script>
+</body>
+</html>

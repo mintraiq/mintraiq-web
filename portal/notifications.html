@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — Notifications</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="./css/portal-app.css">
+    <script src="../config/runtime-env.defaults.js"></script>
+    <script src="../config/runtime-env.js"></script>
+    <script src="./env.js"></script>
+</head>
+<body data-portal-nav="notifications">
+    <div class="dashboard-container">
+        <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <div class="main-wrap">
+            <div class="mobile-bar">
+                <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+                <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
+            </div>
+            <main class="main-content">
+                <header class="top-header">
+                    <div class="header-left">
+                        <h2 style="margin:0;font-size:1.75rem">Notifications</h2>
+                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">Alerts and nudges for your workspace</p>
+                    </div>
+                </header>
+                <div class="card" style="max-width:640px;margin-bottom:16px">
+                    <p style="color:var(--text-secondary);margin:0 0 12px">No push integrations are wired in this static deploy yet. Tune copy for email and in-app alerts in <a href="./settings-notifications.html" style="color:var(--accent-blue)">Settings → Alerts &amp; nudges</a>.</p>
+                </div>
+                <ul style="list-style:none;padding:0;margin:0;max-width:640px">
+                    <li class="card" style="margin-bottom:12px;padding:16px;display:flex;gap:14px;align-items:flex-start">
+                        <i class="fas fa-bell" style="color:var(--accent-purple);margin-top:4px"></i>
+                        <div>
+                            <strong>Weekly summary</strong>
+                            <p style="color:var(--text-secondary);font-size:0.9rem;margin:6px 0 0">Placeholder — connect your backend to enable.</p>
+                        </div>
+                    </li>
+                    <li class="card" style="padding:16px;display:flex;gap:14px;align-items:flex-start">
+                        <i class="fas fa-exclamation-circle" style="color:var(--accent-yellow);margin-top:4px"></i>
+                        <div>
+                            <strong>Spend spike</strong>
+                            <p style="color:var(--text-secondary);font-size:0.9rem;margin:6px 0 0">Placeholder — rules engine not connected.</p>
+                        </div>
+                    </li>
+                </ul>
+            </main>
+        </div>
+    </div>
+    <script type="module" src="./js/portal-nav.js"></script>
+    <script type="module" src="./js/portal-page-boot.js"></script>
+</body>
+</html>

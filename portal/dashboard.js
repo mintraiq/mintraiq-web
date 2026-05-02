@@ -105,11 +105,4 @@ function escapeAttr(s) {
         .replace(/'/g, '&#39;');
 }
 
-document.getElementById('signOut').addEventListener('click', async () => {
-    const client = createLogtoClient();
-    const postLogout = new URL('../intro.html', window.location.href).href;
-    sessionStorage.removeItem('mintraiq_bootstrap');
-    await client.signOut(postLogout);
-});
-
 main();

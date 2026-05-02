@@ -1,0 +1,202 @@
+/**
+ * Portal workspace + settings (Flask account layout mimic).
+ */
+a.user-avatar {
+    text-decoration: none;
+    color: inherit;
+}
+
+#portal-nav-root {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    align-self: stretch;
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-green, #00ff9d);
+    color: #0a0a0a;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+.btn-primary:hover {
+    filter: brightness(1.05);
+}
+
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+@media (max-width: 640px) {
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+.portal-settings-layout {
+    display: flex;
+    min-height: 100vh;
+    background: var(--bg-dark, #121212);
+    color: var(--text-primary, #fff);
+}
+
+.portal-settings-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--bg-card, #1e1e24);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 28px 18px;
+    display: flex;
+    flex-direction: column;
+}
+
+.portal-settings-sidebar .back-dash {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    margin-bottom: 28px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary, #a0a0a0);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.92rem;
+}
+.portal-settings-sidebar .back-dash:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-group-title {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.35);
+    margin: 18px 0 8px 12px;
+    font-weight: 700;
+}
+
+.settings-nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    margin-bottom: 4px;
+    border-radius: 10px;
+    color: var(--text-secondary, #a0a0a0);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: background 0.15s, color 0.15s;
+}
+.settings-nav a:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: #fff;
+}
+.settings-nav a.active {
+    background: rgba(47, 128, 237, 0.15);
+    color: #7ee8ff;
+    border-left: 3px solid var(--accent-blue, #2f80ed);
+    margin-left: -3px;
+    padding-left: 14px;
+}
+
+.portal-settings-main {
+    flex: 1;
+    padding: 48px 56px;
+    max-width: 900px;
+    overflow-y: auto;
+}
+.portal-settings-main .page-header {
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.portal-settings-main .page-header h1 {
+    margin: 0 0 8px;
+    font-size: 1.75rem;
+    font-weight: 600;
+}
+.portal-settings-main .page-header p {
+    margin: 0;
+    color: var(--text-secondary, #a0a0a0);
+    font-size: 0.95rem;
+}
+
+.portal-settings-main .card {
+    background: var(--bg-card, #1e1e24);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+}
+.portal-settings-main .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+.portal-settings-main .card-header i {
+    color: var(--accent-purple, #bb6bd9);
+    font-size: 1.2rem;
+}
+.portal-settings-main .card-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-secondary, #a0a0a0);
+    font-size: 0.9rem;
+}
+.form-control {
+    width: 100%;
+    max-width: 420px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.25);
+    color: #fff;
+    font-size: 0.95rem;
+}
+.btn-save {
+    background: linear-gradient(135deg, var(--accent-green, #00ff9d), var(--accent-blue, #2f80ed));
+    border: none;
+    color: #0a0a0a;
+    font-weight: 700;
+    padding: 12px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* Nested under workspace main (dashboard shell) */
+.main-content--settings {
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+.main-content--settings .portal-settings-layout {
+    flex: 1;
+    min-height: 0;
+}
+
+@media (max-width: 900px) {
+    .portal-settings-layout { flex-direction: column; }
+    .portal-settings-sidebar { width: 100%; }
+    .portal-settings-main { padding: 24px 18px; }
+}

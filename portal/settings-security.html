@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — Security</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="./css/portal-app.css">
+    <script src="../config/runtime-env.defaults.js"></script>
+    <script src="../config/runtime-env.js"></script>
+    <script src="./env.js"></script>
+</head>
+<body data-portal-nav="settings" data-settings-nav="security">
+    <div class="dashboard-container">
+        <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <div class="main-wrap">
+            <div class="mobile-bar">
+                <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+                <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
+            </div>
+            <main class="main-content main-content--settings">
+                <div class="portal-settings-layout">
+                    <aside class="portal-settings-sidebar"><div id="settings-nav-root"></div></aside>
+                    <div class="portal-settings-main">
+                        <div class="page-header">
+                            <h1>Security</h1>
+                            <p>Password, sessions, and two-factor (preview).</p>
+                        </div>
+                        <div class="card">
+                            <p style="color:var(--text-secondary);margin:0">Authentication is handled by Logto for this deploy. Session and device management UI will appear here when wired to your identity provider APIs.</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script type="module" src="./js/portal-nav.js"></script>
+    <script type="module" src="./js/portal-settings-nav.js"></script>
+    <script type="module" src="./js/portal-page-boot.js"></script>
+</body>
+</html>

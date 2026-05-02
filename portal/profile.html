@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="./css/portal-app.css">
+    <script src="../config/runtime-env.defaults.js"></script>
+    <script src="../config/runtime-env.js"></script>
+    <script src="./env.js"></script>
+</head>
+<body data-portal-nav="profile">
+    <div class="dashboard-container">
+        <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <div class="main-wrap">
+            <div class="mobile-bar">
+                <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+                <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
+            </div>
+            <main class="main-content">
+                <header class="top-header">
+                    <div class="header-left">
+                        <h2 style="margin:0;font-size:1.75rem">Profile</h2>
+                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">Your account in the MintrAIQ portal</p>
+                    </div>
+                    <div class="header-right">
+                        <div class="user-avatar" id="userAvatar">?</div>
+                    </div>
+                </header>
+                <div class="card" style="max-width:720px">
+                    <div class="card-header"><span class="card-title"><i class="far fa-id-card"></i> Identity</span></div>
+                    <form id="profileForm">
+                        <div class="form-group">
+                            <label for="profileName">Display name</label>
+                            <input type="text" id="profileName" class="form-control" autocomplete="name" />
+                        </div>
+                        <div class="form-group">
+                            <label for="profileEmail">Email</label>
+                            <input type="email" id="profileEmail" class="form-control" disabled style="opacity:0.65" />
+                        </div>
+                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px">Profile sync with your backend is coming soon. Values shown here come from your last sign-in.</p>
+                        <button type="submit" class="btn-save">Save (preview)</button>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script type="module" src="./js/portal-nav.js"></script>
+    <script type="module" src="./profile.js"></script>
+</body>
+</html>

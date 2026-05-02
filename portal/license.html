@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — License &amp; tiers</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="./css/portal-app.css">
+    <script src="../config/runtime-env.defaults.js"></script>
+    <script src="../config/runtime-env.js"></script>
+    <script src="./env.js"></script>
+</head>
+<body data-portal-nav="license">
+    <div class="dashboard-container">
+        <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <div class="main-wrap">
+            <div class="mobile-bar">
+                <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+                <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
+            </div>
+            <main class="main-content">
+                <header class="top-header">
+                    <div class="header-left">
+                        <h2 style="margin:0;font-size:1.75rem">License &amp; tiers</h2>
+                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">Choose the plan that matches your automation and data volume</p>
+                    </div>
+                </header>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:900px">
+                    <div class="card">
+                        <div class="card-header"><span class="card-title"><i class="fas fa-seedling"></i> Free</span></div>
+                        <p style="color:var(--text-secondary);font-size:0.92rem;margin-bottom:14px">Core dashboard, manual categorization, limited AI nudges.</p>
+                        <span class="tier-pill" style="display:inline-block;font-size:0.8rem;padding:6px 12px;border-radius:999px;background:rgba(0,255,157,0.1);color:var(--accent-green);border:1px solid rgba(0,255,157,0.35)">Current default</span>
+                    </div>
+                    <div class="card" style="border-color:rgba(47,128,237,0.35)">
+                        <div class="card-header"><span class="card-title" style="color:var(--accent-blue)"><i class="fas fa-bolt"></i> Pro</span></div>
+                        <p style="color:var(--text-secondary);font-size:0.92rem;margin-bottom:14px">Full AI advisor, forecasting, priority support, higher API limits.</p>
+                        <a href="../coming-soon.html?from=license" class="btn-primary" style="display:inline-flex">Upgrade (coming soon)</a>
+                    </div>
+                </div>
+                <p style="color:var(--text-secondary);font-size:0.88rem;margin-top:24px;max-width:640px">Billing is managed in <a href="./settings-billing.html" style="color:var(--accent-blue)">Settings → Billing &amp; plan</a> when checkout is connected.</p>
+            </main>
+        </div>
+    </div>
+    <script type="module" src="./js/portal-nav.js"></script>
+    <script type="module" src="./js/portal-page-boot.js"></script>
+</body>
+</html>

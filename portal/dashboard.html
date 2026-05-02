@@ -7,6 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="./css/portal-app.css">
     <style>
         .empty-state-card {
             background-color: var(--bg-card);
@@ -45,19 +46,16 @@
     <script src="../config/runtime-env.js"></script>
     <script src="./env.js"></script>
 </head>
-<body>
+<body data-portal-nav="dashboard">
     <div class="dashboard-container">
-        <aside class="sidebar" style="width:var(--sidebar-width);flex-shrink:0">
-            <div class="brand"><i class="fas fa-brain"></i> MintrAIQ</div>
-            <div class="menu-section">Workspace</div>
-            <span class="menu-item active"><i class="fas fa-chart-line"></i> Dashboard</span>
-            <div style="flex-grow:1"></div>
-            <a href="../intro.html" class="menu-item"><i class="fas fa-arrow-left"></i> Marketing site</a>
-            <button type="button" class="menu-item" id="signOut" style="border:none;width:100%;cursor:pointer;background:transparent;font:inherit;text-align:left">
-                <i class="fas fa-sign-out-alt"></i> Sign out
-            </button>
-        </aside>
-        <main class="main-content">
+        <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <div class="main-wrap">
+            <div class="mobile-bar">
+                <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+                <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
+            </div>
+            <main class="main-content">
             <header class="top-header">
                 <div class="header-left">
                     <h2 style="margin:0;font-size:1.75rem">Dashboard</h2>
@@ -67,7 +65,7 @@
                     </p>
                 </div>
                 <div class="header-right">
-                    <div class="user-avatar" id="userAvatar" title="Profile">?</div>
+                    <a href="./profile.html" class="user-avatar" id="userAvatar" title="Profile">?</a>
                 </div>
             </header>
             <p id="apiStatus" style="color:var(--text-secondary);font-size:0.85rem;margin:-12px 0 16px;min-height:1.2em"></p>
@@ -122,7 +120,8 @@
                     <ul class="recommendation-list" id="recommendationList"></ul>
                 </div>
             </div>
-        </main>
+            </main>
+        </div>
     </div>
     <script>
         if (window.Chart) {
@@ -130,6 +129,7 @@
             Chart.defaults.borderColor = '#333';
         }
     </script>
+    <script type="module" src="./js/portal-nav.js"></script>
     <script type="module" src="./dashboard.js"></script>
 </body>
 </html>

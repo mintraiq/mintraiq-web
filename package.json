@@ -1,0 +1,13 @@
+{
+  "name": "mintraiq-web",
+  "private": true,
+  "description": "Static marketing + portal; env injected at build for Vercel",
+  "scripts": {
+    "build:env": "node scripts/build-runtime-env.mjs",
+    "build": "npm run build:env",
+    "vercel-build": "npm run build:env"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

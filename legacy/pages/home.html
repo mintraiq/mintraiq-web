@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — MintrAIQ</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static-app/css/shell.css">
+</head>
+<body data-active-nav="home">
+<script src="../../config/runtime-env.defaults.js"></script>
+<script src="../../config/runtime-env.js"></script>
+<div class="dashboard-container">
+    <aside class="sidebar" id="app-sidebar"></aside>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="main-wrap">
+        <div class="mobile-bar">
+            <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+            <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
+        </div>
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <h2 style="margin:0;font-size:1.8rem">Dashboard</h2>
+                    <p style="margin:5px 0 0 0;color:#a0a0a0;font-size:0.95rem">Data from Flask <code style="color:var(--accent-purple)">GET /generate1</code> (session cookie).</p>
+                </div>
+                <div class="header-right">
+                    <a href="account-profile.html" class="action-icon" title="Settings"><i class="fas fa-cog"></i></a>
+                    <div class="user-avatar" title="Profile">R</div>
+                </div>
+            </header>
+            <p class="api-hint">FastAPI schemas: <a href="http://localhost:5000/api/docs" style="color:var(--accent-blue)" target="_blank" rel="noopener">http://localhost:5000/api/docs</a> (when mounted). This page uses the Flask app from <code>expense_loader.py</code>.</p>
+            <div class="grid-container">
+                <div class="card metric-card income">
+                    <div class="card-header"><span class="card-title">Income</span><i class="fas fa-arrow-down-up metric-icon" style="color:var(--accent-green)"></i></div>
+                    <div class="value" id="current_income">—</div>
+                    <div class="trend up"><i class="fas fa-arrow-up"></i> vs last month</div>
+                </div>
+                <div class="card metric-card expense">
+                    <div class="card-header"><span class="card-title">Expenses</span><i class="fas fa-receipt metric-icon" style="color:var(--accent-red)"></i></div>
+                    <div class="value" id="current_expense">—</div>
+                    <div class="trend down"><i class="fas fa-arrow-up"></i> spending</div>
+                </div>
+                <div class="card metric-card investment">
+                    <div class="card-header"><span class="card-title">Investments</span><i class="fas fa-chart-pie metric-icon" style="color:var(--accent-blue)"></i></div>
+                    <div class="value" id="current_investments">—</div>
+                    <div class="trend up"><i class="fas fa-arrow-up"></i> YTD</div>
+                </div>
+                <div class="card metric-card savings">
+                    <div class="card-header"><span class="card-title">Total Savings</span><i class="fas fa-vault metric-icon" style="color:var(--accent-purple)"></i></div>
+                    <div class="value" id="current_savings">—</div>
+                    <div class="trend"><i class="fas fa-check"></i> goal</div>
+                </div>
+                <div class="card grid-span-3">
+                    <div class="card-header"><span class="card-title">Income vs Expense Trend</span></div>
+                    <div class="chart-container"><canvas id="trendChart"></canvas></div>
+                </div>
+                <div class="card alert-card">
+                    <div class="card-header"><span class="card-title" style="color:var(--accent-red)"><i class="fas fa-exclamation-triangle"></i> High expense alert</span></div>
+                    <ul id="high_expense_id" style="list-style:none;padding:0;margin:0 0 12px 0"></ul>
+                </div>
+                <div class="card grid-span-2">
+                    <div class="card-header"><span class="card-title">Expense breakdown</span></div>
+                    <div class="chart-container" style="height:220px"><canvas id="breakdownChart"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Next month forecast</span></div>
+                    <p style="color:var(--text-secondary);margin-bottom:10px;font-size:0.9rem">AI estimates</p>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:15px">
+                        <div><small>Est. income</small><div id="est_income" style="color:var(--accent-green);font-weight:bold">—</div></div>
+                        <div><small>Est. expense</small><div id="est_expenses" style="color:var(--accent-red);font-weight:bold">—</div></div>
+                    </div>
+                    <small>Predicted savings: <span id="est_savings" style="color:var(--accent-green);font-weight:bold">—</span></small>
+                </div>
+                <div class="card ai-card grid-row-span-2">
+                    <div class="card-header" style="color:var(--accent-purple)"><span class="card-title" style="color:inherit"><i class="fas fa-robot"></i> AI yearly forecast</span></div>
+                    <p style="font-size:0.95rem;color:var(--text-secondary)">Projected trajectory (when AI online).</p>
+                    <div class="chart-container" style="height:180px;margin-top:12px"><canvas id="aiForecastChart"></canvas></div>
+                    <div style="text-align:center;margin-top:12px"><small>EOY projection</small><div class="forecast-value" id="eoy_projection">—</div></div>
+                </div>
+                <div class="card grid-span-3">
+                    <div class="card-header"><span class="card-title">Smart recommendations</span></div>
+                    <ul class="recommendation-list" id="recommendationList"></ul>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<script>
+    if (window.Chart) {
+        Chart.defaults.color = '#a0a0a0';
+        Chart.defaults.borderColor = '#333';
+    }
+</script>
+<script src="../static-app/js/api-client.js"></script>
+<script src="../static-app/js/sidebar-nav.js"></script>
+<script src="../static-app/js/home-dashboard.js"></script>
+</body>
+</html>

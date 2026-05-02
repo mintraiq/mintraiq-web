@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPI Guru — MintrAIQ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static-app/css/shell.css">
+</head>
+<body data-active-nav="cpi">
+<script src="../../config/runtime-env.defaults.js"></script>
+<script src="../../config/runtime-env.js"></script>
+<div class="dashboard-container">
+    <aside class="sidebar" id="app-sidebar"></aside>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="main-wrap">
+        <div class="mobile-bar">
+            <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+            <span style="font-weight:600;color:var(--accent-green)">CPI Guru</span>
+        </div>
+        <main class="main-content">
+            <header class="top-header">
+                <div>
+                    <h2 style="margin:0">Personal inflation</h2>
+                    <p style="color:var(--text-secondary);margin-top:6px">Flask <code style="color:var(--accent-purple)">POST /cpi-guru</code> → AI <code>/plan/cpi-forecast</code>.</p>
+                </div>
+            </header>
+
+            <div class="grid-container">
+                <div class="card grid-span-4 guru-card">
+                    <div class="card-header"><h3 class="card-title"><i class="fas fa-balance-scale"></i> Purchasing power check</h3></div>
+                    <p style="color:var(--text-secondary);line-height:1.5">Inflation tax from your own spending history — not the national average alone.</p>
+                </div>
+
+                <div id="loadingState" class="card grid-span-4" style="text-align:center;padding:80px 20px">
+                    <i class="fas fa-spinner fa-spin fa-3x" style="color:var(--accent-blue);margin-bottom:20px"></i>
+                    <h2>Calculating personal inflation…</h2>
+                </div>
+
+                <div id="resultsContainer" class="grid-container grid-span-4" style="display:none">
+                    <div class="card metric-card grid-span-2" style="text-align:center;padding:40px 20px">
+                        <h3 class="card-title" style="margin-bottom:10px">Monthly inflation tax</h3>
+                        <div id="resTax" class="tax-highlight">$0.00</div>
+                        <button type="button" id="showMathBtn" class="show-math-btn"><i class="fas fa-calculator"></i> See the math</button>
+                        <div id="mathBox" class="math-explanation">
+                            <div id="mathDetails"></div>
+                        </div>
+                    </div>
+                    <div class="card metric-card grid-span-1" style="text-align:center">
+                        <div class="card-header"><h3 class="card-title">Personal rate</h3></div>
+                        <div class="value" id="resRate" style="color:var(--accent-blue);font-size:2.2rem">0.0%</div>
+                        <div class="trend" id="resComparison"></div>
+                        <div id="confidenceBadge" class="confidence-badge conf-high"></div>
+                        <div id="confidenceDisclaimer" style="font-size:0.8rem;color:var(--text-secondary);margin-top:8px"></div>
+                    </div>
+                    <div class="card metric-card grid-span-1" style="text-align:center">
+                        <div class="card-header"><h3 class="card-title">Baseline spend</h3></div>
+                        <div class="value" id="resBase" style="font-size:2rem">$0</div>
+                    </div>
+                    <div class="card grid-span-2">
+                        <div class="card-header"><h3 class="card-title"><i class="fas fa-search-dollar"></i> Drivers</h3></div>
+                        <div id="breakdownList" style="max-height:400px;overflow-y:auto"></div>
+                    </div>
+                    <div class="card grid-span-2">
+                        <div class="card-header"><h3 class="card-title"><i class="fas fa-sliders-h"></i> Simulator</h3></div>
+                        <div id="simulatorContainer" class="sim-container"></div>
+                        <div style="margin-top:16px;text-align:center;padding:16px;background:rgba(0,255,157,0.08);border-radius:8px;border:1px solid rgba(0,255,157,0.25)">
+                            <strong>Simulated monthly tax</strong>
+                            <span id="simulatedTax" style="font-size:1.6rem;color:var(--accent-green);font-weight:bold;margin-left:10px">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<script src="../static-app/js/api-client.js"></script>
+<script src="../static-app/js/sidebar-nav.js"></script>
+<script src="../static-app/js/cpi-guru-page.js"></script>
+</body>
+</html>

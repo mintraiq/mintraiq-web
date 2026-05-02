@@ -39,10 +39,10 @@ Static marketing pages, a **Logto-powered portal** (`portal/`), **FastAPI refere
 
 ### Configure the portal
 
-Edit **`portal/env.js`** (loaded before module scripts on portal pages):
+Prefer **`env.public.example`** → copy to **`env.public`** and run **`npm run build:env`**, or set **`PUBLIC_*`** variables on Vercel (see [Deploy to Vercel](#deploy-to-vercel)). Optional last-mile overrides in **`portal/env.js`**.
 
-- `financeApiBase` — e.g. `http://192.168.68.66:5000/api` (must match how your API is mounted; bootstrap path is `/api/bootstrap` under that base).
-- `financeApiResource` — **required**: same string as **`settings.api_identifier`** in your deployed FastAPI `config` (Logto API resource).
+- `financeApiBase` — e.g. `https://your-api.example.com/api` (bootstrap path is `/api/bootstrap` under that base).
+- `financeApiResource` — **required**: same string as **`settings.api_identifier`** in FastAPI (Logto API resource).
 
 ## CORS (backend repo, not required in this repo)
 
@@ -79,6 +79,29 @@ Open `http://localhost:8080/portal/index.html`.
 - **Post sign-out redirect:** `http://localhost:8080/intro.html` (and production).
 - **API resource** registered in Logto with identifier = FastAPI `settings.api_identifier`; SPA requests access token for that resource.
 
+## Deploy to Vercel
+
+1. **Push this repo to GitHub** (or GitLab / Bitbucket) if it is not already remote-connected.
+2. In [Vercel](https://vercel.com), **Add New Project** → **Import** the repository. Use the **repository root** as the project root (no subdirectory).
+3. **Framework Preset:** Other (or leave default). Vercel reads **`vercel.json`**: install runs **`npm install`**, build runs **`npm run build:env`**, which generates **`config/runtime-env.js`** from environment variables.
+4. **Output:** Static files are served from the repo root (same as local layout: `intro.html`, `portal/`, `legacy/pages/`, etc.).
+5. **Environment variables** (Project → Settings → Environment Variables). Add at least the **`PUBLIC_*`** keys from **`env.public.example`** for Production (and Preview if you want preview deploys to hit a staging API):
+
+   | Variable | Example |
+   |----------|---------|
+   | `PUBLIC_LOGTO_ENDPOINT` | `https://your-tenant.logto.app` |
+   | `PUBLIC_LOGTO_APP_ID` | Your Logto SPA app id |
+   | `PUBLIC_FINANCE_API_BASE` | `https://api.yourdomain.com/api` |
+   | `PUBLIC_FINANCE_API_RESOURCE` | Same as FastAPI `api_identifier` |
+   | `PUBLIC_LEGACY_FLASK_BASE` | Only if you use `legacy/pages` against Flask (tunnel URL ok) |
+   | `PUBLIC_SIGN_IN_REDIRECT_URI` | `https://your-project.vercel.app/portal/callback.html` |
+
+6. **Redeploy** after changing env vars: Deployments → **Redeploy** (or push a commit). The build must run so **`config/runtime-env.js`** is regenerated.
+7. **Logto Console:** Add **Redirect URI** `https://<your-vercel-domain>/portal/callback.html` and **allowed CORS / post-logout** URLs for your production site origin.
+8. **FastAPI CORS:** Allow your Vercel origin (e.g. `https://mintraiq-xxx.vercel.app`) in the backend `allow_origins` so the portal can call the API with Bearer tokens.
+
+Local build before push (optional): `npm install && npm run build:env` — creates **`config/runtime-env.js`** from **`env.public`** or exported **`PUBLIC_*`** vars.
+
 ## Oracle CDN
 
-Upload the **repository root** so `portal/` and `portal/env.js` stay together. Links are **relative** so they work under a path prefix when the whole tree is deployed as one folder.
+Upload the **repository root** so `portal/` and config scripts stay together. Links are **relative** so they work under a path prefix when the whole tree is deployed as one folder.

@@ -1,3 +1,5 @@
+node_modules/
+
 # Local overrides (never commit secrets)
 portal/js/config.local.js
 .env
@@ -6,3 +8,9 @@ portal/js/config.local.js
 config.json
 # Reference copy only — canonical API lives elsewhere
 finance_api.py
+# Local Flask app reference (canonical app elsewhere)
+expense_loader.py
+# Generated browser env (from npm run build:env / Vercel) — optional second script
+config/runtime-env.js
+# Local copy of env.public.example for build:env (tunnels, localhost)
+env.public

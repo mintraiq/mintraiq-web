@@ -1,23 +1,22 @@
 import { CONFIG } from './config.js';
 
 /**
- * POST /bootstrap on finance API with Logto access token + minimal profile body.
- * Backend should verify JWT (JWKS) and return { route, tier, ... }.
+ * POST /api/bootstrap — matches finance_api.BootstrapPayload and Depends(validate_token).
+ * validate_token expects a JWT whose `aud` matches settings.api_identifier → use Logto API resource token.
  */
 export async function bootstrapSession(logtoClient) {
+    if (!CONFIG.financeApiResource) {
+        throw new Error(
+            'Missing financeApiResource. Set window.__MINTRAIQ_ENV__.financeApiResource to the same value as ' +
+                'settings.api_identifier in your FastAPI config (Logto API resource identifier).'
+        );
+    }
+
     const claims = await logtoClient.getIdTokenClaims();
     const email = claims.email ?? '';
     const name = claims.name ?? claims.username ?? claims.preferred_username ?? '';
 
-    let accessToken;
-    try {
-        accessToken = CONFIG.financeApiResource
-            ? await logtoClient.getAccessToken(CONFIG.financeApiResource)
-            : await logtoClient.getAccessToken();
-    } catch (e) {
-        console.warn('getAccessToken with resource failed, retrying default:', e);
-        accessToken = await logtoClient.getAccessToken();
-    }
+    const accessToken = await logtoClient.getAccessToken(CONFIG.financeApiResource);
 
     const base = CONFIG.financeApiBase.replace(/\/$/, '');
     const url = `${base}/bootstrap`;
@@ -41,7 +40,14 @@ export async function bootstrapSession(logtoClient) {
     }
 
     if (!res.ok) {
-        const err = new Error(data.detail || data.message || `Bootstrap failed (${res.status})`);
+        const detail = data.detail;
+        const msg =
+            typeof detail === 'string'
+                ? detail
+                : Array.isArray(detail)
+                  ? detail.map((d) => d.msg || JSON.stringify(d)).join('; ')
+                  : data.message || `Bootstrap failed (${res.status})`;
+        const err = new Error(msg);
         err.status = res.status;
         err.body = data;
         throw err;

@@ -2,3 +2,7 @@
 portal/js/config.local.js
 .env
 .env.local
+# Local secrets — never commit (use config.example.json as a template)
+config.json
+# Reference copy only — canonical API lives elsewhere
+finance_api.py

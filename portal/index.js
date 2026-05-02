@@ -1,5 +1,5 @@
 import { createLogtoClient } from './js/logto-client.js';
-import { getPortalBase } from './js/config.js';
+import { CONFIG, getPortalBase } from './js/config.js';
 
 const statusEl = document.getElementById('status');
 
@@ -18,7 +18,10 @@ async function main() {
 
     document.getElementById('signIn').addEventListener('click', () => {
         statusEl.textContent = 'Redirecting to Logto…';
-        client.signIn(`${getPortalBase()}/callback.html`);
+        const redirectUri =
+            (CONFIG.signInRedirectUri && String(CONFIG.signInRedirectUri).trim()) ||
+            `${getPortalBase()}/callback.html`;
+        client.signIn(redirectUri);
     });
 }
 

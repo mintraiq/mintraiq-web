@@ -32,11 +32,12 @@
         window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
     </script>
     <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
+    <script src="./env.js"></script>
 </head>
 <body>
     <div class="card">
         <h1>Sign in to MintrAIQ</h1>
-        <p>Uses Logto (OIDC). After sign-in we call your finance API <code>/bootstrap</code> with a Bearer token, then take you to the right screen.</p>
+        <p>Uses Logto (OIDC). Edit <code>portal/env.js</code> with your FastAPI base URL and <strong>financeApiResource</strong> (= <code>settings.api_identifier</code>). Then we call <code>POST /api/bootstrap</code> with a Bearer API token and map the JSON <code>routing</code> to a page.</p>
         <button type="button" id="signIn">Continue with Logto</button>
         <p id="status"></p>
         <p><a href="../intro.html">← Back to marketing site</a></p>

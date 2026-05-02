@@ -1,0 +1,14 @@
+{
+  "environment": "Dev",
+  "flask_secret_key": "replace-me",
+  "logto_endpoint": "https://your-tenant.logto.app",
+  "api_identifier": "https://api.finance-ai.suite.com",
+  "mongo_db_url": "mongodb://user:pass@localhost:27017/dbname?authSource=admin",
+  "jwks_url": "https://your-tenant.logto.app/oidc/jwks",
+  "ai_forecast_url": "http://localhost:8500/ai",
+  "ocr_api_url": "http://localhost:8000",
+  "port": "5000",
+  "akahu_app_token": "",
+  "akahu_app_secret": "",
+  "openai_gpt_api_key": ""
+}

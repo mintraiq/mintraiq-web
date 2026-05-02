@@ -1,11 +1,11 @@
 /**
- * Copy to config.local.js (gitignored) and load before other portal modules if you need overrides.
+ * Copy to portal/js/config.local.js (gitignored) OR set on each HTML page before modules load:
  *
- * Example (in portal/index.html, before module scripts):
- *   <script src="./js/config.local.js"></script>
- *
- * window.__MINTRAIQ_ENV__ = {
- *   financeApiBase: "http://127.0.0.1:5000/api",
- *   financeApiResource: "" // or your Logto API resource identifier for JWT access tokens
- * };
+ * <script>
+ *   window.__MINTRAIQ_ENV__ = {
+ *     financeApiBase: "http://192.168.68.66:5000/api",
+ *     // Same string as settings.api_identifier in FastAPI config / Logto API resource:
+ *     financeApiResource: "https://your-mintraiq-api-resource"
+ *   };
+ * </script>
  */

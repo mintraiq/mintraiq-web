@@ -1,18 +1,27 @@
 /**
- * Public SPA config (safe to commit). Client secret is never used in the browser.
+ * Public SPA config (safe to commit). Never put Logto client_secret in the browser.
  *
- * Optional override without editing this file:
- *   <script>window.__MINTRAIQ_ENV__ = { financeApiBase: "http://127.0.0.1:5000/api" };</script>
- *   <script type="module" src="./js/config.js"></script>
+ * financeApiResource MUST match `settings.api_identifier` in your FastAPI `config`:
+ * finance_api.validate_token() decodes JWT with audience=API_IDENTIFIER (Logto API resource).
  *
- * For API JWT audience (Logto API Resource), set financeApiResource to that resource indicator.
+ * Override for local dev (before module scripts):
+ *   <script>window.__MINTRAIQ_ENV__ = {
+ *     financeApiBase: "http://127.0.0.1:5000/api",
+ *     financeApiResource: "https://your-api-resource-id-in-logto"
+ *   };</script>
  */
 const defaults = {
     logtoEndpoint: 'https://ufq3nf.logto.app',
-    logtoAppId: 'hixnqc71c0wz1a48awme4',
+    /** Logto Application (SPA) App ID from Logto Console — override in portal/env.js per environment. */
+    logtoAppId: 'jj76jvuz39xoys68ys7ly',
     financeApiBase: 'http://192.168.68.66:5000/api',
-    /** e.g. "https://api.mintraiq.com" — leave empty to use default access token from Logto */
-    financeApiResource: ''
+    /** Required for Bearer tokens accepted by finance_api.validate_token (JWT aud = API_IDENTIFIER). */
+    financeApiResource: '',
+    /**
+     * Optional. If set, signIn() uses this exact URL — it must match a Redirect URI in Logto Console.
+     * If unset, uses `${getPortalBase()}/callback.html` (e.g. https://mintraiq.com/portal/callback.html).
+     */
+    signInRedirectUri: ''
 };
 
 export const CONFIG = { ...defaults, ...(window.__MINTRAIQ_ENV__ || {}) };
@@ -25,21 +34,25 @@ export function getPortalBase() {
     return location.origin + '/portal';
 }
 
-/** Map FastAPI bootstrap route to a static page until real screens exist. */
-export function resolvePostBootstrapRoute(route) {
-    if (!route || typeof route !== 'string') return '../mock-dashboard.html';
-    if (route.startsWith('http://') || route.startsWith('https://')) {
-        try {
-            return route;
-        } catch {
-            return '../mock-dashboard.html';
-        }
+/**
+ * Map finance_api POST /api/bootstrap JSON to a static HTML entry.
+ *
+ * Backend shape (finance_api.py):
+ *   { status, is_new_user, routing: { dashboard_type, redirect_to_license }, profile: { name, tier } }
+ *   dashboard_type: "landing" | "lite" | "full"
+ */
+export function resolveDashboardEntry(bootstrap) {
+    if (!bootstrap || typeof bootstrap !== 'object') return '../mock-dashboard.html';
+
+    if (bootstrap.routing && bootstrap.routing.redirect_to_license === true) {
+        return '../coming-soon.html?from=license';
     }
+
+    const dash = bootstrap.routing && bootstrap.routing.dashboard_type;
     const map = {
-        '/lite-dashboard': '../mock-dashboard.html',
-        '/dashboard': '../mock-dashboard.html',
-        '/home': '../mock-dashboard.html',
-        '/': '../mock-dashboard.html'
+        landing: '../mock-dashboard.html',
+        lite: '../mock-dashboard.html',
+        full: '../mock-dashboard.html'
     };
-    return map[route] || '../mock-dashboard.html';
+    return map[dash] || '../mock-dashboard.html';
 }

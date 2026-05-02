@@ -1,4 +1,4 @@
-import LogtoClient from 'https://esm.sh/@logto/browser@4.1.7';
+import { LogtoClient } from '../auth.js';
 import { CONFIG } from './config.js';
 
 export function createLogtoClient() {

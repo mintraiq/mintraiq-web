@@ -1,13 +1,18 @@
 import { CONFIG } from './config.js';
 
-/** Attach Bearer token for calls to finance_api (same host as bootstrap). */
+/**
+ * Authenticated fetch to finance_api (same audience as bootstrap).
+ * Path is relative to financeApiBase, e.g. "/generate" → POST {base}/generate
+ */
 export async function financeApiFetch(logtoClient, path, options = {}) {
-    const token = CONFIG.financeApiResource
-        ? await logtoClient.getAccessToken(CONFIG.financeApiResource)
-        : await logtoClient.getAccessToken();
+    if (!CONFIG.financeApiResource) {
+        throw new Error('financeApiResource is required for finance_api JWT (audience) tokens.');
+    }
+    const token = await logtoClient.getAccessToken(CONFIG.financeApiResource);
 
     const base = CONFIG.financeApiBase.replace(/\/$/, '');
-    const url = path.startsWith('http') ? path : `${base}${path.startsWith('/') ? path : '/' + path}`;
+    const rel = path.startsWith('/') ? path : `/${path}`;
+    const url = path.startsWith('http') ? path : `${base}${rel}`;
 
     const headers = {
         Accept: 'application/json',

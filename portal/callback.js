@@ -15,8 +15,8 @@ async function main() {
         const data = await bootstrapSession(client);
         sessionStorage.setItem('mintraiq_bootstrap', JSON.stringify({ ...data, at: Date.now() }));
         statusEl.textContent = 'Success. Opening your workspace…';
-        const { resolvePostBootstrapRoute } = await import('./js/config.js');
-        const next = resolvePostBootstrapRoute(data.route);
+        const { resolveDashboardEntry } = await import('./js/config.js');
+        const next = resolveDashboardEntry(data);
         window.location.replace(next);
     } catch (e) {
         console.error(e);

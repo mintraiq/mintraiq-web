@@ -173,6 +173,11 @@
                 document.title = 'MintrAIQ — Web app access (coming soon)';
                 title.innerHTML = 'Web app access is <span>coming soon</span>';
                 desc.textContent = 'Use portal/index.html for the live Logto sign-in flow. This placeholder remains for old links until you swap them everywhere.';
+            } else if (from === 'license') {
+                name.textContent = 'upgrade';
+                document.title = 'MintrAIQ — Upgrade (placeholder)';
+                title.innerHTML = 'License / <span>upgrade</span>';
+                desc.textContent = 'finance_api returned redirect_to_license. Wire this page to your real checkout or legacy/templates/mock_payment.html when you convert it to static HTML.';
             } else {
                 name.textContent = 'this link';
                 title.innerHTML = 'This page is <span>almost ready</span>';

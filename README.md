@@ -7,7 +7,7 @@ Static marketing pages, a **Logto-powered portal** (`portal/`), **FastAPI refere
 | Path | Purpose |
 |------|---------|
 | `intro*.html`, `mock-dashboard.html`, … | Static marketing + demo dashboard |
-| `portal/` | Logto browser sign-in, OIDC callback, `POST /api/bootstrap` to FastAPI, then redirect |
+| `portal/` | Logto sign-in, callback → `POST …/bootstrap`, then **`portal/dashboard.html`** (live `POST …/generate` + charts) |
 | `finance_api.py` | Reference copy of your FastAPI app (`validate_token`, `BootstrapPayload`, CORS). Run the real app from your backend repo with `config.settings`. |
 | `legacy/templates/` | Original Jinja templates (not CDN-ready until converted) |
 | `legacy/static-flask/` | Original JS that expected Flask cookies + `fetchSecureAPI` |
@@ -33,7 +33,7 @@ Static marketing pages, a **Logto-powered portal** (`portal/`), **FastAPI refere
 }
 ```
 
-6. The portal maps `routing` to static pages (today all dashboard types go to `mock-dashboard.html`; `redirect_to_license` → `coming-soon.html?from=license`).
+6. The portal maps `routing` to **`portal/dashboard.html`** for `landing` / `lite` / `full` (loads metrics from FastAPI `POST /generate`); `redirect_to_license` → `coming-soon.html?from=license`. Marketing demo remains at **`mock-dashboard.html`**.
 
 **Important:** the Logto **client secret** is not used in the browser. It stays on the server if you use a confidential client elsewhere.
 

@@ -14,7 +14,7 @@ const defaults = {
     logtoEndpoint: 'https://ufq3nf.logto.app',
     /** Logto Application (SPA) App ID from Logto Console — override in portal/env.js per environment. */
     logtoAppId: 'jj76jvuz39xoys68ys7ly',
-    financeApiBase: 'http://192.168.68.66:5000/api',
+    financeApiBase: 'https://api-dev.mintraiq.com/api',
     /** Required for Bearer tokens accepted by finance_api.validate_token (JWT aud = API_IDENTIFIER). */
     financeApiResource: '',
     /**
@@ -42,7 +42,7 @@ export function getPortalBase() {
  *   dashboard_type: "landing" | "lite" | "full"
  */
 export function resolveDashboardEntry(bootstrap) {
-    if (!bootstrap || typeof bootstrap !== 'object') return '../mock-dashboard.html';
+    if (!bootstrap || typeof bootstrap !== 'object') return './dashboard.html';
 
     if (bootstrap.routing && bootstrap.routing.redirect_to_license === true) {
         return '../coming-soon.html?from=license';
@@ -50,9 +50,9 @@ export function resolveDashboardEntry(bootstrap) {
 
     const dash = bootstrap.routing && bootstrap.routing.dashboard_type;
     const map = {
-        landing: '../mock-dashboard.html',
-        lite: '../mock-dashboard.html',
-        full: '../mock-dashboard.html'
+        landing: './dashboard.html',
+        lite: './dashboard.html',
+        full: './dashboard.html'
     };
-    return map[dash] || '../mock-dashboard.html';
+    return map[dash] || './dashboard.html';
 }

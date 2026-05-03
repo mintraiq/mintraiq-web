@@ -6,8 +6,7 @@ portal/js/config.local.js
 .env.local
 # Local secrets — never commit (use config.example.json as a template)
 config.json
-# Reference copy only — canonical API lives elsewhere
-finance_api.py
+# finance_api.py is tracked (reference for Cursor / frontend alignment). Canonical deployment may still live in your API monorepo.
 # Local Flask app reference (canonical app elsewhere)
 expense_loader.py
 # Generated browser env (from npm run build:env / Vercel) — optional second script

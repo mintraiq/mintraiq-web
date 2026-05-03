@@ -1,0 +1,1157 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MintrAIQ AI Dashboard API",
+    "description": "AI based personal finance assistant using LLM",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/secure-data": {
+      "get": {
+        "summary": "Swagger Logto Auth",
+        "operationId": "swagger_logto_auth_secure_data_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ]
+      }
+    },
+    "/auth": {
+      "get": {
+        "summary": "Test Authentication",
+        "description": "Secure endpoint to verify Logto JWTs are decoding correctly.",
+        "operationId": "test_authentication_auth_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/bootstrap": {
+      "post": {
+        "summary": "Bootstrap User Session",
+        "description": "This replaces the old Flask /callback business logic.\nWeb and Mobile call this immediately after logging into Logto.",
+        "operationId": "bootstrap_user_session_bootstrap_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BootstrapPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/generate": {
+      "post": {
+        "summary": "Generate Dashboard",
+        "operationId": "generate_dashboard_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinanceData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/ai-reserves": {
+      "get": {
+        "summary": "Get Upcoming Reserves",
+        "operationId": "get_upcoming_reserves_ai_reserves_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/transactions": {
+      "get": {
+        "summary": "Get User Transactions",
+        "operationId": "get_user_transactions_transactions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/users/me": {
+      "get": {
+        "summary": "Get My Profile",
+        "operationId": "get_my_profile_users_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update Profile",
+        "operationId": "update_profile_users_me_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserProfileUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Update Profile Users Me Put"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/create-checkout-session": {
+      "post": {
+        "summary": "Create Checkout Session",
+        "operationId": "create_checkout_session_create_checkout_session_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/process-mock-payment": {
+      "post": {
+        "summary": "Process Mock Payment",
+        "operationId": "process_mock_payment_process_mock_payment_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/stripe-webhook": {
+      "post": {
+        "summary": "Stripe Webhook",
+        "operationId": "stripe_webhook_stripe_webhook_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tiers/{tier_name}": {
+      "get": {
+        "summary": "Get Tier Config",
+        "operationId": "get_tier_config_tiers__tier_name__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tier_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tier Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TierConfigResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/upload-statement": {
+      "post": {
+        "summary": "Upload Bank Statement",
+        "operationId": "upload_bank_statement_upload_statement_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_bank_statement_upload_statement_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/receipt-scanner": {
+      "post": {
+        "summary": "Scan And Upload Receipts",
+        "operationId": "scan_and_upload_receipts_receipt_scanner_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/users/security": {
+      "put": {
+        "summary": "Update Security Settings",
+        "operationId": "update_security_settings_users_security_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecurityUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Update Security Settings Users Security Put"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/users/savings-goal": {
+      "post": {
+        "summary": "Update Savings Goal",
+        "operationId": "update_savings_goal_users_savings_goal_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavingsGoalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/budget-planner": {
+      "get": {
+        "summary": "Get Budget Plan",
+        "operationId": "get_budget_plan_budget_planner_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/weekly-planner": {
+      "post": {
+        "summary": "Get Weekly Plan",
+        "operationId": "get_weekly_plan_weekly_planner_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/financial-score": {
+      "post": {
+        "summary": "Get Financial Discipline",
+        "operationId": "get_financial_discipline_financial_score_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/BudgetPlanner"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Payload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/cpi-forecast": {
+      "get": {
+        "summary": "Get Cpi Forecast",
+        "operationId": "get_cpi_forecast_cpi_forecast_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/akahu/exchange": {
+      "post": {
+        "summary": "Exchange Akahu Code",
+        "operationId": "exchange_akahu_code_akahu_exchange_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AkahuExchangeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/akahu/sync": {
+      "post": {
+        "summary": "Sync Akahu Transactions",
+        "operationId": "sync_akahu_transactions_akahu_sync_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AkahuExchangeRequest": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "redirect_uri": {
+            "type": "string",
+            "title": "Redirect Uri"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "redirect_uri"
+        ],
+        "title": "AkahuExchangeRequest"
+      },
+      "Body_upload_bank_statement_upload_statement_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          },
+          "payload": {
+            "type": "string",
+            "title": "Payload"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file",
+          "payload"
+        ],
+        "title": "Body_upload_bank_statement_upload_statement_post"
+      },
+      "BootstrapPayload": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "email"
+        ],
+        "title": "BootstrapPayload"
+      },
+      "BudgetPlanner": {
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "title": "Startdate"
+          },
+          "endDate": {
+            "type": "string",
+            "title": "Enddate"
+          },
+          "gentleness": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gentleness"
+          },
+          "savingsGoal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Savingsgoal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "startDate",
+          "endDate"
+        ],
+        "title": "BudgetPlanner"
+      },
+      "CheckoutRequest": {
+        "properties": {
+          "tier": {
+            "type": "string",
+            "enum": [
+              "free",
+              "basic",
+              "premium",
+              "pro_trial"
+            ],
+            "title": "Tier"
+          },
+          "promo_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promo Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tier"
+        ],
+        "title": "CheckoutRequest"
+      },
+      "FinanceData": {
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "title": "Startdate"
+          },
+          "endDate": {
+            "type": "string",
+            "title": "Enddate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "startDate",
+          "endDate"
+        ],
+        "title": "FinanceData"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "SavingsGoalRequest": {
+        "properties": {
+          "goalAmount": {
+            "type": "number",
+            "title": "Goalamount"
+          },
+          "interval": {
+            "type": "string",
+            "enum": [
+              "monthly",
+              "weekly"
+            ],
+            "title": "Interval"
+          }
+        },
+        "type": "object",
+        "required": [
+          "goalAmount",
+          "interval"
+        ],
+        "title": "SavingsGoalRequest"
+      },
+      "SecurityUpdateRequest": {
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "title": "Currentpassword"
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 8,
+            "title": "Newpassword"
+          }
+        },
+        "type": "object",
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ],
+        "title": "SecurityUpdateRequest"
+      },
+      "TierConfigResponse": {
+        "properties": {
+          "tierName": {
+            "type": "string",
+            "title": "Tiername"
+          },
+          "maxReceiptScans": {
+            "type": "integer",
+            "title": "Maxreceiptscans"
+          },
+          "historyMonths": {
+            "type": "integer",
+            "title": "Historymonths"
+          },
+          "hasCpiGuru": {
+            "type": "boolean",
+            "title": "Hascpiguru"
+          },
+          "hasAiForecast": {
+            "type": "boolean",
+            "title": "Hasaiforecast"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tierName",
+          "maxReceiptScans",
+          "historyMonths",
+          "hasCpiGuru",
+          "hasAiForecast"
+        ],
+        "title": "TierConfigResponse",
+        "description": "The feature flags sent to the frontends"
+      },
+      "UserProfileResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "mobile_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mobile Number"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "tier": {
+            "type": "string",
+            "title": "Tier"
+          },
+          "trial_days_left": {
+            "type": "integer",
+            "title": "Trial Days Left",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "name",
+          "mobile_number",
+          "country",
+          "currency",
+          "tier"
+        ],
+        "title": "UserProfileResponse",
+        "description": "What the API sends back to the frontend/mobile app"
+      },
+      "UserProfileUpdate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 2,
+            "title": "Name"
+          },
+          "mobileNumber": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mobilenumber"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "NZD",
+              "AUD",
+              "USD",
+              "EUR"
+            ],
+            "title": "Currency"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "currency"
+        ],
+        "title": "UserProfileUpdate",
+        "description": "What the frontend sends when the user clicks 'Save Changes'"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2AuthorizationCodeBearer": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "scopes": {
+              "openid": "Required for Logto login",
+              "profile": "Get user profile"
+            },
+            "authorizationUrl": "https://ufq3nf.logto.app/oidc/auth?resource=https://api-dev.mintraiq.com",
+            "tokenUrl": "https://ufq3nf.logto.app/oidc/token"
+          }
+        }
+      },
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "/api"
+    }
+  ]
+}

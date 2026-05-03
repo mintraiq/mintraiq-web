@@ -1,0 +1,524 @@
+{
+    "transactions": [
+      {
+        "id": "69eee04da3c087380acf64e4",
+        "date": "2026-03-25",
+        "amount": 34.9,
+        "description": "2degrees 32960236 32960236 16-Mar-2026",
+        "category": "Mobile/Internet",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64c9",
+        "date": "2026-03-25",
+        "amount": 34.9,
+        "description": "2degrees 32960236 32960236 16-Mar-2026",
+        "category": "Mobile/Internet",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64e3",
+        "date": "2026-03-22",
+        "amount": 150,
+        "description": "MB Transfer To 12-3061- 0067026-00",
+        "category": "Internal Transfers",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64c8",
+        "date": "2026-03-22",
+        "amount": 150,
+        "description": "MB Transfer To 12-3061- 0067026-00",
+        "category": "Internal Transfers",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64e2",
+        "date": "2026-03-20",
+        "amount": 125,
+        "description": "HPKX8ZBFG3DV Kindo 0226818466",
+        "category": "Education",
+        "needs_review": true,
+        "flag": "❌",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64c7",
+        "date": "2026-03-20",
+        "amount": 125,
+        "description": "HPKX8ZBFG3DV Kindo 0226818466",
+        "category": "Education",
+        "needs_review": true,
+        "flag": "❌",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64e1",
+        "date": "2026-03-19",
+        "amount": 7.05,
+        "description": "Southern Cross H 23619886 000040907042",
+        "category": "Income",
+        "needs_review": true,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64e0",
+        "date": "2026-03-19",
+        "amount": 14.39,
+        "description": "Cityfitness Grou 0S100DF500JB Cityfitnessg",
+        "category": "Fitness",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64df",
+        "date": "2026-03-19",
+        "amount": 4833.52,
+        "description": "Eroad Limited",
+        "category": "Income",
+        "needs_review": true,
+        "flag": "❌",
+        "type": "credit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64c6",
+        "date": "2026-03-19",
+        "amount": 7.05,
+        "description": "Southern Cross H 23619886 000040907042",
+        "category": "Income",
+        "needs_review": true,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64c5",
+        "date": "2026-03-19",
+        "amount": 14.39,
+        "description": "Cityfitness Grou 0S100DF500JB Cityfitnessg",
+        "category": "Fitness",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64c4",
+        "date": "2026-03-19",
+        "amount": 4833.52,
+        "description": "Eroad Limited",
+        "category": "Income",
+        "needs_review": true,
+        "flag": "❌",
+        "type": "credit"
+      },
+      {
+        "id": "69eee04da3c087380acf64de",
+        "date": "2026-03-18",
+        "amount": 65,
+        "description": "2degrees 11303236 11303236 09-Mar-2026",
+        "category": "Mobile/Internet",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64c3",
+        "date": "2026-03-18",
+        "amount": 65,
+        "description": "2degrees 11303236 11303236 09-Mar-2026",
+        "category": "Mobile/Internet",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64dd",
+        "date": "2026-03-16",
+        "amount": 121.9,
+        "description": "FC01-0183-025094 Pavan Kumar Chemistry Tuition",
+        "category": "MISC",
+        "needs_review": true,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64c2",
+        "date": "2026-03-16",
+        "amount": 121.9,
+        "description": "FC01-0183-025094 Pavan Kumar Chemistry Tuition",
+        "category": "MISC",
+        "needs_review": true,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64dc",
+        "date": "2026-03-15",
+        "amount": 300,
+        "description": "MB Transfer To 12-3061- 0067026-00",
+        "category": "Internal Transfers",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64c1",
+        "date": "2026-03-15",
+        "amount": 300,
+        "description": "MB Transfer To 12-3061- 0067026-00",
+        "category": "Internal Transfers",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64db",
+        "date": "2026-03-12",
+        "amount": 100,
+        "description": "MB Transfer To 12-3061- 0067026-00",
+        "category": "Internal Transfers",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64da",
+        "date": "2026-03-12",
+        "amount": 864,
+        "description": "FC12-3113-013126 12344241935 138280DPSA2aaklcouncil",
+        "category": "MISC",
+        "needs_review": true,
+        "flag": "❌",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64c0",
+        "date": "2026-03-12",
+        "amount": 100,
+        "description": "MB Transfer To 12-3061- 0067026-00",
+        "category": "Internal Transfers",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64bf",
+        "date": "2026-03-12",
+        "amount": 864,
+        "description": "FC12-3113-013126 12344241935 138280DPSA2aaklcouncil",
+        "category": "MISC",
+        "needs_review": true,
+        "flag": "❌",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64d9",
+        "date": "2026-03-10",
+        "amount": 49,
+        "description": "FC06-0577-0127671-00 Ram Rangitata Trekking",
+        "category": "MISC",
+        "needs_review": true,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64be",
+        "date": "2026-03-10",
+        "amount": 49,
+        "description": "FC06-0577-0127671-00 Ram Rangitata Trekking",
+        "category": "MISC",
+        "needs_review": true,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64d8",
+        "date": "2026-03-09",
+        "amount": 3000,
+        "description": "FC38-9027-0217569-00 Emi Monthly Mortgage",
+        "category": "MISC",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64bd",
+        "date": "2026-03-09",
+        "amount": 3000,
+        "description": "FC38-9027-0217569-00 Emi Monthly Mortgage",
+        "category": "MISC",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64d7",
+        "date": "2026-03-06",
+        "amount": 231.93,
+        "description": "Mercury NZ Ltd 834479809 Mercury LIMI00029428204",
+        "category": "Electricity",
+        "needs_review": true,
+        "flag": "❌",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64bc",
+        "date": "2026-03-06",
+        "amount": 231.93,
+        "description": "Mercury NZ Ltd 834479809 Mercury LIMI00029428204",
+        "category": "Electricity",
+        "needs_review": true,
+        "flag": "❌",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64d6",
+        "date": "2026-03-05",
+        "amount": 1512,
+        "description": "FC12-3034-0585821-00 Ram FLIGHPAYMENTDEC2026",
+        "category": "MISC",
+        "needs_review": false,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64d5",
+        "date": "2026-03-05",
+        "amount": 75,
+        "description": "FC12-3060-029962 Deepti Ram Bharathanatyapp Fees",
+        "category": "MISC",
+        "needs_review": true,
+        "flag": "❌",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64d4",
+        "date": "2026-03-05",
+        "amount": 25,
+        "description": "FC Flight Cent Kumar RS 1105966038",
+        "category": "MISC",
+        "needs_review": true,
+        "flag": "❌",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64d3",
+        "date": "2026-03-05",
+        "amount": 9.07,
+        "description": "Southern Cross H 23619886 000040809892",
+        "category": "Income",
+        "needs_review": true,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64d2",
+        "date": "2026-03-05",
+        "amount": 500,
+        "description": "MB Transfer To 12-3061- 0067026-00",
+        "category": "Internal Transfers",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64d1",
+        "date": "2026-03-05",
+        "amount": 14.39,
+        "description": "Cityfitness Grou 0S100DEH00ju Cityfitnessg",
+        "category": "Fitness",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64d0",
+        "date": "2026-03-05",
+        "amount": 4833.52,
+        "description": "Eroad Limited",
+        "category": "Income",
+        "needs_review": true,
+        "flag": "❌",
+        "type": "credit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64bb",
+        "date": "2026-03-05",
+        "amount": 1512,
+        "description": "FC12-3034-0585821-00 Ram FLIGHPAYMENTDEC2026",
+        "category": "MISC",
+        "needs_review": false,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64ba",
+        "date": "2026-03-05",
+        "amount": 75,
+        "description": "FC12-3060-029962 Deepti Ram Bharathanatyapp Fees",
+        "category": "MISC",
+        "needs_review": true,
+        "flag": "❌",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64b9",
+        "date": "2026-03-05",
+        "amount": 25,
+        "description": "FC Flight Cent Kumar RS 1105966038",
+        "category": "MISC",
+        "needs_review": true,
+        "flag": "❌",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64b8",
+        "date": "2026-03-05",
+        "amount": 9.07,
+        "description": "Southern Cross H 23619886 000040809892",
+        "category": "Income",
+        "needs_review": true,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64b7",
+        "date": "2026-03-05",
+        "amount": 500,
+        "description": "MB Transfer To 12-3061- 0067026-00",
+        "category": "Internal Transfers",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64b6",
+        "date": "2026-03-05",
+        "amount": 14.39,
+        "description": "Cityfitness Grou 0S100DEH00ju Cityfitnessg",
+        "category": "Fitness",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64b5",
+        "date": "2026-03-05",
+        "amount": 4833.52,
+        "description": "Eroad Limited",
+        "category": "Income",
+        "needs_review": true,
+        "flag": "❌",
+        "type": "credit"
+      },
+      {
+        "id": "69eee04da3c087380acf64cf",
+        "date": "2026-03-04",
+        "amount": 2767.14,
+        "description": "FC06-0122-0324564-00 Inv-4308 15LOCKEAVENUINSULATION",
+        "category": "MISC",
+        "needs_review": false,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64b4",
+        "date": "2026-03-04",
+        "amount": 2767.14,
+        "description": "FC06-0122-0324564-00 Inv-4308 15LOCKEAVENUINSULATION",
+        "category": "MISC",
+        "needs_review": false,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64ce",
+        "date": "2026-03-03",
+        "amount": 150,
+        "description": "MB Transfer To 12-3061- 0067026-00",
+        "category": "Internal Transfers",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64b3",
+        "date": "2026-03-03",
+        "amount": 150,
+        "description": "MB Transfer To 12-3061- 0067026-00",
+        "category": "Internal Transfers",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64cd",
+        "date": "2026-03-02",
+        "amount": 89,
+        "description": "2degrees 41903125 41903125 20-Feb-2026",
+        "category": "Mobile/Internet",
+        "needs_review": true,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64cc",
+        "date": "2026-03-02",
+        "amount": 121.9,
+        "description": "FC01-0183-025094 Pavan Kumar Chemistry Tuition",
+        "category": "MISC",
+        "needs_review": true,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64b2",
+        "date": "2026-03-02",
+        "amount": 89,
+        "description": "2degrees 41903125 41903125 20-Feb-2026",
+        "category": "Mobile/Internet",
+        "needs_review": true,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64b1",
+        "date": "2026-03-02",
+        "amount": 121.9,
+        "description": "FC01-0183-025094 Pavan Kumar Chemistry Tuition",
+        "category": "MISC",
+        "needs_review": true,
+        "flag": "⚠️",
+        "type": "debit"
+      },
+      {
+        "id": "69eee04da3c087380acf64cb",
+        "date": "2026-02-28",
+        "amount": 100,
+        "description": "MB Transfer To 12-3061- 0067026-00",
+        "category": "Internal Transfers",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      },
+      {
+        "id": "69eedf1aa3c087380acf64b0",
+        "date": "2026-02-28",
+        "amount": 100,
+        "description": "MB Transfer To 12-3061- 0067026-00",
+        "category": "Internal Transfers",
+        "needs_review": false,
+        "flag": "✅",
+        "type": "debit"
+      }
+    ]
+  }

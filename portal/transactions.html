@@ -24,18 +24,68 @@
                 <header class="top-header">
                     <div class="header-left">
                         <h2 style="margin:0;font-size:1.75rem">Transactions</h2>
-                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">Browse and filter movements</p>
+                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">
+                            Live data from <code style="color:var(--accent-purple)">GET …/transactions</code> · Akahu sync when linked
+                        </p>
+                    </div>
+                    <div class="header-right" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+                        <button type="button" class="btn-primary" id="txReload" title="Reload"><i class="fas fa-rotate"></i> Reload</button>
+                        <button type="button" class="btn-primary" id="txSyncAkahu" style="background:linear-gradient(135deg,#bb6bd9,#2f80ed);color:#fff">
+                            <i class="fas fa-cloud-download-alt"></i> Sync Akahu
+                        </button>
                     </div>
                 </header>
-                <div class="card" style="max-width:640px">
-                    <p style="color:var(--text-secondary);margin:0 0 16px">The authenticated portal uses your FastAPI finance bundle for the dashboard. A dedicated transactions grid in this shell is planned to call the same API.</p>
-                    <p style="margin:0 0 16px">For the static Ninja Finance mirror (session cookie + Flask), open:</p>
-                    <a href="../web/transactions.html" class="btn-primary" style="display:inline-flex"><i class="fas fa-external-link-alt"></i> Open web/transactions</a>
+                <p id="txStatus" style="color:var(--text-secondary);font-size:0.85rem;margin:-8px 0 12px;min-height:1.2em"></p>
+                <div id="txError" class="card" style="display:none;margin-bottom:16px;padding:16px;border-color:rgba(255,71,87,0.45);color:#ffb4b4"></div>
+
+                <div class="card transactions-toolbar" style="margin-bottom:16px;padding:16px 18px">
+                    <div class="transactions-toolbar-grid">
+                        <div class="form-group" style="margin-bottom:0;flex:1;min-width:180px">
+                            <label for="txSearch">Search</label>
+                            <input type="search" id="txSearch" class="form-control" placeholder="Description, category, date…" autocomplete="off" />
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;min-width:160px">
+                            <label for="txCategory">Category</label>
+                            <select id="txCategory" class="form-control">
+                                <option value="">All categories</option>
+                            </select>
+                        </div>
+                        <label class="tx-review-check">
+                            <input type="checkbox" id="txReviewOnly" />
+                            <span>Needs review only</span>
+                        </label>
+                    </div>
+                    <p id="txSyncHint" style="margin:12px 0 0;font-size:0.82rem;color:var(--text-secondary)"></p>
                 </div>
+
+                <div class="card" style="margin-bottom:16px">
+                    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+                        <span class="card-title">All movements</span>
+                        <span id="txCount" style="font-size:0.88rem;color:var(--text-secondary)">0 shown</span>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table class="ninja-table" id="txTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th class="align-right">Amount</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Flag</th>
+                                    <th>Review</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="txDetail" class="card" style="display:none"></div>
             </main>
         </div>
     </div>
     <script type="module" src="./js/portal-nav.js"></script>
-    <script type="module" src="./js/portal-page-boot.js"></script>
+    <script type="module" src="./js/transactions-page.js"></script>
 </body>
 </html>

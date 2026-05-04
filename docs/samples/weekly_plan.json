@@ -1,0 +1,455 @@
+{
+   "meta":{
+      "generated_at":"2026-02-24 21:04",
+      "week_label":"Week of 23 Feb – 01 Mar 2026",
+      "week_start":"2026-02-23",
+      "week_end":"2026-03-01"
+   },
+   "user":{
+      "name":"Alex",
+      "savings_goal_monthly":400,
+      "savings_goal_weekly":92.38
+   },
+   "summary":{
+      "total_weekly_budget":{
+         "label":"Weekly Budget",
+         "value":"$1763.07",
+         "icon":"wallet",
+         "color":"blue",
+         "sublabel":"to spend this week"
+      },
+      "daily_allowance":{
+         "label":"Daily Allowance",
+         "value":"$251.87",
+         "icon":"calendar-day",
+         "color":"green",
+         "sublabel":"per day"
+      },
+      "weekly_saving":{
+         "label":"Saving This Week",
+         "value":"$92.38",
+         "icon":"piggy-bank",
+         "color":"purple",
+         "sublabel":"vs current habits"
+      },
+      "monthly_saving":{
+         "label":"Monthly Impact",
+         "value":"$400.01",
+         "icon":"chart-line",
+         "color":"orange",
+         "sublabel":"projected saving"
+      }
+   },
+   "goal_progress":{
+      "target_monthly":400,
+      "achieved_monthly":400.01,
+      "percentage":100.0,
+      "status":"on_track",
+      "status_label":"✅ On Track",
+      "status_color":"success"
+   },
+   "categories":[
+      {
+         "id":"classes",
+         "name":"Classes",
+         "emoji":"📌",
+         "weekly_budget":"$20.79/week",
+         "daily_allowance":"$2.97/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"diy",
+         "name":"DIY",
+         "emoji":"📌",
+         "weekly_budget":"$20.47/week",
+         "daily_allowance":"$2.92/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"eatery",
+         "name":"EATERY",
+         "emoji":"📌",
+         "weekly_budget":"$61.54/week",
+         "daily_allowance":"$8.79/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"fees",
+         "name":"Fees",
+         "emoji":"📌",
+         "weekly_budget":"$1.85/week",
+         "daily_allowance":"$0.26/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"fitness",
+         "name":"Fitness",
+         "emoji":"📌",
+         "weekly_budget":"$9.97/week",
+         "daily_allowance":"$1.42/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"fruits/veg",
+         "name":"Fruits/Veg",
+         "emoji":"📌",
+         "weekly_budget":"$98.22/week",
+         "daily_allowance":"$14.03/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"gambling",
+         "name":"Gambling",
+         "emoji":"📌",
+         "weekly_budget":"$8.31/week",
+         "daily_allowance":"$1.19/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"grocery",
+         "name":"Grocery",
+         "emoji":"📌",
+         "weekly_budget":"$91.18/week",
+         "daily_allowance":"$13.03/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"laundry",
+         "name":"Laundry",
+         "emoji":"📌",
+         "weekly_budget":"$7.16/week",
+         "daily_allowance":"$1.02/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"misc",
+         "name":"MISC",
+         "emoji":"📌",
+         "weekly_budget":"$265.54/week",
+         "daily_allowance":"$37.93/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"meat",
+         "name":"Meat",
+         "emoji":"📌",
+         "weekly_budget":"$17.55/week",
+         "daily_allowance":"$2.51/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"medicalcare",
+         "name":"MedicalCare",
+         "emoji":"📌",
+         "weekly_budget":"$30.68/week",
+         "daily_allowance":"$4.38/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"mobile/internet",
+         "name":"Mobile/Internet",
+         "emoji":"📌",
+         "weekly_budget":"$38.62/week",
+         "daily_allowance":"$5.52/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"parking",
+         "name":"Parking",
+         "emoji":"📌",
+         "weekly_budget":"$5.77/week",
+         "daily_allowance":"$0.82/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"payments",
+         "name":"Payments",
+         "emoji":"📌",
+         "weekly_budget":"$841.57/week",
+         "daily_allowance":"$120.22/day",
+         "tip":"Track this carefully",
+         "has_cut":true,
+         "monthly_saving":"$400.01/month saved",
+         "badge":{
+            "label":"Big Win",
+            "color":"success"
+         }
+      },
+      {
+         "id":"petrol",
+         "name":"Petrol",
+         "emoji":"📌",
+         "weekly_budget":"$118.28/week",
+         "daily_allowance":"$16.90/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"printing",
+         "name":"Printing",
+         "emoji":"📌",
+         "weekly_budget":"$4.61/week",
+         "daily_allowance":"$0.66/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"savings",
+         "name":"Savings",
+         "emoji":"📌",
+         "weekly_budget":"$3.47/week",
+         "daily_allowance":"$0.50/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"shopping",
+         "name":"Shopping",
+         "emoji":"🛍️",
+         "weekly_budget":"$23.18/week",
+         "daily_allowance":"$3.31/day",
+         "tip":"Use the 48-hour rule before buying",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"temple",
+         "name":"Temple",
+         "emoji":"📌",
+         "weekly_budget":"$13.86/week",
+         "daily_allowance":"$1.98/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"transport",
+         "name":"Transport",
+         "emoji":"🚗",
+         "weekly_budget":"$18.65/week",
+         "daily_allowance":"$2.66/day",
+         "tip":"Combine errands into one trip",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"water",
+         "name":"Water",
+         "emoji":"📌",
+         "weekly_budget":"$38.71/week",
+         "daily_allowance":"$5.53/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      },
+      {
+         "id":"withdrawals",
+         "name":"Withdrawals",
+         "emoji":"📌",
+         "weekly_budget":"$23.09/week",
+         "daily_allowance":"$3.30/day",
+         "tip":"Track this carefully",
+         "has_cut":false,
+         "monthly_saving":"$0.00/month saved",
+         "badge":{
+            "label":"Maintained",
+            "color":"secondary"
+         }
+      }
+   ],
+   "daily_planner":[
+      {
+         "day":"Monday",
+         "date":"23 Feb",
+         "is_today":false,
+         "daily_budget":251.87,
+         "status":"past"
+      },
+      {
+         "day":"Tuesday",
+         "date":"24 Feb",
+         "is_today":true,
+         "daily_budget":251.87,
+         "status":"today"
+      },
+      {
+         "day":"Wednesday",
+         "date":"25 Feb",
+         "is_today":false,
+         "daily_budget":251.87,
+         "status":"future"
+      },
+      {
+         "day":"Thursday",
+         "date":"26 Feb",
+         "is_today":false,
+         "daily_budget":251.87,
+         "status":"future"
+      },
+      {
+         "day":"Friday",
+         "date":"27 Feb",
+         "is_today":false,
+         "daily_budget":251.87,
+         "status":"future"
+      },
+      {
+         "day":"Saturday",
+         "date":"28 Feb",
+         "is_today":false,
+         "daily_budget":251.87,
+         "status":"future"
+      },
+      {
+         "day":"Sunday",
+         "date":"01 Mar",
+         "is_today":false,
+         "daily_budget":251.87,
+         "status":"future"
+      }
+   ],
+   "ai_coach":{
+      "message":"(AI coach unavailable)",
+      "avatar_emoji":"🤖",
+      "coach_name":"FinBot"
+   },
+   "tips":[
+      {
+         "id":15,
+         "emoji":"📌",
+         "text":"Track this carefully",
+         "category":"Payments"
+      }
+   ],
+   "fixed_costs":{
+      "excluded_list":[
+         "EMI",
+         "Electricity",
+         "Insurance",
+         "Subscriptions"
+      ],
+      "note":"This card covers your day-to-day spending only. Fixed bills are handled separately.",
+      "count":4
+   },
+   "alert":{
+      "show":false,
+      "type":"warning",
+      "icon":"⚠️",
+      "message":"None"
+   }
+}

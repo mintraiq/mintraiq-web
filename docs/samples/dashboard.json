@@ -1,0 +1,95 @@
+{
+   "forecast":{
+      "future_dates":[
+         "2025-12-31",
+         "2026-01-31",
+         "2026-02-28",
+         "2026-03-31",
+         "2026-04-30",
+         "2026-05-31",
+         "2026-06-30",
+         "2026-07-31",
+         "2026-08-31",
+         "2026-09-30",
+         "2026-10-31",
+         "2026-11-30"
+      ],
+      "future":[
+         13986.7470703125,
+         13520.9521484375,
+         13549.0234375,
+         13028.8740234375,
+         13067.8369140625,
+         13097.7900390625,
+         12953.3251953125,
+         13078.8212890625,
+         13058.85546875,
+         13086.9951171875,
+         13121.88671875,
+         12894.712890625
+      ]
+   },
+   "monthly":{
+      "predicted_expense":13986.75,
+      "historical_avg_expense":134.1516339869281,
+      "expense_volatility":2695.170465850855,
+      "top_categories":[
+         {
+            "category":"EMI",
+            "amount":183538.29
+         },
+         {
+            "category":"Payments",
+            "amount":119001.31
+         },
+         {
+            "category":"MISC",
+            "amount":115897.09
+         },
+         {
+            "category":"One-Off Settlement",
+            "amount":90000.0
+         },
+         {
+            "category":"CreditCard Payment",
+            "amount":22938.13
+         }
+      ],
+      "predicted_income":16000,
+      "predicted_savings":2013.25
+   },
+      "explanations":[
+         "Your predicted spending is higher than your usual monthly average.",
+         "Your expenses have been fluctuating significantly in recent months.",
+         "The largest expense category is EMI, contributing approximately $183538."
+      ],
+      "risk":{
+         "level":"Low",
+         "score":0,
+         "explanation":[
+            "Expense change: -97.2%",
+            "Savings rate: 88.6%",
+            "Forecast deficit: False"
+         ]
+      },
+      "recommendations":[
+         {
+            "id":"behavior_shift",
+            "type":"Behavioral AI",
+            "severity":"High",
+            "title":"Spending behavior shift detected",
+            "description":"Your spending pattern this month differs significantly from your usual behavior.",
+            "explainability":{
+               "drift_score":0.66,
+               "interpretation":"Low similarity to historical months"
+            }
+         },
+         {
+            "id":"spend_anomaly",
+            "type":"Anomaly Detection",
+            "severity":"High",
+            "title":"Unusual spending detected",
+            "description":"This month’s total spend is statistically abnormal compared to previous months."
+         }
+      ]
+}

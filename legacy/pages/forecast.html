@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forecast — MintrAIQ</title>
+    <meta name="mintraiq-samples-base" content="../../docs/samples">
+    <title>Forecast — Ninja Finance</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../static-app/css/shell.css">
 </head>
@@ -21,16 +22,16 @@
             <header class="top-header">
                 <div>
                     <h2 style="margin:0">Spending forecast</h2>
-                    <p style="color:var(--text-secondary);margin-top:6px">Flask renders Plotly from <code style="color:var(--accent-purple)">GET /forecast</code> (AI service). Embedded below when same origin.</p>
+                    <p style="color:var(--text-secondary);margin-top:6px">React + Chart.js · <code style="color:var(--accent-purple)">docs/samples/dashboard.json</code></p>
                 </div>
             </header>
-            <p class="api-hint">Serve this page from the same host:port as Flask so the iframe session cookie applies. JSON-only flows: see <a href="http://localhost:5000/api/docs" target="_blank" rel="noopener">/api/docs</a>.</p>
-            <iframe class="iframe-panel" title="Forecast" data-flask-path="/forecast"></iframe>
+            <p class="api-hint">No iframe — same shell as other legacy pages.</p>
+            <div id="ninja-react-root" data-ninja-page="forecast" style="min-height:420px"></div>
         </main>
     </div>
 </div>
 <script src="../static-app/js/api-client.js"></script>
 <script src="../static-app/js/sidebar-nav.js"></script>
-<script src="../static-app/js/iframe-flask.js"></script>
+<script type="module" src="../static-app/react-embed/ninja-ui.js"></script>
 </body>
 </html>

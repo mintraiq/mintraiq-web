@@ -8,6 +8,7 @@ Static marketing pages, a **Logto-powered portal** (`portal/`), **FastAPI refere
 |------|---------|
 | `intro*.html`, `mock-dashboard.html`, … | Static marketing + demo dashboard |
 | **`web/`** | **Ninja Finance** static shell (Flask `layout.html`–style nav). Same pages as `http://localhost:5000/…` mapped to `web/*.html`; API base from `config/runtime-env` → `legacyFlaskBase`. Entry: `web/home.html` or `web/index.html`. |
+| **`apps/ninja-react/`** | Vite + React bundle (`npm run build:react`) → `legacy/static-app/react-embed/ninja-ui.js`. Powers budget planner, forecast, and weekly planner using `docs/samples/*.json` (no Flask iframes). |
 | `portal/` | Logto sign-in, callback → `POST …/bootstrap`, then **`portal/dashboard.html`** (live `POST …/generate` + charts) |
 | `finance_api.py` | Reference copy of your FastAPI app (`validate_token`, `BootstrapPayload`, CORS). Run the real app from your backend repo with `config.settings`. |
 | `legacy/templates/` | Original Jinja templates (not CDN-ready until converted) |
@@ -112,7 +113,7 @@ Local build before push (optional): `npm install && npm run build:env` — creat
 | `/home` | `web/home.html` |
 | `/expenses` | `web/transactions.html` |
 | `/upload` | `web/upload.html` |
-| `/budget-planner` | `web/budget-planner.html` (iframe to Flask until JSON exists) |
+| `/budget-planner` | `web/budget-planner.html` (React embed + `docs/samples/budget_plan.json`) |
 | `/weekly-planner` | `web/weekly-planner.html` |
 | `/financial-score` | `web/financial-score.html` |
 | `/forecast` | `web/forecast.html` |

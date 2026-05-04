@@ -1,6 +1,6 @@
 /**
  * Browser client for Flask expense_loader (session cookie: ninja_access_token).
- * Base URL: config/runtime-env.defaults.js → legacyFlaskBase (or optional window.__APP_API_BASE__).
+ * Base URL: config/runtime-env.js → legacyFlaskBase (or optional window.__APP_API_BASE__).
  */
 (function () {
     'use strict';

@@ -9,7 +9,5 @@ config.json
 # finance_api.py is tracked (reference for Cursor / frontend alignment). Canonical deployment may still live in your API monorepo.
 # Local Flask app reference (canonical app elsewhere)
 expense_loader.py
-# Generated browser env (from npm run build:env / Vercel) — optional second script
-config/runtime-env.js
 # Local copy of env.public.example for build:env (tunnels, localhost)
 env.public

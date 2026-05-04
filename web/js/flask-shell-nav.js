@@ -1,7 +1,7 @@
 /**
  * Ninja Finance shell — mirrors legacy/templates/layout.html sidebar (Flask routes as static .html).
  * Requires: #app-sidebar, #sidebar-overlay, #nav-toggle, body[data-active-nav="<id>"].
- * API origin: window.__MINTRAIQ_ENV__.legacyFlaskBase (see config/runtime-env.defaults.js + env.public.example).
+ * API origin: window.__MINTRAIQ_ENV__.legacyFlaskBase (see config/runtime-env.js + env.public.example).
  */
 (function () {
     'use strict';

@@ -8,7 +8,8 @@ Static marketing pages, a **Logto-powered portal** (`portal/`), **FastAPI refere
 |------|---------|
 | `intro*.html`, `mock-dashboard.html`, … | Static marketing + demo dashboard |
 | **`web/`** | **Ninja Finance** static shell (Flask `layout.html`–style nav). Same pages as `http://localhost:5000/…` mapped to `web/*.html`; API base from `config/runtime-env` → `legacyFlaskBase`. Entry: `web/home.html` or `web/index.html`. |
-| **`apps/ninja-react/`** | Vite + React bundle (`npm run build:react`) → `legacy/static-app/react-embed/ninja-ui.js`. Powers budget planner, forecast, and weekly planner using `docs/samples/*.json` (no Flask iframes). |
+| **`mintraiq/`** | Built **`react-embed/ninja-ui.js`** (React). Source in **`apps/ninja-react/`**; run `npm run build:react`. See **`mintraiq/README.md`** (iframe audit). |
+| **`apps/ninja-react/`** | Vite project that emits into **`mintraiq/react-embed/`**. |
 | `portal/` | Logto sign-in, callback → `POST …/bootstrap`, then **`portal/dashboard.html`** (live `POST …/generate` + charts) |
 | `finance_api.py` | Reference copy of your FastAPI app (`validate_token`, `BootstrapPayload`, CORS). Run the real app from your backend repo with `config.settings`. |
 | `legacy/templates/` | Original Jinja templates (not CDN-ready until converted) |
@@ -114,9 +115,9 @@ Local build before push (optional): `npm install && npm run build:env` — creat
 | `/expenses` | `web/transactions.html` |
 | `/upload` | `web/upload.html` |
 | `/budget-planner` | `web/budget-planner.html` (React embed + `docs/samples/budget_plan.json`) |
-| `/weekly-planner` | `web/weekly-planner.html` |
+| `/weekly-planner` | `web/weekly-planner.html` (React + `docs/samples/weekly_plan.json` via `mintraiq/react-embed/`) |
 | `/financial-score` | `web/financial-score.html` |
-| `/forecast` | `web/forecast.html` |
+| `/forecast` | `web/forecast.html` (React + `docs/samples/dashboard.json` via `mintraiq/react-embed/`) |
 | `/cpi-guru` | `web/cpi-guru.html` |
 | `/account/goals` | `web/goals.html` |
 | `/account/profile` (tabs) | `web/account-profile.html` + `web/settings.html` |

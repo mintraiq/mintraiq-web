@@ -38,7 +38,7 @@ This folder holds the original **Flask + Jinja** templates and static assets cop
 | `pages/goals.html` | `POST /account/goals` |
 | `pages/upload.html` | `POST /upload` multipart `files` |
 | `pages/account-profile.html` | `PUT /users/me1` |
-| `pages/forecast.html`, `pages/budget-planner.html` | React embed `static-app/react-embed/ninja-ui.js` + `docs/samples/` (see `npm run build:react`). |
+| `pages/forecast.html`, `pages/budget-planner.html` | React embed `mintraiq/react-embed/ninja-ui.js` + `docs/samples/` (see `npm run build:react`). |
 | `pages/weekly-planner.html` | React embed + `docs/samples/weekly_plan.json` (same shell as other legacy pages). |
 
 `static-app/js/api-client.js` remaps legacy paths used in `static-flask/dashboard.js` (`/api/generate` → `GET /generate1`, `/api/transactions` → monthly expenses list, `/api/financial-score` → `/financial-score`).

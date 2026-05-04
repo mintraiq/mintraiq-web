@@ -1,6 +1,6 @@
 node_modules/
 apps/ninja-react/node_modules/
-legacy/static-app/react-embed/embed.html
+mintraiq/react-embed/embed.html
 
 # Local overrides (never commit secrets)
 portal/js/config.local.js

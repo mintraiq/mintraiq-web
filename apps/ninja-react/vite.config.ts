@@ -9,7 +9,7 @@ export default defineConfig({
     plugins: [react()],
     root: __dirname,
     build: {
-        outDir: path.join(__dirname, '../../legacy/static-app/react-embed'),
+        outDir: path.join(__dirname, '../../mintraiq/react-embed'),
         emptyOutDir: true,
         rollupOptions: {
             input: path.join(__dirname, 'embed.html'),

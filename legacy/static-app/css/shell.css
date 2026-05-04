@@ -201,6 +201,7 @@ input, select, textarea {
     border-radius: 8px;
     font-size: 0.95rem;
 }
+/* Deprecated: Flask HTML embeds removed; React lives under mintraiq/react-embed/. Kept in case old bookmarks load cached HTML. */
 .iframe-panel {
     width: 100%;
     min-height: 70vh;

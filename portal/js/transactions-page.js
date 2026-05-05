@@ -16,6 +16,11 @@ function toIsoDate(d) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+function monthStart(isoDate) {
+    if (!isoDate || isoDate.length < 7) return '';
+    return `${isoDate.slice(0, 7)}-01`;
+}
+
 function setDefaultDateRange() {
     const fromEl = document.getElementById('txDateFrom');
     const toEl = document.getElementById('txDateTo');
@@ -25,6 +30,18 @@ function setDefaultDateRange() {
     const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
     fromEl.value = toIsoDate(threeMonthsAgo);
     toEl.value = toIsoDate(now);
+}
+
+function normalizeDateRange(applyToInputs = false) {
+    const fromEl = document.getElementById('txDateFrom');
+    const toEl = document.getElementById('txDateTo');
+    let from = fromEl?.value || '';
+    let to = toEl?.value || '';
+    if (to && !from) {
+        from = monthStart(to);
+        if (applyToInputs && fromEl) fromEl.value = from;
+    }
+    return { from, to };
 }
 
 function escapeHtml(s) {
@@ -66,8 +83,7 @@ function filteredRows() {
     const descQ = (document.getElementById('txDescription')?.value || '').trim().toLowerCase();
     const cat = document.getElementById('txCategory')?.value || '';
     const reviewOnly = document.getElementById('txReviewOnly')?.checked;
-    const from = document.getElementById('txDateFrom')?.value || '';
-    const to = document.getElementById('txDateTo')?.value || '';
+    const { from, to } = normalizeDateRange(false);
     const pageSize = Number(document.getElementById('txPageSize')?.value || 50);
 
     const rows = allRows
@@ -89,6 +105,40 @@ function filteredRows() {
 
     if (!Number.isFinite(pageSize) || pageSize <= 0) return rows;
     return rows.slice(0, pageSize);
+}
+
+function selectedInlinePanelId() {
+    return selected ? `txInlinePanel-${selected.id}` : '';
+}
+
+function renderExpandedRow(r) {
+    return (
+        `<tr class="tx-expanded-row" data-expand-row="1">` +
+        `<td colspan="7">` +
+        `<div class="tx-expand-wrap tx-expand-enter" data-expand-id="${escapeHtml(r.id)}">` +
+        '<div class="tx-expand-header">' +
+        '<span class="card-title">Transaction detail</span>' +
+        '<button type="button" class="tx-expand-close" id="txExpandClose" aria-label="Close detail"><i class="fas fa-xmark"></i></button>' +
+        '</div>' +
+        '<div class="tx-detail-actions">' +
+        '<button type="button" class="btn-primary" id="txReviewBtn"><i class="fas fa-check-circle"></i> Review</button>' +
+        '<button type="button" class="btn-primary" id="txEnquireBtn" style="background:linear-gradient(135deg,#bb6bd9,#2f80ed);color:#fff"><i class="fas fa-magnifying-glass"></i> Enquire</button>' +
+        '</div>' +
+        '<dl class="tx-detail-dl">' +
+        `<dt>Date</dt><dd>${escapeHtml(r.date)}</dd>` +
+        `<dt>Amount</dt><dd>${escapeHtml(formatAmount(r))}</dd>` +
+        `<dt>Type</dt><dd>${escapeHtml(r.type || '—')}</dd>` +
+        `<dt>Category</dt><dd>${escapeHtml(r.category || '—')}</dd>` +
+        `<dt>Description</dt><dd>${escapeHtml(r.description || '—')}</dd>` +
+        `<dt>Flag</dt><dd>${escapeHtml(r.flag || '—')}</dd>` +
+        `<dt>Needs review</dt><dd>${r.needs_review ? 'Yes' : 'No'}</dd>` +
+        `<dt>Id</dt><dd><code style="font-size:0.85rem">${escapeHtml(r.id)}</code></dd>` +
+        '</dl>' +
+        `<div id="${selectedInlinePanelId()}" class="tx-inline-panel" style="display:none"></div>` +
+        '</div>' +
+        '</td>' +
+        '</tr>'
+    );
 }
 
 function renderTable() {
@@ -130,13 +180,13 @@ function renderTable() {
             if (i === 1) td.className = 'align-right';
             tr.appendChild(td);
         });
-        tr.addEventListener('click', () => {
-            selected = r;
-            document.querySelectorAll('#txTable tbody tr').forEach((el) => el.classList.remove('tx-row-selected'));
-            tr.classList.add('tx-row-selected');
-            renderDetail();
-        });
         tbody.appendChild(tr);
+
+        if (selected && selected.id === r.id) {
+            const wrap = document.createElement('tbody');
+            wrap.innerHTML = renderExpandedRow(r);
+            tbody.appendChild(wrap.firstElementChild);
+        }
     }
 }
 
@@ -153,7 +203,13 @@ function categoryOptionsHtml(current = '') {
 async function readEnquireSample() {
     const res = await fetch('../docs/samples/enquire_transaction.json', { cache: 'no-store' });
     if (!res.ok) throw new Error('Failed to load enquire sample.');
-    return res.json();
+    const text = await res.text();
+    if (!text.trim()) return { success: false, items: [] };
+    try {
+        return JSON.parse(text);
+    } catch {
+        return { success: false, items: [] };
+    }
 }
 
 async function fetchEnrichment(tx) {
@@ -221,7 +277,6 @@ function markReviewed(txId, nextCategory) {
     selected = allRows[idx];
     fillCategoryOptions();
     renderTable();
-    renderDetail();
     const rowEl = document.querySelector(`#txTable tbody tr[data-id="${CSS.escape(txId)}"]`);
     if (rowEl) {
         rowEl.classList.add('tx-row-reviewed');
@@ -229,93 +284,84 @@ function markReviewed(txId, nextCategory) {
     }
 }
 
-function renderDetail() {
-    const panel = document.getElementById('txDetail');
-    if (!panel) return;
-    if (!selected) {
-        panel.style.display = 'none';
-        panel.innerHTML = '';
+function collapseSelectedRow() {
+    if (!selected) return;
+    const wrap = document.querySelector('.tx-expand-wrap');
+    if (!wrap) {
+        selected = null;
+        renderTable();
         return;
     }
-    panel.style.display = 'block';
-    const r = selected;
-    panel.innerHTML =
-        '<div class="card-header"><span class="card-title">Transaction detail</span></div>' +
-        '<div class="tx-detail-actions">' +
-        '<button type="button" class="btn-primary" id="txReviewBtn"><i class="fas fa-check-circle"></i> Review</button>' +
-        '<button type="button" class="btn-primary" id="txEnquireBtn" style="background:linear-gradient(135deg,#bb6bd9,#2f80ed);color:#fff"><i class="fas fa-magnifying-glass"></i> Enquire</button>' +
+    wrap.classList.add('is-closing');
+    window.setTimeout(() => {
+        selected = null;
+        renderTable();
+    }, 170);
+}
+
+function getInlinePanel() {
+    const panelId = selectedInlinePanelId();
+    return panelId ? document.getElementById(panelId) : null;
+}
+
+async function openEnquirePanel() {
+    const inlinePanel = getInlinePanel();
+    if (!inlinePanel || !selected) return;
+    inlinePanel.style.display = 'block';
+    inlinePanel.innerHTML = '<p style="color:var(--text-secondary)">Fetching Akahu enrichment…</p>';
+    try {
+        const { data, fromSample } = await fetchEnrichment(selected);
+        inlinePanel.innerHTML = `<div class="tx-inline-title">Transaction enrichment</div>${renderEnquireResult(data, fromSample)}`;
+    } catch (e) {
+        inlinePanel.innerHTML = `<p style="color:#ffb4b4">${escapeHtml(String(e.message || e))}</p>`;
+    }
+}
+
+function openReviewPanel() {
+    const inlinePanel = getInlinePanel();
+    if (!inlinePanel || !selected) return;
+    inlinePanel.style.display = 'block';
+    inlinePanel.innerHTML =
+        '<div class="tx-inline-title">Review transaction</div>' +
+        '<div class="tx-review-grid">' +
+        `<label>Category<select id="txReviewCategory" class="form-control">${categoryOptionsHtml(selected.category)}</select></label>` +
+        '<label style="display:flex;align-items:center;gap:8px;margin-top:22px"><input type="checkbox" id="txReviewTraining" checked> training_required</label>' +
         '</div>' +
-        '<dl class="tx-detail-dl">' +
-        `<dt>Date</dt><dd>${escapeHtml(r.date)}</dd>` +
-        `<dt>Amount</dt><dd>${escapeHtml(formatAmount(r))}</dd>` +
-        `<dt>Type</dt><dd>${escapeHtml(r.type || '—')}</dd>` +
-        `<dt>Category</dt><dd>${escapeHtml(r.category || '—')}</dd>` +
-        `<dt>Description</dt><dd>${escapeHtml(r.description || '—')}</dd>` +
-        `<dt>Flag</dt><dd>${escapeHtml(r.flag || '—')}</dd>` +
-        `<dt>Needs review</dt><dd>${r.needs_review ? 'Yes' : 'No'}</dd>` +
-        `<dt>Id</dt><dd><code style="font-size:0.85rem">${escapeHtml(r.id)}</code></dd>` +
-        '</dl>' +
-        '<div id="txInlinePanel" class="tx-inline-panel" style="display:none"></div>';
+        '<div class="tx-review-actions">' +
+        '<button type="button" class="btn-primary" id="txReviewSave"><i class="fas fa-floppy-disk"></i> Update</button>' +
+        '<span id="txReviewMsg" style="color:var(--text-secondary);font-size:0.88rem"></span>' +
+        '</div>';
+}
 
-    const inlinePanel = document.getElementById('txInlinePanel');
-    const enquireBtn = document.getElementById('txEnquireBtn');
-    const reviewBtn = document.getElementById('txReviewBtn');
-
-    enquireBtn?.addEventListener('click', async () => {
-        if (!inlinePanel || !selected) return;
-        inlinePanel.style.display = 'block';
-        inlinePanel.innerHTML = '<p style="color:var(--text-secondary)">Fetching Akahu enrichment…</p>';
-        try {
-            const { data, fromSample } = await fetchEnrichment(selected);
-            inlinePanel.innerHTML = `<div class="tx-inline-title">Transaction enrichment</div>${renderEnquireResult(data, fromSample)}`;
-        } catch (e) {
-            inlinePanel.innerHTML = `<p style="color:#ffb4b4">${escapeHtml(String(e.message || e))}</p>`;
-        }
-    });
-
-    reviewBtn?.addEventListener('click', () => {
-        if (!inlinePanel || !selected) return;
-        inlinePanel.style.display = 'block';
-        inlinePanel.innerHTML =
-            '<div class="tx-inline-title">Review transaction</div>' +
-            '<div class="tx-review-grid">' +
-            `<label>Category<select id="txReviewCategory" class="form-control">${categoryOptionsHtml(selected.category)}</select></label>` +
-            '<label style="display:flex;align-items:center;gap:8px;margin-top:22px"><input type="checkbox" id="txReviewTraining" checked> training_required</label>' +
-            '</div>' +
-            '<div class="tx-review-actions">' +
-            '<button type="button" class="btn-primary" id="txReviewSave"><i class="fas fa-floppy-disk"></i> Update</button>' +
-            '<span id="txReviewMsg" style="color:var(--text-secondary);font-size:0.88rem"></span>' +
-            '</div>';
-
-        document.getElementById('txReviewSave')?.addEventListener('click', async () => {
-            const msg = document.getElementById('txReviewMsg');
-            const category = /** @type {HTMLSelectElement|null} */ (document.getElementById('txReviewCategory'))?.value || selected.category;
-            const trainingRequired = Boolean(document.getElementById('txReviewTraining')?.checked);
-            const payload = {
-                txn_id: selected.id,
-                category_value: category,
-                training_required: trainingRequired,
-                updated_by: 'portal-user',
-                updated_at: new Date().toISOString()
-            };
-            if (msg) msg.textContent = 'Updating…';
-            try {
-                const res = await financeApiFetch(currentClient, '/transactions/review', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!res.ok) {
-                    const text = await res.text();
-                    throw new Error(text || `Review update failed (${res.status})`);
-                }
-                markReviewed(selected.id, category);
-                if (msg) msg.textContent = 'Updated and marked reviewed.';
-            } catch (e) {
-                if (msg) msg.textContent = String(e.message || e);
-            }
+async function saveReviewFromPanel() {
+    if (!selected) return;
+    const msg = document.getElementById('txReviewMsg');
+    const category = /** @type {HTMLSelectElement|null} */ (document.getElementById('txReviewCategory'))?.value || selected.category;
+    const trainingRequired = Boolean(document.getElementById('txReviewTraining')?.checked);
+    const payload = {
+        txn_id: selected.id,
+        category_value: category,
+        training_required: trainingRequired,
+        updated_by: 'portal-user',
+        updated_at: new Date().toISOString()
+    };
+    if (msg) msg.textContent = 'Updating…';
+    try {
+        const res = await financeApiFetch(currentClient, '/transactions/review', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
-    });
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text || `Review update failed (${res.status})`);
+        }
+        markReviewed(selected.id, category);
+        const nextMsg = document.getElementById('txReviewMsg');
+        if (nextMsg) nextMsg.textContent = 'Updated and marked reviewed.';
+    } catch (e) {
+        if (msg) msg.textContent = String(e.message || e);
+    }
 }
 
 function fillCategoryOptions() {
@@ -355,10 +401,10 @@ function clearFiltersToDefault() {
     sortKey = 'date';
     sortDir = 'desc';
     updateSortIndicators();
+    normalizeDateRange(true);
     renderTable();
     if (selected && !filteredRows().some((r) => r.id === selected.id)) {
         selected = null;
-        renderDetail();
     }
 }
 
@@ -400,7 +446,6 @@ async function loadTransactions(client) {
     selected = null;
     fillCategoryOptions();
     renderTable();
-    renderDetail();
     if (status) {
         const base = CONFIG.financeApiBase.replace(/\/$/, '');
         status.textContent = `Loaded from ${base}/transactions`;
@@ -443,11 +488,11 @@ async function syncAkahu(client) {
 
 function wireFilters() {
     const rerender = () => {
+        normalizeDateRange(true);
         renderTable();
         updateSortIndicators();
         if (selected && !filteredRows().some((r) => r.id === selected.id)) {
             selected = null;
-            renderDetail();
         }
     };
     document.getElementById('txSearch')?.addEventListener('input', rerender);
@@ -455,7 +500,10 @@ function wireFilters() {
     document.getElementById('txCategory')?.addEventListener('change', rerender);
     document.getElementById('txReviewOnly')?.addEventListener('change', rerender);
     document.getElementById('txDateFrom')?.addEventListener('change', rerender);
-    document.getElementById('txDateTo')?.addEventListener('change', rerender);
+    document.getElementById('txDateTo')?.addEventListener('change', () => {
+        normalizeDateRange(true);
+        rerender();
+    });
     document.getElementById('txPageSize')?.addEventListener('change', rerender);
     document.getElementById('txClearFilters')?.addEventListener('click', clearFiltersToDefault);
     document.querySelectorAll('.tx-sort-btn[data-sort-key]').forEach((btn) => {
@@ -472,6 +520,48 @@ function wireFilters() {
     updateSortIndicators();
 }
 
+function wireTableInteractions() {
+    const tbody = document.querySelector('#txTable tbody');
+    if (!tbody || tbody.dataset.wired === '1') return;
+    tbody.dataset.wired = '1';
+    tbody.addEventListener('click', async (e) => {
+        const t = e.target;
+        if (!(t instanceof Element)) return;
+
+        if (t.closest('#txExpandClose')) {
+            e.preventDefault();
+            collapseSelectedRow();
+            return;
+        }
+        if (t.closest('#txReviewBtn')) {
+            e.preventDefault();
+            openReviewPanel();
+            return;
+        }
+        if (t.closest('#txEnquireBtn')) {
+            e.preventDefault();
+            await openEnquirePanel();
+            return;
+        }
+        if (t.closest('#txReviewSave')) {
+            e.preventDefault();
+            await saveReviewFromPanel();
+            return;
+        }
+        if (t.closest('tr[data-expand-row="1"]')) return;
+        const tr = t.closest('tr[data-id]');
+        if (!tr) return;
+        const id = tr.getAttribute('data-id');
+        if (!id) return;
+        if (selected && selected.id === id) {
+            collapseSelectedRow();
+            return;
+        }
+        selected = allRows.find((r) => r.id === id) || null;
+        renderTable();
+    });
+}
+
 async function main() {
     if (!claimPageScript('transactions-main')) return;
     if (!(await guardSession())) return;
@@ -482,6 +572,7 @@ async function main() {
     document.getElementById('txSyncAkahu')?.addEventListener('click', () => syncAkahu(client));
     setDefaultDateRange();
     wireFilters();
+    wireTableInteractions();
 
     try {
         await loadTransactions(client);

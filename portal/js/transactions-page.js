@@ -59,6 +59,13 @@ function formatAmount(row) {
     return `${sign}${fmt}`;
 }
 
+function confidenceScore(row) {
+    if (row.flag === '✅') return 0.96;
+    if (row.flag === '⚠️') return 0.72;
+    if (row.flag === '❌') return 0.55;
+    return row.needs_review ? 0.68 : 0.84;
+}
+
 function compareRows(a, b, key) {
     if (key === 'amount') return Number(a.amount || 0) - Number(b.amount || 0);
     if (key === 'needs_review') return Number(Boolean(a.needs_review)) - Number(Boolean(b.needs_review));
@@ -112,6 +119,7 @@ function selectedInlinePanelId() {
 }
 
 function renderExpandedRow(r) {
+    const score = confidenceScore(r);
     return (
         `<tr class="tx-expanded-row" data-expand-row="1">` +
         `<td colspan="7">` +
@@ -125,13 +133,10 @@ function renderExpandedRow(r) {
         '<button type="button" class="btn-primary" id="txEnquireBtn" style="background:linear-gradient(135deg,#bb6bd9,#2f80ed);color:#fff"><i class="fas fa-magnifying-glass"></i> Enquire</button>' +
         '</div>' +
         '<dl class="tx-detail-dl">' +
-        `<dt>Date</dt><dd>${escapeHtml(r.date)}</dd>` +
-        `<dt>Amount</dt><dd>${escapeHtml(formatAmount(r))}</dd>` +
-        `<dt>Type</dt><dd>${escapeHtml(r.type || '—')}</dd>` +
-        `<dt>Category</dt><dd>${escapeHtml(r.category || '—')}</dd>` +
         `<dt>Description</dt><dd>${escapeHtml(r.description || '—')}</dd>` +
-        `<dt>Flag</dt><dd>${escapeHtml(r.flag || '—')}</dd>` +
+        `<dt>Category</dt><dd>${escapeHtml(r.category || '—')}</dd>` +
         `<dt>Needs review</dt><dd>${r.needs_review ? 'Yes' : 'No'}</dd>` +
+        `<dt>Confidence</dt><dd>${(score * 100).toFixed(0)}%</dd>` +
         `<dt>Id</dt><dd><code style="font-size:0.85rem">${escapeHtml(r.id)}</code></dd>` +
         '</dl>' +
         `<div id="${selectedInlinePanelId()}" class="tx-inline-panel" style="display:none"></div>` +

@@ -296,6 +296,115 @@ html.is-turbo-transitioning .main-wrap {
     background: rgba(0, 255, 157, 0.08);
     outline: 1px solid rgba(0, 255, 157, 0.25);
 }
+#txTable tbody tr.tx-row-reviewed {
+    background: rgba(0, 255, 157, 0.16);
+    outline: 1px solid rgba(0, 255, 157, 0.55);
+    transition: background 0.25s ease, outline-color 0.25s ease;
+}
+.tx-detail-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 0 0 14px;
+}
+.tx-inline-panel {
+    margin-top: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(8, 12, 20, 0.72);
+    border-radius: 12px;
+    padding: 14px;
+}
+.tx-inline-title {
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.tx-enquire-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+.tx-enquire-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.tx-enquire-brand h4 {
+    margin: 0 0 2px;
+    font-size: 1.08rem;
+}
+.tx-enquire-brand p {
+    margin: 0;
+    color: var(--text-secondary, #a0a0a0);
+    font-size: 0.9rem;
+}
+.tx-enquire-logo,
+.tx-enquire-logo-fallback {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+}
+.tx-enquire-logo {
+    object-fit: cover;
+    background: #fff;
+}
+.tx-enquire-logo-fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(47, 128, 237, 0.2);
+    color: #7ee8ff;
+}
+.tx-confidence {
+    font-size: 0.8rem;
+    color: var(--accent-green, #00ff9d);
+    border: 1px solid rgba(0, 255, 157, 0.3);
+    border-radius: 999px;
+    padding: 4px 9px;
+}
+.tx-enquire-meta p {
+    margin: 0 0 8px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+.tx-enquire-meta i {
+    margin-top: 3px;
+    color: var(--text-secondary, #a0a0a0);
+}
+.tx-enquire-meta a {
+    color: #7ee8ff;
+}
+.tx-map {
+    width: 100%;
+    height: 220px;
+    border: 0;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+.tx-sample-note {
+    margin: 10px 0 0;
+    color: var(--text-secondary, #a0a0a0);
+    font-size: 0.82rem;
+}
+.tx-review-grid {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.tx-review-grid label {
+    color: var(--text-secondary, #a0a0a0);
+    font-size: 0.9rem;
+}
+.tx-review-actions {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
 .tx-detail-dl {
     display: grid;
     grid-template-columns: 140px 1fr;

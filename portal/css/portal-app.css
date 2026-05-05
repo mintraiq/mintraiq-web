@@ -1,6 +1,14 @@
 /**
  * Portal workspace + settings (Flask account layout mimic).
  */
+/* Turbo permanent sidebar shell (aside only; overlay stays outside so layout + merge stay reliable) */
+#portal-sidebar-region {
+    flex-shrink: 0;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+}
+
 a.user-avatar {
     text-decoration: none;
     color: inherit;
@@ -12,6 +20,16 @@ a.user-avatar {
     flex: 1;
     min-height: 0;
     align-self: stretch;
+}
+
+/* Subtle transition cue for Turbo visits. */
+.main-wrap {
+    transition: opacity 160ms ease, transform 180ms ease;
+    will-change: opacity, transform;
+}
+html.is-turbo-transitioning .main-wrap {
+    opacity: 0.94;
+    transform: translateY(4px);
 }
 
 .btn-primary {
@@ -41,114 +59,158 @@ a.user-avatar {
         grid-template-columns: 1fr;
     }
 }
-.portal-settings-layout {
-    display: flex;
-    min-height: 100vh;
-    background: var(--bg-dark, #121212);
-    color: var(--text-primary, #fff);
-}
-
-.portal-settings-sidebar {
-    width: 280px;
-    flex-shrink: 0;
-    background: var(--bg-card, #1e1e24);
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 28px 18px;
+/* —— Settings: single main column + sticky tab strip (no second sidebar) —— */
+.portal-settings-shell {
+    flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    max-width: 920px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 28px 40px;
+    box-sizing: border-box;
 }
 
-.portal-settings-sidebar .back-dash {
+#portal-settings-nav-region {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    padding-top: 8px;
+    margin-bottom: 8px;
+    background: linear-gradient(180deg, rgba(18, 18, 18, 0.98) 70%, transparent 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(8px);
+}
+
+#settings-nav-root {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.settings-nav-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.settings-back-link {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 14px;
-    margin-bottom: 28px;
+    padding: 8px 12px;
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.05);
     color: var(--text-secondary, #a0a0a0);
     text-decoration: none;
     font-weight: 600;
-    font-size: 0.92rem;
-}
-.portal-settings-sidebar .back-dash:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.nav-group-title {
-    font-size: 0.68rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: rgba(255, 255, 255, 0.35);
-    margin: 18px 0 8px 12px;
-    font-weight: 700;
-}
-
-.settings-nav a {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 14px;
-    margin-bottom: 4px;
-    border-radius: 10px;
-    color: var(--text-secondary, #a0a0a0);
-    text-decoration: none;
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     transition: background 0.15s, color 0.15s;
 }
-.settings-nav a:hover {
-    background: rgba(255, 255, 255, 0.04);
-    color: #fff;
-}
-.settings-nav a.active {
-    background: rgba(47, 128, 237, 0.15);
-    color: #7ee8ff;
-    border-left: 3px solid var(--accent-blue, #2f80ed);
-    margin-left: -3px;
-    padding-left: 14px;
+.settings-back-link:hover {
+    background: rgba(0, 255, 157, 0.08);
+    color: var(--accent-green, #00ff9d);
 }
 
-.portal-settings-main {
-    flex: 1;
-    padding: 48px 56px;
-    max-width: 900px;
-    overflow-y: auto;
+.settings-context-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.28);
 }
-.portal-settings-main .page-header {
-    margin-bottom: 28px;
-    padding-bottom: 18px;
+
+.settings-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+    padding-bottom: 12px;
+}
+
+.settings-tabs-divider {
+    flex: 0 0 1px;
+    width: 1px;
+    height: 22px;
+    align-self: center;
+    background: rgba(255, 255, 255, 0.12);
+    margin: 0 6px;
+}
+
+.settings-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(30, 30, 36, 0.6);
+    color: var(--text-secondary, #a0a0a0);
+    text-decoration: none;
+    font-size: 0.86rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.settings-tab i {
+    font-size: 0.85rem;
+    opacity: 0.85;
+}
+.settings-tab:hover {
+    color: #fff;
+    border-color: rgba(0, 255, 157, 0.25);
+    background: rgba(0, 255, 157, 0.06);
+}
+.settings-tab.active {
+    color: var(--accent-green, #00ff9d);
+    border-color: rgba(0, 255, 157, 0.45);
+    background: rgba(0, 255, 157, 0.1);
+}
+
+.portal-settings-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: 24px;
+}
+.portal-settings-body .page-header {
+    margin-bottom: 22px;
+    padding-bottom: 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
-.portal-settings-main .page-header h1 {
+.portal-settings-body .page-header h1 {
     margin: 0 0 8px;
-    font-size: 1.75rem;
+    font-size: 1.65rem;
     font-weight: 600;
 }
-.portal-settings-main .page-header p {
+.portal-settings-body .page-header p {
     margin: 0;
     color: var(--text-secondary, #a0a0a0);
     font-size: 0.95rem;
+    max-width: 56ch;
+    line-height: 1.45;
 }
 
-.portal-settings-main .card {
+.portal-settings-body .card {
     background: var(--bg-card, #1e1e24);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 14px;
     padding: 22px 24px;
     margin-bottom: 20px;
 }
-.portal-settings-main .card-header {
+.portal-settings-body .card-header {
     display: flex;
     align-items: center;
     gap: 12px;
     margin-bottom: 18px;
 }
-.portal-settings-main .card-header i {
+.portal-settings-body .card-header i {
     color: var(--accent-purple, #bb6bd9);
     font-size: 1.2rem;
 }
-.portal-settings-main .card-header h3 {
+.portal-settings-body .card-header h3 {
     margin: 0;
     font-size: 1.1rem;
 }
@@ -190,15 +252,27 @@ a.user-avatar {
     flex: 1;
     min-height: 0;
 }
-.main-content--settings .portal-settings-layout {
+.main-content--settings .portal-settings-shell {
     flex: 1;
     min-height: 0;
 }
 
-@media (max-width: 900px) {
-    .portal-settings-layout { flex-direction: column; }
-    .portal-settings-sidebar { width: 100%; }
-    .portal-settings-main { padding: 24px 18px; }
+@media (max-width: 720px) {
+    .portal-settings-shell {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+    .settings-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        padding-bottom: 10px;
+        margin-bottom: -2px;
+    }
+    .settings-tab {
+        flex-shrink: 0;
+    }
 }
 
 /* Transactions (portal) */

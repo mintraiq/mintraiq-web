@@ -12,6 +12,7 @@ function Root() {
     return <BudgetPlannerApp />;
 }
 
-if (mount) {
+if (mount && mount.dataset.ninjaReactMounted !== '1') {
+    mount.dataset.ninjaReactMounted = '1';
     createRoot(mount).render(<Root />);
 }

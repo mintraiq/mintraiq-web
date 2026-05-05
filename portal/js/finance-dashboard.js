@@ -1,4 +1,5 @@
 import { CONFIG } from './config.js';
+import { getAccessTokenOrReauth } from './logto-client.js';
 
 /**
  * POST {financeApiBase}/generate with Bearer API token (same resource as bootstrap).
@@ -8,7 +9,7 @@ export async function fetchFinanceDashboardJson(logtoClient, startDate, endDate)
     if (!CONFIG.financeApiResource) {
         throw new Error('Missing financeApiResource in config.');
     }
-    const token = await logtoClient.getAccessToken(CONFIG.financeApiResource);
+    const token = await getAccessTokenOrReauth(logtoClient, CONFIG.financeApiResource);
     const base = CONFIG.financeApiBase.replace(/\/$/, '');
     const url = `${base}/generate`;
 

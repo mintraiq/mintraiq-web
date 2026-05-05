@@ -1,5 +1,6 @@
 import { guardSession } from './js/guard-session.js';
 import { createLogtoClient } from './js/logto-client.js';
+import { claimPageScript } from './js/page-script-guard.js';
 
 function readBootstrap() {
     const raw = sessionStorage.getItem('mintraiq_bootstrap');
@@ -13,25 +14,27 @@ function readBootstrap() {
 
 await guardSession();
 
-const b = readBootstrap();
-const profile = b && b.profile;
-const claims = await createLogtoClient().getIdTokenClaims();
-const name =
-    (profile && profile.name) ||
-    claims.name ||
-    claims.username ||
-    claims.preferred_username ||
-    '';
-const email = (profile && profile.email) || claims.email || '';
+if (claimPageScript('profile-account')) {
+    const b = readBootstrap();
+    const profile = b && b.profile;
+    const claims = await createLogtoClient().getIdTokenClaims();
+    const name =
+        (profile && profile.name) ||
+        claims.name ||
+        claims.username ||
+        claims.preferred_username ||
+        '';
+    const email = (profile && profile.email) || claims.email || '';
 
-const nameEl = document.getElementById('profileName');
-const emailEl = document.getElementById('profileEmail');
-if (nameEl) nameEl.value = name;
-if (emailEl) emailEl.value = email;
+    const nameEl = document.getElementById('profileName');
+    const emailEl = document.getElementById('profileEmail');
+    if (nameEl) nameEl.value = name;
+    if (emailEl) emailEl.value = email;
 
-const av = document.getElementById('userAvatar');
-if (av && name) av.textContent = String(name).trim().charAt(0).toUpperCase();
+    const av = document.getElementById('userAvatar');
+    if (av && name) av.textContent = String(name).trim().charAt(0).toUpperCase();
 
-document.getElementById('profileForm')?.addEventListener('submit', (e) => {
-    e.preventDefault();
-});
+    document.getElementById('profileForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+    });
+}

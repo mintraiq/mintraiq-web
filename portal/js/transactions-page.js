@@ -2,6 +2,7 @@ import { createLogtoClient } from './logto-client.js';
 import { guardSession } from './guard-session.js';
 import { financeApiFetch } from './api.js';
 import { CONFIG } from './config.js';
+import { claimPageScript } from './page-script-guard.js';
 
 /** @typedef {{ id: string, date: string, amount: number, description: string, category: string, needs_review: boolean, flag: string, type: string }} TxRow */
 
@@ -222,6 +223,7 @@ function wireFilters() {
 }
 
 async function main() {
+    if (!claimPageScript('transactions-main')) return;
     if (!(await guardSession())) return;
     const client = createLogtoClient();
 

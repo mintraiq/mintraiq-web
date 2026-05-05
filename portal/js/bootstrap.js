@@ -1,4 +1,5 @@
 import { CONFIG } from './config.js';
+import { getAccessTokenOrReauth } from './logto-client.js';
 
 /**
  * POST /api/bootstrap — matches finance_api.BootstrapPayload and Depends(validate_token).
@@ -16,7 +17,7 @@ export async function bootstrapSession(logtoClient) {
     const email = claims.email ?? '';
     const name = claims.name ?? claims.username ?? claims.preferred_username ?? '';
 
-    const accessToken = await logtoClient.getAccessToken(CONFIG.financeApiResource);
+    const accessToken = await getAccessTokenOrReauth(logtoClient, CONFIG.financeApiResource);
 
     const base = CONFIG.financeApiBase.replace(/\/$/, '');
     const url = `${base}/bootstrap`;

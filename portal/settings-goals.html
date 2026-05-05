@@ -9,10 +9,14 @@
     <link rel="stylesheet" href="./css/portal-app.css">
     <script src="../config/runtime-env.js"></script>
     <script src="./env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js"></script>
+    <meta name="view-transition" content="same-origin">
 </head>
 <body data-portal-nav="settings" data-settings-nav="goals">
     <div class="dashboard-container">
+        <div id="portal-sidebar-region" data-turbo-permanent>
         <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+        </div>
         <div class="sidebar-overlay" id="sidebar-overlay"></div>
         <div class="main-wrap">
             <div class="mobile-bar">
@@ -20,9 +24,11 @@
                 <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
             </div>
             <main class="main-content main-content--settings">
-                <div class="portal-settings-layout">
-                    <aside class="portal-settings-sidebar"><div id="settings-nav-root"></div></aside>
-                    <div class="portal-settings-main">
+                <div class="portal-settings-shell">
+                    <div id="portal-settings-nav-region" data-turbo-permanent>
+                        <div id="settings-nav-root"></div>
+                    </div>
+                    <div class="portal-settings-body">
                         <div class="page-header">
                             <h1>Savings goals</h1>
                             <p>Set targets and track progress against your accounts.</p>

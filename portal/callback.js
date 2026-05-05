@@ -1,9 +1,12 @@
 import { createLogtoClient } from './js/logto-client.js';
 import { bootstrapSession } from './js/bootstrap.js';
+import { visitWithTurbo } from './js/turbo-visit.js';
+import { claimPageScript } from './js/page-script-guard.js';
 
 const statusEl = document.getElementById('status');
 
 async function main() {
+    if (!claimPageScript('portal-callback-main')) return;
     const client = createLogtoClient();
     try {
         await client.handleSignInCallback(window.location.href);
@@ -17,7 +20,7 @@ async function main() {
         statusEl.textContent = 'Success. Opening your workspace…';
         const { resolveDashboardEntry } = await import('./js/config.js');
         const next = resolveDashboardEntry(data);
-        window.location.replace(next);
+        visitWithTurbo(next, { replace: true });
     } catch (e) {
         console.error(e);
         const extra = e.body ? `\n\n${JSON.stringify(e.body, null, 2)}` : '';

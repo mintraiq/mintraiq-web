@@ -1,8 +1,14 @@
 import { createLogtoClient } from './js/logto-client.js';
 import { CONFIG, getPortalBase, resolveDashboardEntry } from './js/config.js';
 import { bootstrapSession } from './js/bootstrap.js';
+import { visitWithTurbo } from './js/turbo-visit.js';
+import { claimPageScript } from './js/page-script-guard.js';
 
 const statusEl = document.getElementById('status');
+const qs = new URLSearchParams(window.location.search);
+if (statusEl && qs.get('reauth') === '1') {
+    statusEl.textContent = 'Session expired. Please sign in again.';
+}
 
 function readBootstrap() {
     const raw = sessionStorage.getItem('mintraiq_bootstrap');
@@ -27,10 +33,11 @@ async function openWorkspace(client) {
         data = await bootstrapSession(client);
         sessionStorage.setItem('mintraiq_bootstrap', JSON.stringify({ ...data, at: Date.now() }));
     }
-    window.location.replace(resolveDashboardEntry(data));
+    visitWithTurbo(resolveDashboardEntry(data), { replace: true });
 }
 
 async function main() {
+    if (!claimPageScript('portal-index-main')) return;
     const client = createLogtoClient();
     try {
         if (await client.isAuthenticated()) {

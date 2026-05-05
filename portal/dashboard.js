@@ -2,6 +2,7 @@ import { createLogtoClient } from './js/logto-client.js';
 import { CONFIG } from './js/config.js';
 import { fetchFinanceDashboardJson, monthRangeStrings } from './js/finance-dashboard.js';
 import * as render from './js/dashboard-render.js';
+import { claimPageScript } from './js/page-script-guard.js';
 
 function readBootstrap() {
     const raw = sessionStorage.getItem('mintraiq_bootstrap');
@@ -36,6 +37,7 @@ function applyBootstrapHeader(bootstrap) {
 }
 
 async function main() {
+    if (!claimPageScript('dashboard-main')) return;
     const bootstrap = readBootstrap();
     if (!bootstrap || typeof bootstrap !== 'object') {
         window.location.replace('./index.html');

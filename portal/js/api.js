@@ -1,4 +1,5 @@
 import { CONFIG } from './config.js';
+import { getAccessTokenOrReauth } from './logto-client.js';
 
 /**
  * Authenticated fetch to finance_api (same audience as bootstrap).
@@ -8,7 +9,7 @@ export async function financeApiFetch(logtoClient, path, options = {}) {
     if (!CONFIG.financeApiResource) {
         throw new Error('financeApiResource is required for finance_api JWT (audience) tokens.');
     }
-    const token = await logtoClient.getAccessToken(CONFIG.financeApiResource);
+    const token = await getAccessTokenOrReauth(logtoClient, CONFIG.financeApiResource);
 
     const base = CONFIG.financeApiBase.replace(/\/$/, '');
     const rel = path.startsWith('/') ? path : `/${path}`;

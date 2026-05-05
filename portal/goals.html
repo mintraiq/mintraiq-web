@@ -9,10 +9,14 @@
     <link rel="stylesheet" href="./css/portal-app.css">
     <script src="../config/runtime-env.js"></script>
     <script src="./env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js"></script>
+    <meta name="view-transition" content="same-origin">
 </head>
 <body data-portal-nav="goals">
     <div class="dashboard-container">
+        <div id="portal-sidebar-region" data-turbo-permanent>
         <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+        </div>
         <div class="sidebar-overlay" id="sidebar-overlay"></div>
         <div class="main-wrap">
             <div class="mobile-bar">

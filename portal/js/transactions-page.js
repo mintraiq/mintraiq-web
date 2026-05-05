@@ -9,6 +9,23 @@ import { claimPageScript } from './page-script-guard.js';
 let /** @type {TxRow[]} */ allRows = [];
 let /** @type {TxRow | null} */ selected = null;
 let currentClient = null;
+let sortKey = 'date';
+let sortDir = 'desc';
+
+function toIsoDate(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function setDefaultDateRange() {
+    const fromEl = document.getElementById('txDateFrom');
+    const toEl = document.getElementById('txDateTo');
+    if (!(fromEl instanceof HTMLInputElement) || !(toEl instanceof HTMLInputElement)) return;
+    if (fromEl.value && toEl.value) return;
+    const now = new Date();
+    const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+    fromEl.value = toIsoDate(threeMonthsAgo);
+    toEl.value = toIsoDate(now);
+}
 
 function escapeHtml(s) {
     return String(s)
@@ -25,18 +42,53 @@ function formatAmount(row) {
     return `${sign}${fmt}`;
 }
 
+function compareRows(a, b, key) {
+    if (key === 'amount') return Number(a.amount || 0) - Number(b.amount || 0);
+    if (key === 'needs_review') return Number(Boolean(a.needs_review)) - Number(Boolean(b.needs_review));
+    const av = String(a[key] ?? '').toLowerCase();
+    const bv = String(b[key] ?? '').toLowerCase();
+    return av.localeCompare(bv);
+}
+
+function updateSortIndicators() {
+    document.querySelectorAll('[data-sort-indicator]').forEach((el) => {
+        const key = el.getAttribute('data-sort-indicator');
+        if (key !== sortKey) {
+            el.textContent = '';
+            return;
+        }
+        el.textContent = sortDir === 'asc' ? '▲' : '▼';
+    });
+}
+
 function filteredRows() {
     const q = (document.getElementById('txSearch')?.value || '').trim().toLowerCase();
+    const descQ = (document.getElementById('txDescription')?.value || '').trim().toLowerCase();
     const cat = document.getElementById('txCategory')?.value || '';
     const reviewOnly = document.getElementById('txReviewOnly')?.checked;
+    const from = document.getElementById('txDateFrom')?.value || '';
+    const to = document.getElementById('txDateTo')?.value || '';
+    const pageSize = Number(document.getElementById('txPageSize')?.value || 50);
 
-    return allRows.filter((r) => {
-        if (reviewOnly && !r.needs_review) return false;
-        if (cat && r.category !== cat) return false;
-        if (!q) return true;
-        const blob = `${r.description} ${r.category} ${r.date}`.toLowerCase();
-        return blob.includes(q);
-    });
+    const rows = allRows
+        .slice()
+        .sort((a, b) => {
+            const r = compareRows(a, b, sortKey);
+            return sortDir === 'asc' ? r : -r;
+        })
+        .filter((r) => {
+            if (from && String(r.date) < from) return false;
+            if (to && String(r.date) > to) return false;
+            if (reviewOnly && !r.needs_review) return false;
+            if (cat && r.category !== cat) return false;
+            if (descQ && !String(r.description || '').toLowerCase().includes(descQ)) return false;
+            if (!q) return true;
+            const blob = `${r.description} ${r.category} ${r.date} ${r.type} ${r.flag}`.toLowerCase();
+            return blob.includes(q);
+        });
+
+    if (!Number.isFinite(pageSize) || pageSize <= 0) return rows;
+    return rows.slice(0, pageSize);
 }
 
 function renderTable() {
@@ -285,6 +337,31 @@ function fillCategoryOptions() {
     if ([...sel.options].some((o) => o.value === cur)) sel.value = cur;
 }
 
+function clearFiltersToDefault() {
+    const setValue = (id, value) => {
+        const el = document.getElementById(id);
+        if (el && 'value' in el) el.value = value;
+    };
+    setValue('txSearch', '');
+    setValue('txDescription', '');
+    setValue('txCategory', '');
+    setValue('txPageSize', '50');
+    const reviewEl = document.getElementById('txReviewOnly');
+    if (reviewEl instanceof HTMLInputElement) reviewEl.checked = false;
+    const now = new Date();
+    const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+    setValue('txDateFrom', toIsoDate(threeMonthsAgo));
+    setValue('txDateTo', toIsoDate(now));
+    sortKey = 'date';
+    sortDir = 'desc';
+    updateSortIndicators();
+    renderTable();
+    if (selected && !filteredRows().some((r) => r.id === selected.id)) {
+        selected = null;
+        renderDetail();
+    }
+}
+
 async function loadTransactions(client) {
     const status = document.getElementById('txStatus');
     const errBox = document.getElementById('txError');
@@ -367,14 +444,32 @@ async function syncAkahu(client) {
 function wireFilters() {
     const rerender = () => {
         renderTable();
+        updateSortIndicators();
         if (selected && !filteredRows().some((r) => r.id === selected.id)) {
             selected = null;
             renderDetail();
         }
     };
     document.getElementById('txSearch')?.addEventListener('input', rerender);
+    document.getElementById('txDescription')?.addEventListener('input', rerender);
     document.getElementById('txCategory')?.addEventListener('change', rerender);
     document.getElementById('txReviewOnly')?.addEventListener('change', rerender);
+    document.getElementById('txDateFrom')?.addEventListener('change', rerender);
+    document.getElementById('txDateTo')?.addEventListener('change', rerender);
+    document.getElementById('txPageSize')?.addEventListener('change', rerender);
+    document.getElementById('txClearFilters')?.addEventListener('click', clearFiltersToDefault);
+    document.querySelectorAll('.tx-sort-btn[data-sort-key]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const key = btn.getAttribute('data-sort-key') || 'date';
+            if (sortKey === key) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+            else {
+                sortKey = key;
+                sortDir = key === 'date' ? 'desc' : 'asc';
+            }
+            rerender();
+        });
+    });
+    updateSortIndicators();
 }
 
 async function main() {
@@ -385,6 +480,7 @@ async function main() {
 
     document.getElementById('txReload')?.addEventListener('click', () => loadTransactions(client));
     document.getElementById('txSyncAkahu')?.addEventListener('click', () => syncAkahu(client));
+    setDefaultDateRange();
     wireFilters();
 
     try {

@@ -41,11 +41,34 @@
                 <p id="txStatus" style="color:var(--text-secondary);font-size:0.85rem;margin:-8px 0 12px;min-height:1.2em"></p>
                 <div id="txError" class="card" style="display:none;margin-bottom:16px;padding:16px;border-color:rgba(255,71,87,0.45);color:#ffb4b4"></div>
 
-                <div class="card transactions-toolbar" style="margin-bottom:16px;padding:16px 18px">
-                    <div class="transactions-toolbar-grid">
-                        <div class="form-group" style="margin-bottom:0;flex:1;min-width:180px">
+                <div class="card transactions-toolbar tx-toolbar-card" style="margin-bottom:16px;padding:16px 18px">
+                    <div class="transactions-toolbar-top">
+                        <label class="tx-show-entries" for="txPageSize">
+                            Show
+                            <select id="txPageSize" class="form-control tx-mini-control">
+                                <option value="25">25</option>
+                                <option value="50" selected>50</option>
+                                <option value="100">100</option>
+                            </select>
+                            entries
+                        </label>
+                        <div class="form-group tx-search-wrap" style="margin-bottom:0;min-width:220px">
                             <label for="txSearch">Search</label>
-                            <input type="search" id="txSearch" class="form-control" placeholder="Description, category, date…" autocomplete="off" />
+                            <input type="search" id="txSearch" class="form-control" placeholder="Search all columns…" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="transactions-toolbar-grid tx-filter-grid">
+                        <div class="form-group tx-date-group" style="margin-bottom:0;min-width:180px">
+                            <label for="txDateFrom">From</label>
+                            <input type="date" id="txDateFrom" class="form-control" />
+                        </div>
+                        <div class="form-group tx-date-group" style="margin-bottom:0;min-width:180px">
+                            <label for="txDateTo">To</label>
+                            <input type="date" id="txDateTo" class="form-control" />
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;flex:1;min-width:220px">
+                            <label for="txDescription">Description</label>
+                            <input type="search" id="txDescription" class="form-control" placeholder="Filter description..." autocomplete="off" />
                         </div>
                         <div class="form-group" style="margin-bottom:0;min-width:160px">
                             <label for="txCategory">Category</label>
@@ -57,6 +80,9 @@
                             <input type="checkbox" id="txReviewOnly" />
                             <span>Needs review only</span>
                         </label>
+                        <button type="button" id="txClearFilters" class="btn-primary tx-clear-filters">
+                            <i class="fas fa-filter-circle-xmark"></i> Clear filters
+                        </button>
                     </div>
                     <p id="txSyncHint" style="margin:12px 0 0;font-size:0.82rem;color:var(--text-secondary)"></p>
                 </div>
@@ -70,13 +96,13 @@
                         <table class="ninja-table" id="txTable">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th class="align-right">Amount</th>
-                                    <th>Description</th>
-                                    <th>Category</th>
-                                    <th>Flag</th>
-                                    <th>Review</th>
-                                    <th>Type</th>
+                                    <th><button type="button" class="tx-sort-btn" data-sort-key="date">Date <span class="tx-sort-indicator" data-sort-indicator="date"></span></button></th>
+                                    <th class="align-right"><button type="button" class="tx-sort-btn tx-sort-btn-right" data-sort-key="amount">Amount <span class="tx-sort-indicator" data-sort-indicator="amount"></span></button></th>
+                                    <th><button type="button" class="tx-sort-btn" data-sort-key="description">Description <span class="tx-sort-indicator" data-sort-indicator="description"></span></button></th>
+                                    <th><button type="button" class="tx-sort-btn" data-sort-key="category">Category <span class="tx-sort-indicator" data-sort-indicator="category"></span></button></th>
+                                    <th><button type="button" class="tx-sort-btn" data-sort-key="flag">Flag <span class="tx-sort-indicator" data-sort-indicator="flag"></span></button></th>
+                                    <th><button type="button" class="tx-sort-btn" data-sort-key="needs_review">Review <span class="tx-sort-indicator" data-sort-indicator="needs_review"></span></button></th>
+                                    <th><button type="button" class="tx-sort-btn" data-sort-key="type">Type <span class="tx-sort-indicator" data-sort-indicator="type"></span></button></th>
                                 </tr>
                             </thead>
                             <tbody></tbody>

@@ -1,0 +1,95 @@
+{
+    "success": true,
+    "items": [
+      {
+        "id": "1",
+        "query": "CJ PALMERSTON NTH - 203PALM NTH",
+        "results": [
+          {
+            "confidence": 0.99,
+            "category": {
+              "_id": "nzfcc_ckouvvywi004508mlacrd41wf",
+              "name": "Fast food stores",
+              "groups": {
+                "personal_finance": {
+                  "_id": "group_clasr0ysw0011hk4m6hlk9fq0",
+                  "name": "Lifestyle"
+                }
+              }
+            },
+            "merchant": {
+              "_id": "merchant_cjjwm2gy5004bguzydvu4dttf",
+              "name": "Carl's Jr.",
+              "logo": "https://cdn.akahu.nz/logos/merchants/merchant_cjjwm2gy5004bguzydvu4dttf",
+              "website": "https://www.carlsjr.co.nz",
+              "tags": []
+            },
+            "outlet": {
+              "_id": "outlet_cm0lyuatv000008jy9kwr2t8f",
+              "name": "Carl's Jr. Palmerston North",
+              "phone": "06 358 5075",
+              "location": {
+                "accuracy": "establishment",
+                "formatted": "415 Ferguson Street, Palmerston North Central, Palmerston North 4410, New Zealand",
+                "address": {
+                  "street": "415 Ferguson Street",
+                  "suburb": "Palmerston North Central",
+                  "city": "Palmerston North",
+                  "region": "Manawatū-Whanganui",
+                  "country": "New Zealand",
+                  "postal_code": "4410"
+                },
+                "coordinates": {
+                  "lat": -40.3575,
+                  "lon": 175.6175
+                }
+              },
+              "tags": []
+            }
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "query": "CARD 2293 WHOLEMEAL TRAD CO LTDTAKAKA",
+        "results": [
+          {
+            "confidence": 0.99,
+            "category": {
+              "_id": "nzfcc_ckouvvyw1004408mlhy158i7j",
+              "name": "Cafes and restaurants",
+              "groups": {
+                "personal_finance": {
+                  "_id": "group_clasr0ysw0011hk4m6hlk9fq0",
+                  "name": "Lifestyle"
+                }
+              }
+            },
+            "merchant": {
+              "_id": "merchant_cksxp1au3001g09mp3ilt01tz",
+              "name": "The Wholemeal Cafe",
+              "logo": "https://cdn.akahu.nz/logos/merchants/merchant_cksxp1au3001g09mp3ilt01tz",
+              "website": "http://www.wholemealcafe.co.nz/",
+              "phone": "03 525 9426",
+              "location": {
+                "accuracy": "establishment",
+                "formatted": "7110/60 Commercial Street, Tākaka 7110, New Zealand",
+                "address": {
+                  "street": "7110/60 Commercial Street",
+                  "city": "Tākaka",
+                  "region": "Tasman",
+                  "country": "New Zealand",
+                  "postal_code": "7110"
+                },
+                "coordinates": {
+                  "lat": -40.8586533,
+                  "lon": 172.8063369
+                }
+              },
+              "tags": []
+            }
+          }
+        ]
+      }
+    ]
+  }

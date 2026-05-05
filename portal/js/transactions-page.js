@@ -215,7 +215,7 @@ async function readEnquireSample() {
 async function fetchEnrichment(tx) {
     if (!currentClient) throw new Error('Not authenticated.');
     const payload = { transaction_id: tx.id, source: 'ANZ', query: tx.description };
-    const attempts = ['/akahu/enquire', '/akahu/enrich'];
+    const attempts = ['/transactions/enquiry', '/transactions/enquiry'];
     for (const path of attempts) {
         try {
             const res = await financeApiFetch(currentClient, path, {

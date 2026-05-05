@@ -4,5 +4,5 @@
  *   - Vercel Environment Variables (PUBLIC_*)
  */
 window.__MINTRAIQ_ENV__ = Object.assign({}, window.__MINTRAIQ_ENV__ || {}, {
-    // financeApiBase: 'https://your-tunnel.trycloudflare.com/api',
+    financeApiBase: 'https://api-dev.mintraiq.com/api'
 });

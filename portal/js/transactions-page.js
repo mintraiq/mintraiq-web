@@ -347,6 +347,7 @@ async function saveReviewFromPanel() {
         txn_id: selected.id,
         category_value: category,
         training_required: trainingRequired,
+        update_similar: true,
         updated_by: 'portal-user',
         updated_at: new Date().toISOString()
     };

@@ -1,7 +1,6 @@
 import { createLogtoClient } from './logto-client.js';
 import { guardSession } from './guard-session.js';
 import { financeApiFetch } from './api.js';
-import { CONFIG } from './config.js';
 import { claimPageScript } from './page-script-guard.js';
 
 /** @typedef {{ id: string, date: string, amount: number, description: string, category: string, needs_review: boolean, flag: string, type: string }} TxRow */
@@ -453,8 +452,8 @@ async function loadTransactions(client) {
     fillCategoryOptions();
     renderTable();
     if (status) {
-        const base = CONFIG.financeApiBase.replace(/\/$/, '');
-        status.textContent = `Loaded from ${base}/transactions`;
+        const count = allRows.length;
+        status.textContent = count ? `${count} transaction${count === 1 ? '' : 's'} loaded` : '';
     }
 }
 

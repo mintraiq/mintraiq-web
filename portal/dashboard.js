@@ -1,5 +1,4 @@
 import { createLogtoClient } from './js/logto-client.js';
-import { CONFIG } from './js/config.js';
 import { fetchFinanceDashboardJson, monthRangeStrings } from './js/finance-dashboard.js';
 import * as render from './js/dashboard-render.js';
 import { claimPageScript } from './js/page-script-guard.js';
@@ -59,7 +58,7 @@ async function main() {
     }
 
     const { start, end } = monthRangeStrings();
-    if (statusEl) statusEl.textContent = `Loading metrics (${start} → ${end})…`;
+    if (statusEl) statusEl.textContent = 'Loading…';
 
     try {
         const data = await fetchFinanceDashboardJson(client, start, end);
@@ -70,12 +69,7 @@ async function main() {
             return;
         }
 
-        if (statusEl) {
-            const docs = (window.__MINTRAIQ_ENV__ && window.__MINTRAIQ_ENV__.fastApiDocsUrl) || '';
-            statusEl.innerHTML = docs
-                ? `Live data from <code style="color:var(--accent-purple)">${escapeAttr(CONFIG.financeApiBase)}</code> · <a href="${escapeAttr(docs)}" style="color:var(--accent-blue)" target="_blank" rel="noopener">API docs</a>`
-                : `Live data from <code style="color:var(--accent-purple)">${escapeAttr(CONFIG.financeApiBase)}</code>`;
-        }
+        if (statusEl) statusEl.textContent = '';
 
         render.renderMetrics(data);
         render.renderTrendChart(data);
@@ -97,14 +91,6 @@ async function main() {
         }
         render.showLoadError(e.message || e);
     }
-}
-
-function escapeAttr(s) {
-    return String(s)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
 }
 
 main();

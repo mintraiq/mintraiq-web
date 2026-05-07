@@ -1,7 +1,6 @@
 import { createLogtoClient } from './logto-client.js';
 import { guardSession } from './guard-session.js';
 import { financeApiFetch } from './api.js';
-import { CONFIG } from './config.js';
 import { claimPageScript } from './page-script-guard.js';
 
 /**
@@ -21,14 +20,32 @@ function setStatus(text) {
 
 function setError(message) {
     const errBox = document.getElementById('wpError');
+    const msgEl = document.getElementById('wpErrorMsg');
     if (!errBox) return;
     if (!message) {
-        errBox.style.display = 'none';
-        errBox.textContent = '';
+        errBox.classList.remove('is-visible');
         return;
     }
-    errBox.style.display = 'block';
-    errBox.textContent = String(message);
+    if (msgEl) msgEl.textContent = String(message);
+    errBox.classList.add('is-visible');
+}
+
+function friendlyErrorMessage(error) {
+    const raw = String((error && (error.message || error)) || '').trim();
+    if (!raw) return 'Something went wrong. Please try again in a moment.';
+    if (/method not allowed/i.test(raw) || /\b405\b/.test(raw)) {
+        return 'This planner is temporarily unavailable. Please try again shortly.';
+    }
+    if (/network|failed to fetch|load failed/i.test(raw)) {
+        return 'We couldn\u2019t reach our servers. Check your connection and try again.';
+    }
+    if (/\b5\d{2}\b/.test(raw)) {
+        return 'Our service is having a moment. Please try again shortly.';
+    }
+    if (/\b401\b/i.test(raw)) {
+        return 'Your session has expired. Please sign in again.';
+    }
+    return raw.replace(/^\/[\w\-/]+:\s*/, '');
 }
 
 function escapeHtml(s) {
@@ -226,12 +243,9 @@ async function loadPlan(client) {
         renderSectors(data?.categories || []);
         renderFixedNote(data?.fixed_costs);
         showSections();
-
-        const base = CONFIG.financeApiBase.replace(/\/$/, '');
-        const generated = data?.meta?.generated_at ? ` · generated ${data.meta.generated_at}` : '';
-        setStatus(`Loaded from ${base}${path}${generated}`);
+        setStatus(data?.meta?.generated_at ? `Updated ${data.meta.generated_at}` : '');
     } catch (e) {
-        console.error('weekly-planner', path, e);
+        console.error('weekly-planner', e);
         setStatus('');
         throw e;
     }
@@ -242,19 +256,18 @@ async function main() {
     if (!(await guardSession())) return;
     const client = createLogtoClient();
 
-    document.getElementById('wpReload')?.addEventListener('click', async () => {
+    const reload = async () => {
         try {
             await loadPlan(client);
         } catch (e) {
-            setError(String(e.message || e));
+            setError(friendlyErrorMessage(e));
         }
-    });
+    };
 
-    try {
-        await loadPlan(client);
-    } catch (e) {
-        setError(String(e.message || e));
-    }
+    document.getElementById('wpReload')?.addEventListener('click', reload);
+    document.getElementById('wpErrorRetry')?.addEventListener('click', reload);
+
+    await reload();
 }
 
 main();

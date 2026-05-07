@@ -28,20 +28,23 @@
                 <header class="top-header">
                     <div class="header-left">
                         <h2 style="margin:0;font-size:1.75rem">Monthly Planner</h2>
-                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">
-                            Live plan from <code style="color:var(--accent-purple)">POST …/budget-plan</code>
-                        </p>
+                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">Plan your monthly savings goal and see suggested cuts.</p>
                     </div>
                     <div class="header-right" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
                         <label for="bpGoal" style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:0.9rem">
                             Savings goal
                             <input type="number" id="bpGoal" class="form-control" style="width:140px" min="0" step="50" placeholder="1000" />
                         </label>
-                        <button type="button" class="btn-primary" id="bpReload" title="Reload"><i class="fas fa-rotate"></i> Plan</button>
+                        <button type="button" class="btn-primary" id="bpReload" title="Refresh"><i class="fas fa-rotate"></i> Plan</button>
                     </div>
                 </header>
-                <p id="bpStatus" style="color:var(--text-secondary);font-size:0.85rem;margin:-8px 0 12px;min-height:1.2em"></p>
-                <div id="bpError" class="card" style="display:none;margin-bottom:16px;padding:16px;border-color:rgba(255,71,87,0.45);color:#ffb4b4"></div>
+                <p id="bpStatus" style="color:var(--text-secondary);font-size:0.85rem;margin:-8px 0 12px;min-height:1.2em" aria-live="polite"></p>
+                <div id="bpError" class="portal-page-error" role="alert">
+                    <span class="portal-page-error-icon"><i class="fas fa-circle-exclamation"></i></span>
+                    <h3>We couldn't load your monthly plan</h3>
+                    <p id="bpErrorMsg">Something went wrong. Please try again in a moment.</p>
+                    <button type="button" class="portal-page-error-retry" id="bpErrorRetry"><i class="fas fa-rotate"></i> Try again</button>
+                </div>
 
                 <div id="bpRiskBanner" class="bp-risk-banner" style="display:none">
                     <div class="bp-risk-icon"><i class="fas fa-skull-crossbones"></i></div>

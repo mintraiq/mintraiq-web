@@ -1,11 +1,10 @@
 import { createLogtoClient } from './logto-client.js';
 import { guardSession } from './guard-session.js';
 import { financeApiFetch } from './api.js';
-import { CONFIG } from './config.js';
 import { claimPageScript } from './page-script-guard.js';
 
 /**
- * Budget Planner page — calls authenticated POST {financeApiBase}/budget-plan and renders the plan.
+ * Budget Planner page — fetches the authenticated monthly plan and renders the result.
  * Shape matches docs/samples/budget_plan.json (meta, summary, cuts, coach_advice).
  */
 
@@ -36,14 +35,32 @@ function setStatus(text) {
 
 function setError(message) {
     const errBox = document.getElementById('bpError');
+    const msgEl = document.getElementById('bpErrorMsg');
     if (!errBox) return;
     if (!message) {
-        errBox.style.display = 'none';
-        errBox.textContent = '';
+        errBox.classList.remove('is-visible');
         return;
     }
-    errBox.style.display = 'block';
-    errBox.textContent = String(message);
+    if (msgEl) msgEl.textContent = String(message);
+    errBox.classList.add('is-visible');
+}
+
+function friendlyErrorMessage(error) {
+    const raw = String((error && (error.message || error)) || '').trim();
+    if (!raw) return 'Something went wrong. Please try again in a moment.';
+    if (/method not allowed/i.test(raw) || /\b405\b/.test(raw)) {
+        return 'This planner is temporarily unavailable. Please try again shortly.';
+    }
+    if (/network|failed to fetch|load failed/i.test(raw)) {
+        return 'We couldn\u2019t reach our servers. Check your connection and try again.';
+    }
+    if (/\b5\d{2}\b/.test(raw)) {
+        return 'Our service is having a moment. Please try again shortly.';
+    }
+    if (/\b401\b/i.test(raw)) {
+        return 'Your session has expired. Please sign in again.';
+    }
+    return raw.replace(/^\/[\w\-/]+:\s*/, '');
 }
 
 function renderRiskBanner(summary) {
@@ -271,10 +288,9 @@ async function loadPlan(client) {
         renderPeriod(data?.meta || {});
         renderCuts(data?.cuts || {}, currency);
 
-        const base = CONFIG.financeApiBase.replace(/\/$/, '');
-        setStatus(`Loaded from ${base}${path} · goal ${formatCurrency(goal, currency)}`);
+        setStatus(`Plan for savings goal ${formatCurrency(goal, currency)}`);
     } catch (e) {
-        console.error('budget-planner', path, e);
+        console.error('budget-planner', e);
         setStatus('');
         throw e;
     }
@@ -285,29 +301,19 @@ async function main() {
     if (!(await guardSession())) return;
     const client = createLogtoClient();
 
-    document.getElementById('bpReload')?.addEventListener('click', async () => {
+    const reload = async () => {
         try {
             await loadPlan(client);
         } catch (e) {
-            console.error(e);
-            setError(String(e.message || e));
+            setError(friendlyErrorMessage(e));
         }
-    });
+    };
 
-    document.getElementById('bpGoal')?.addEventListener('change', async () => {
-        try {
-            await loadPlan(client);
-        } catch (e) {
-            setError(String(e.message || e));
-        }
-    });
+    document.getElementById('bpReload')?.addEventListener('click', reload);
+    document.getElementById('bpGoal')?.addEventListener('change', reload);
+    document.getElementById('bpErrorRetry')?.addEventListener('click', reload);
 
-    try {
-        await loadPlan(client);
-    } catch (e) {
-        console.error(e);
-        setError(String(e.message || e));
-    }
+    await reload();
 }
 
 main();

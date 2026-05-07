@@ -27,16 +27,19 @@
                 <header class="top-header">
                     <div class="header-left">
                         <h2 style="margin:0;font-size:1.75rem">Weekly Planner</h2>
-                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">
-                            Live plan from <code style="color:var(--accent-purple)">GET …/weekly-planner</code>
-                        </p>
+                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem" id="wpSubtitle">Plan your week of spending and savings.</p>
                     </div>
                     <div class="header-right" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-                        <button type="button" class="btn-primary" id="wpReload" title="Reload"><i class="fas fa-rotate"></i> Refresh</button>
+                        <button type="button" class="btn-primary" id="wpReload" title="Refresh"><i class="fas fa-rotate"></i> Refresh</button>
                     </div>
                 </header>
-                <p id="wpStatus" style="color:var(--text-secondary);font-size:0.85rem;margin:-8px 0 12px;min-height:1.2em"></p>
-                <div id="wpError" class="card" style="display:none;margin-bottom:16px;padding:16px;border-color:rgba(255,71,87,0.45);color:#ffb4b4"></div>
+                <p id="wpStatus" style="color:var(--text-secondary);font-size:0.85rem;margin:-8px 0 12px;min-height:1.2em" aria-live="polite"></p>
+                <div id="wpError" class="portal-page-error" role="alert">
+                    <span class="portal-page-error-icon"><i class="fas fa-circle-exclamation"></i></span>
+                    <h3>We couldn't load your weekly plan</h3>
+                    <p id="wpErrorMsg">Something went wrong. Please try again in a moment.</p>
+                    <button type="button" class="portal-page-error-retry" id="wpErrorRetry"><i class="fas fa-rotate"></i> Try again</button>
+                </div>
 
                 <div id="wpAlert" class="wp-alert" style="display:none">
                     <span class="wp-alert-icon" id="wpAlertIcon">⚠️</span>

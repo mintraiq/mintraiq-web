@@ -233,14 +233,13 @@ async function loadPlan(client) {
     setStatus('Loading plan…');
 
     const goal = readGoal();
-    const path = '/budget-planner';
-    const payload = { savings_goal: goal };
+    const params = new URLSearchParams({ savings_goal: String(goal) });
+    const path = `/budget-planner?${params.toString()}`;
 
     try {
         const res = await financeApiFetch(client, path, {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            headers: { Accept: 'application/json' }
         });
         const text = await res.text();
         let data;

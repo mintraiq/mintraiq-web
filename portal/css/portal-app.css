@@ -569,3 +569,213 @@ html.is-turbo-transitioning .main-wrap {
         margin-top: 8px;
     }
 }
+
+/* ===========================
+   Budget Planner page
+   =========================== */
+.bp-risk-banner {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 18px 22px;
+    border-radius: 14px;
+    margin-bottom: 18px;
+    background: linear-gradient(135deg, rgba(255, 71, 87, 0.15) 0%, rgba(255, 71, 87, 0.04) 100%);
+    border: 1px solid rgba(255, 71, 87, 0.55);
+    box-shadow: 0 0 0 1px rgba(255, 71, 87, 0.06), 0 12px 28px -16px rgba(255, 71, 87, 0.45);
+}
+.bp-risk-banner.is-warning {
+    background: linear-gradient(135deg, rgba(255, 184, 0, 0.16) 0%, rgba(255, 184, 0, 0.04) 100%);
+    border-color: rgba(255, 184, 0, 0.55);
+}
+.bp-risk-icon {
+    flex: 0 0 auto;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 71, 87, 0.85);
+    color: #fff;
+    font-size: 1.4rem;
+}
+.bp-risk-banner.is-warning .bp-risk-icon {
+    background: rgba(255, 184, 0, 0.85);
+    color: #1a1a1a;
+}
+.bp-risk-title {
+    color: var(--accent-red);
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+}
+.bp-risk-banner.is-warning .bp-risk-title {
+    color: #ffb800;
+}
+.bp-risk-desc {
+    color: #f5f6fa;
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
+.bp-card {
+    margin-bottom: 18px;
+}
+.bp-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+.bp-chart-wrap {
+    position: relative;
+    height: 640px;
+    width: 100%;
+}
+
+.bp-summary {
+    display: grid;
+    grid-template-columns: minmax(280px, 1.4fr) repeat(2, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+.bp-summary-card {
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 18px 22px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.bp-summary-card.bp-mission {
+    border-left: 4px solid var(--accent-red);
+    background: linear-gradient(135deg, var(--bg-card) 60%, rgba(255, 71, 87, 0.18) 100%);
+}
+.bp-summary-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.bp-summary-label {
+    color: var(--accent-red);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+}
+.bp-summary-card:not(.bp-mission) .bp-summary-label {
+    color: var(--text-secondary);
+}
+.bp-summary-status {
+    color: #f5f6fa;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    opacity: 0.85;
+}
+.bp-summary-status[data-tone='positive'] {
+    color: var(--accent-green);
+}
+.bp-summary-status[data-tone='warning'] {
+    color: #ffb800;
+}
+.bp-summary-status[data-tone='critical'] {
+    color: var(--accent-red);
+}
+.bp-summary-amount {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: #f5f6fa;
+    line-height: 1.15;
+}
+.bp-amount-green {
+    color: var(--accent-green);
+}
+.bp-amount-red {
+    color: var(--accent-red);
+}
+.bp-summary-foot {
+    margin-top: 6px;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+}
+
+.bp-coach {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+    background: rgba(0, 255, 157, 0.04);
+    border: 1px solid rgba(0, 255, 157, 0.18);
+}
+.bp-coach-avatar {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(0, 255, 157, 0.18);
+    color: var(--accent-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.bp-coach-text {
+    margin: 0;
+    color: #d8dde7;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+}
+
+.bp-cuts-table th {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.72rem;
+}
+.bp-cuts-table td,
+.bp-cuts-table th {
+    padding: 12px 14px;
+}
+.bp-impact-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+    overflow: hidden;
+}
+.bp-impact-bar > span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--accent-blue);
+    transition: width 220ms ease;
+}
+
+@media (max-width: 880px) {
+    .bp-summary {
+        grid-template-columns: 1fr 1fr;
+    }
+    .bp-summary-card.bp-mission {
+        grid-column: 1 / -1;
+    }
+    .bp-chart-wrap {
+        height: 720px;
+    }
+}
+@media (max-width: 560px) {
+    .bp-summary {
+        grid-template-columns: 1fr;
+    }
+    .bp-summary-card.bp-mission {
+        grid-column: auto;
+    }
+    .bp-risk-banner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+

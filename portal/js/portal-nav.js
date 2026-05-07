@@ -10,6 +10,7 @@ import { installPortalTransitions } from './turbo-transitions.js';
 const WORKSPACE = [
     { id: 'dashboard', href: './dashboard.html', icon: 'fa-chart-line', label: 'Dashboard' },
     { id: 'transactions', href: './transactions.html', icon: 'fa-wallet', label: 'Transactions' },
+    { id: 'budget-planner', href: './budget-planner.html', icon: 'fa-calendar-check', label: 'Monthly planner' },
     { id: 'goals', href: './goals.html', icon: 'fa-bullseye', label: 'Goals' },
     { id: 'forecast', href: './forecast.html', icon: 'fa-chart-area', label: 'Forecast' },
     { id: 'notifications', href: './notifications.html', icon: 'fa-bell', label: 'Notifications' },

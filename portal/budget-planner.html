@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — Budget Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="./css/portal-app.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../config/runtime-env.js"></script>
+    <script src="./env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js"></script>
+    <meta name="view-transition" content="same-origin">
+</head>
+<body data-portal-nav="budget-planner">
+    <div class="dashboard-container">
+        <div id="portal-sidebar-region" data-turbo-permanent>
+            <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+        </div>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <div class="main-wrap">
+            <div class="mobile-bar">
+                <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+                <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
+            </div>
+            <main class="main-content">
+                <header class="top-header">
+                    <div class="header-left">
+                        <h2 style="margin:0;font-size:1.75rem">Monthly Planner</h2>
+                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">
+                            Live plan from <code style="color:var(--accent-purple)">POST …/budget-plan</code>
+                        </p>
+                    </div>
+                    <div class="header-right" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+                        <label for="bpGoal" style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:0.9rem">
+                            Savings goal
+                            <input type="number" id="bpGoal" class="form-control" style="width:140px" min="0" step="50" placeholder="1000" />
+                        </label>
+                        <button type="button" class="btn-primary" id="bpReload" title="Reload"><i class="fas fa-rotate"></i> Plan</button>
+                    </div>
+                </header>
+                <p id="bpStatus" style="color:var(--text-secondary);font-size:0.85rem;margin:-8px 0 12px;min-height:1.2em"></p>
+                <div id="bpError" class="card" style="display:none;margin-bottom:16px;padding:16px;border-color:rgba(255,71,87,0.45);color:#ffb4b4"></div>
+
+                <div id="bpRiskBanner" class="bp-risk-banner" style="display:none">
+                    <div class="bp-risk-icon"><i class="fas fa-skull-crossbones"></i></div>
+                    <div class="bp-risk-body">
+                        <div class="bp-risk-title" id="bpRiskTitle">MISSION RISK: CRITICAL</div>
+                        <div class="bp-risk-desc" id="bpRiskDesc">—</div>
+                    </div>
+                </div>
+
+                <section class="card bp-card" id="bpChartCard" style="display:none">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-chart-bar"></i> Original vs. Suggested Expenditure</span>
+                    </div>
+                    <div class="bp-chart-wrap"><canvas id="bpChart"></canvas></div>
+                </section>
+
+                <section class="bp-summary" id="bpSummary" style="display:none">
+                    <div class="bp-summary-card bp-mission">
+                        <div class="bp-summary-head">
+                            <span class="bp-summary-label">MISSION: REDUCE GAP</span>
+                            <span class="bp-summary-status" id="bpStatusBadge">—</span>
+                        </div>
+                        <div class="bp-summary-amount bp-amount-red" id="bpGap">$0</div>
+                        <div class="bp-summary-foot">ESTIMATED GAP</div>
+                    </div>
+                    <div class="bp-summary-card">
+                        <div class="bp-summary-head">
+                            <span class="bp-summary-label">MONTHLY INCOME</span>
+                        </div>
+                        <div class="bp-summary-amount bp-amount-green" id="bpIncome">$0</div>
+                    </div>
+                    <div class="bp-summary-card">
+                        <div class="bp-summary-head">
+                            <span class="bp-summary-label">CURRENT SAVINGS</span>
+                        </div>
+                        <div class="bp-summary-amount" id="bpSavings">$0</div>
+                    </div>
+                </section>
+
+                <section class="card bp-coach" id="bpCoachCard" style="display:none">
+                    <div class="bp-coach-avatar"><i class="fas fa-user-astronaut"></i></div>
+                    <p class="bp-coach-text" id="bpCoachText">—</p>
+                </section>
+
+                <section class="card bp-card" id="bpCutsCard" style="display:none">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-scissors"></i> Targeted Expenditure Cuts</span>
+                        <span style="font-size:0.85rem;color:var(--text-secondary)" id="bpPeriod">—</span>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table class="ninja-table bp-cuts-table" id="bpCutsTable">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th class="align-right">Current</th>
+                                    <th class="align-right">Suggested</th>
+                                    <th class="align-right">Cut amount</th>
+                                    <th>Impact</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    <script type="module" src="./js/portal-nav.js"></script>
+    <script type="module" src="./js/budget-planner-page.js"></script>
+</body>
+</html>

@@ -238,7 +238,7 @@ async function loadPlan(client) {
 
     try {
         const res = await financeApiFetch(client, path, {
-            method: 'POST',
+            method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });

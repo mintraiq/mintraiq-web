@@ -233,7 +233,7 @@ async function loadPlan(client) {
     setStatus('Loading plan…');
 
     const goal = readGoal();
-    const candidatePaths = ['/budget-plan', '/budget/plan', '/cpi/plan'];
+    const candidatePaths = ['/budget-planner', 'budget-planner'];
     const payload = { savings_goal: goal };
     let lastErr = null;
 

@@ -233,59 +233,52 @@ async function loadPlan(client) {
     setStatus('Loading plan…');
 
     const goal = readGoal();
-    const candidatePaths = ['/budget-planner', 'budget-planner'];
+    const path = '/budget-planner';
     const payload = { savings_goal: goal };
-    let lastErr = null;
 
-    for (const path of candidatePaths) {
+    try {
+        const res = await financeApiFetch(client, path, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const text = await res.text();
+        let data;
         try {
-            const res = await financeApiFetch(client, path, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const text = await res.text();
-            let data;
-            try {
-                data = text ? JSON.parse(text) : {};
-            } catch {
-                throw new Error(`Non-JSON response (${res.status}): ${text.slice(0, 200)}`);
-            }
-            if (res.status === 401) {
-                window.location.replace('./index.html');
-                return;
-            }
-            if (!res.ok) {
-                const detail = data?.detail;
-                const msg =
-                    typeof detail === 'string'
-                        ? detail
-                        : Array.isArray(detail)
-                          ? detail.map((d) => d.msg || JSON.stringify(d)).join('; ')
-                          : data?.message || `Request failed (${res.status})`;
-                lastErr = new Error(`${path}: ${msg}`);
-                if (res.status === 404) continue;
-                throw lastErr;
-            }
-
-            const currency = data?.meta?.currency || 'NZD';
-            renderRiskBanner(data?.summary || {});
-            renderChart(data?.cuts || {});
-            renderSummary(data?.summary || {}, currency);
-            renderCoach(data?.coach_advice || '');
-            renderPeriod(data?.meta || {});
-            renderCuts(data?.cuts || {}, currency);
-
-            const base = CONFIG.financeApiBase.replace(/\/$/, '');
-            setStatus(`Loaded from ${base}${path} · goal ${formatCurrency(goal, currency)}`);
-            return;
-        } catch (e) {
-            lastErr = e;
-            console.error('budget-planner', path, e);
+            data = text ? JSON.parse(text) : {};
+        } catch {
+            throw new Error(`Non-JSON response (${res.status}): ${text.slice(0, 200)}`);
         }
+        if (res.status === 401) {
+            window.location.replace('./index.html');
+            return;
+        }
+        if (!res.ok) {
+            const detail = data?.detail;
+            const msg =
+                typeof detail === 'string'
+                    ? detail
+                    : Array.isArray(detail)
+                      ? detail.map((d) => d.msg || JSON.stringify(d)).join('; ')
+                      : data?.message || `Request failed (${res.status})`;
+            throw new Error(`${path}: ${msg}`);
+        }
+
+        const currency = data?.meta?.currency || 'NZD';
+        renderRiskBanner(data?.summary || {});
+        renderChart(data?.cuts || {});
+        renderSummary(data?.summary || {}, currency);
+        renderCoach(data?.coach_advice || '');
+        renderPeriod(data?.meta || {});
+        renderCuts(data?.cuts || {}, currency);
+
+        const base = CONFIG.financeApiBase.replace(/\/$/, '');
+        setStatus(`Loaded from ${base}${path} · goal ${formatCurrency(goal, currency)}`);
+    } catch (e) {
+        console.error('budget-planner', path, e);
+        setStatus('');
+        throw e;
     }
-    setStatus('');
-    throw lastErr || new Error('Budget plan endpoint not available.');
 }
 
 async function main() {

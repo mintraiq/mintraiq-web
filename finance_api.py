@@ -1760,7 +1760,8 @@ async def bootstrap(user_jwt: dict = Depends(validate_token)):
     user_profile = await db.get_user_profile(user_id)  # Logto data + MongoDB profile
 
     # Required steps constant
-    REQUIRED = ["profile", "billing", "security", "banks", "goals", "categories", "ai", "notifications"]
+    # Billing/plan is optional during onboarding; users can upgrade anytime in Settings.
+    REQUIRED = ["profile", "security", "banks", "goals", "categories", "ai", "notifications"]
 
     completed = state.get("completed_steps", ["legal"]) if state else ["legal"]
     # Logic to find the first required step that isn't in completed_steps
@@ -1826,7 +1827,8 @@ async def save_workflow_step(
     new_state = await db.save_onboarding_step(user_id, step, payload.data, payload.mark_complete)
 
     completed = new_state.get("completed_steps", [])
-    REQUIRED = ["profile", "billing", "security", "banks", "goals", "categories", "ai", "notifications"]
+    # Billing/plan is optional during onboarding; users can upgrade anytime in Settings.
+    REQUIRED = ["profile", "security", "banks", "goals", "categories", "ai", "notifications"]
     next_step = next((s for s in REQUIRED if s not in completed), "complete")
 
     return {

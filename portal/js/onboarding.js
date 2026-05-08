@@ -5,7 +5,6 @@ import { claimPageScript } from './page-script-guard.js';
 
 const STEP_TO_PAGE = {
     profile: './settings-profile.html?setup=1',
-    billing: './settings-billing.html?setup=1',
     security: './settings-security.html?setup=1',
     banks: './settings-banks.html?setup=1',
     goals: './settings-goals.html?setup=1',
@@ -27,7 +26,7 @@ async function main() {
         return;
     }
 
-    status('Loading onboarding status…');
+    status('Just a moment — finding where you left off…');
     const bootstrap = await bootstrapSession(client);
     sessionStorage.setItem('mintraiq_bootstrap', JSON.stringify({ ...bootstrap, at: Date.now() }));
 
@@ -38,7 +37,7 @@ async function main() {
 
     const step = bootstrap?.onboarding?.current_step || 'profile';
     const target = STEP_TO_PAGE[step] || STEP_TO_PAGE.profile;
-    status('Redirecting to setup step…');
+    status('Taking you to the next gentle step…');
     visitWithTurbo(target, { replace: true });
 }
 

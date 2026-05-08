@@ -21,7 +21,7 @@ const GROUPS = [
         title: 'ACCOUNT',
         items: [
             { id: 'profile', href: './settings-profile.html', icon: 'fa-user', label: 'Personal profile' },
-            { id: 'billing', href: './settings-billing.html', icon: 'fa-bolt', label: 'Billing & plan' },
+            { id: 'billing', href: './settings-billing.html', icon: 'fa-bolt', label: 'Plan & billing (optional)' },
             { id: 'security', href: './settings-security.html', icon: 'fa-shield-alt', label: 'Security' }
         ]
     },

@@ -32,35 +32,70 @@
                     <div class="portal-settings-body">
                         <div class="page-header">
                             <h1>Banks &amp; income</h1>
-                            <p>Connect accounts and map income sources.</p>
+                            <p>This is the heart of clearer insights: with a bit of real context we can highlight behaviour and traps. Connect when it feels right — you can add more later.</p>
                         </div>
                         <div class="card">
                             <div class="card-header">
                                 <i class="fas fa-university"></i>
-                                <h3>Bank connectors (Akahu)</h3>
+                                <h3>Banks &amp; transactions</h3>
                             </div>
                             <form data-settings-step="banks">
+                                <input type="hidden" name="statement_source" value="manual_upload" />
+                                <p style="color:var(--text-secondary);margin:0 0 14px;line-height:1.5">
+                                    Would you like us to link your bank so we can pull transactions for you automatically, or are you happier uploading statement PDFs when you have a moment?
+                                    Either path works — choose what fits your comfort level today.
+                                </p>
+                                <div class="settings-preset-grid" style="margin-bottom:18px" role="group" aria-label="How to add transactions">
+                                    <button type="button" class="settings-preset-btn" data-statement-source="connector">
+                                        Link my bank (automatic)
+                                    </button>
+                                    <button type="button" class="settings-preset-btn is-selected" data-statement-source="manual_upload">
+                                        Upload statements later
+                                    </button>
+                                </div>
+
+                                <div id="banksConnectorSection" hidden>
+                                    <p style="margin:0 0 12px;color:var(--text-secondary);font-size:0.95rem;line-height:1.45">
+                                        We’ll use Akahu-style secure linking when this is enabled — you stay in control and can disconnect anytime.
+                                        Your choice here is saved so we know how to tailor the next prompts.
+                                    </p>
+                                    <div class="form-grid-2">
+                                        <label class="form-group">
+                                            <span>Primary bank</span>
+                                            <select name="primary_bank" class="form-control" data-banks-connector-field>
+                                                <option value="ANZ">ANZ</option>
+                                                <option value="ASB">ASB</option>
+                                                <option value="BNZ">BNZ</option>
+                                                <option value="Westpac">Westpac</option>
+                                            </select>
+                                        </label>
+                                        <label class="form-group">
+                                            <span>Connector status</span>
+                                            <select name="akahu_status" class="form-control" data-banks-connector-field>
+                                                <option value="disconnected">Disconnected</option>
+                                                <option value="connected">Connected</option>
+                                                <option value="reauth_required">Re-auth required</option>
+                                            </select>
+                                        </label>
+                                    </div>
+                                    <p style="color:var(--text-secondary);margin:12px 0 0;font-size:0.9rem">Akahu OAuth will launch from here once connector endpoints go live.</p>
+                                </div>
+
+                                <div id="banksManualSection">
+                                    <p style="margin:0 0 12px;color:var(--text-secondary);font-size:0.95rem;line-height:1.45">
+                                        Totally fine. When it suits you, add statements through the usual upload flow — we’ll still build a useful picture step by step.
+                                        No rush; you can switch to linked banking anytime in Settings.
+                                    </p>
+                                </div>
+
+                                <h4 style="margin:22px 0 10px;font-size:1rem;font-weight:600">Income baseline (optional)</h4>
+                                <p style="color:var(--text-secondary);margin:0 0 12px;font-size:0.9rem;line-height:1.45">
+                                    A hint about where pay lands helps even before files or connectors are in place.
+                                </p>
                                 <div class="form-grid-2">
                                     <label class="form-group">
-                                        <span>Primary bank</span>
-                                        <select name="primary_bank" class="form-control">
-                                            <option value="ANZ">ANZ</option>
-                                            <option value="ASB">ASB</option>
-                                            <option value="BNZ">BNZ</option>
-                                            <option value="Westpac">Westpac</option>
-                                        </select>
-                                    </label>
-                                    <label class="form-group">
-                                        <span>Connector status</span>
-                                        <select name="akahu_status" class="form-control">
-                                            <option value="disconnected">Disconnected</option>
-                                            <option value="connected">Connected</option>
-                                            <option value="reauth_required">Re-auth required</option>
-                                        </select>
-                                    </label>
-                                    <label class="form-group">
                                         <span>Income account name</span>
-                                        <input name="income_account_name" class="form-control" placeholder="Salary account" />
+                                        <input name="income_account_name" class="form-control" placeholder="e.g. Everyday or Salary" />
                                     </label>
                                     <label class="form-group">
                                         <span>Income source type</span>
@@ -71,7 +106,6 @@
                                         </select>
                                     </label>
                                 </div>
-                                <p style="color:var(--text-secondary);margin:8px 0 0">Akahu OAuth will be launched from this step once backend connector endpoints are enabled.</p>
                             </form>
                         </div>
                     </div>

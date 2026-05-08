@@ -3,34 +3,43 @@ import { financeApiFetch } from './api.js';
 import { visitWithTurbo } from './turbo-visit.js';
 
 const DEFAULT_FLOW_STEPS = [
-    { id: 'profile', href: './settings-profile.html', label: 'Personal profile', chapter: 'Your identity' },
-    { id: 'security', href: './settings-security.html', label: 'Security', chapter: 'Your identity' },
-    { id: 'banks', href: './settings-banks.html', label: 'Banks & income', chapter: 'Your money' },
-    { id: 'billing', href: './settings-billing.html', label: 'Billing & plan', chapter: 'Your money' },
-    { id: 'goals', href: './settings-goals.html', label: 'Savings goals', chapter: 'Your strategy' },
-    { id: 'categories', href: './settings-categories.html', label: 'Custom categories', chapter: 'Your strategy' },
-    { id: 'ai', href: './settings-ai.html', label: 'AI advisor settings', chapter: 'Your strategy' },
-    { id: 'notifications', href: './settings-notifications.html', label: 'Alerts & nudges', chapter: 'Your strategy' }
+    { id: 'profile', href: './settings-profile.html', label: 'Personal profile', chapter: 'A quick hello' },
+    { id: 'security', href: './settings-security.html', label: 'Security', chapter: 'Keep your space safe' },
+    { id: 'banks', href: './settings-banks.html', label: 'Banks & income', chapter: 'Where your money lives' },
+    { id: 'goals', href: './settings-goals.html', label: 'Savings goals', chapter: 'What you are aiming for' },
+    { id: 'categories', href: './settings-categories.html', label: 'Custom categories', chapter: 'Make it feel like yours' },
+    { id: 'ai', href: './settings-ai.html', label: 'AI advisor settings', chapter: 'How we talk with you' },
+    { id: 'notifications', href: './settings-notifications.html', label: 'Alerts & nudges', chapter: 'Gentle reminders' }
 ];
 
-const OPTIONAL_STEPS = new Set(['goals', 'notifications']);
+const OPTIONAL_STEPS = new Set(['goals', 'notifications', 'categories', 'ai']);
 const STEP_INTERSTITIAL = {
-    banks: 'Syncing with NZ banks... finding your hidden savings.',
-    billing: 'Preparing secure checkout handoff...',
-    goals: 'Calibrating your strategy engine...',
-    categories: 'Learning your spending style...',
-    ai: 'Training your advisor personality...'
+    banks: 'Saving your bank preferences…',
+    billing: 'Saving your plan choice…',
+    goals: 'Saving your goals…',
+    categories: 'Saving your category picks…',
+    ai: 'Saving how you like to be coached…'
 };
 const STEP_BENEFIT_COPY = {
-    profile: 'Set your identity so we can personalize your financial insights.',
-    security: 'Protect your account before connecting live bank data.',
-    banks: 'Connect Akahu to unlock live balances and transactions.',
-    billing: 'Select your plan to enable advanced automation limits.',
-    goals: 'Tell us what success looks like, and we will optimize toward it.',
-    categories: 'Pick what matters so categorization feels native to your life.',
-    ai: 'Tune how strict or friendly the AI coach should be.',
-    notifications: 'Choose when we should nudge you before spending drifts.'
+    profile:
+        'A name and currency help us frame numbers in a way that makes sense to you. This is a small step — and it goes a long way toward useful guidance.',
+    security:
+        'A quick safety check so you feel confident before anything sensitive connects. You can tighten this further whenever you like.',
+    banks:
+        'Tell us whether you prefer a bank link or uploading statements on your own schedule. Either way helps us spot patterns and traps — no wrong answer.',
+    billing:
+        'Stay on Free for as long as you like. Paid tiers are optional and only if you want more automation later — you can decide in Settings anytime.',
+    goals:
+        'Goals are not a test. A rough direction helps us align with what matters; skip or guess and refine whenever you like.',
+    categories:
+        'Telling us what categories matter helps the coach speak your language. No need to get exhaustive; a few taps is enough, or skip and we will learn as you go.',
+    ai:
+        'Choose a tone that feels supportive, not stressful. This only changes how we talk — you are always in control.',
+    notifications:
+        'Optional nudges when something drifts. Defaults are gentle; turn things off if you prefer a quieter experience.'
 };
+const FLOW_PAUSE_COPY =
+    'Pausing is fine — pick up anytime from Settings. Nothing here locks you in.';
 
 const DRAFT_KEY = 'mintraiq_settings_workflow_draft_v1';
 const MODE_KEY = 'mintraiq_settings_workflow_mode_v1';
@@ -133,6 +142,26 @@ function sanitizeInput(v) {
     return String(v ?? '').trim().slice(0, 512);
 }
 
+function syncBanksStatementPanels(form) {
+    if (!form) return;
+    const hidden = form.querySelector('input[name="statement_source"]');
+    const raw = String(hidden?.value || '').trim();
+    const mode = raw === 'connector' ? 'connector' : 'manual_upload';
+    if (hidden) hidden.value = mode;
+    const connectorSec = form.querySelector('#banksConnectorSection');
+    const manualSec = form.querySelector('#banksManualSection');
+    if (connectorSec) connectorSec.hidden = mode !== 'connector';
+    if (manualSec) manualSec.hidden = mode !== 'manual_upload';
+    form.querySelectorAll('[data-banks-connector-field]').forEach((el) => {
+        el.disabled = mode !== 'connector';
+    });
+    form.querySelectorAll('[data-statement-source]').forEach((btn) => {
+        const v = String(btn.getAttribute('data-statement-source') || '');
+        btn.classList.toggle('is-selected', v === mode);
+        btn.setAttribute('aria-pressed', v === mode ? 'true' : 'false');
+    });
+}
+
 function serializeForm(form) {
     const payload = {};
     if (!form) return payload;
@@ -182,6 +211,9 @@ function hydrateLowFrictionWidgets(stepId, form, data) {
             slider.value = value;
             label.textContent = map === 'strict' ? 'Strict / Disciplined' : map === 'casual' ? 'Casual / Friendly' : 'Balanced';
         }
+    }
+    if (stepId === 'banks') {
+        syncBanksStatementPanels(form);
     }
 }
 
@@ -252,6 +284,19 @@ function wireLowFrictionWidgets(stepId, form, onDirty) {
                 onDirty();
             });
         }
+    }
+    if (stepId === 'banks') {
+        const hidden = form.querySelector('input[name="statement_source"]');
+        const buttons = [...form.querySelectorAll('[data-statement-source]')];
+        buttons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const v = String(btn.getAttribute('data-statement-source') || 'manual_upload');
+                if (hidden) hidden.value = v === 'connector' ? 'connector' : 'manual_upload';
+                syncBanksStatementPanels(form);
+                onDirty();
+            });
+        });
+        syncBanksStatementPanels(form);
     }
 }
 
@@ -345,26 +390,6 @@ function setStatus(msg, tone = 'neutral') {
     node.dataset.tone = tone;
 }
 
-function openStripeMock(onDone) {
-    const modal = document.createElement('div');
-    modal.className = 'settings-stripe-modal';
-    modal.innerHTML =
-        '<div class="settings-stripe-dialog">' +
-        '<h3>Stripe Checkout (Mock)</h3>' +
-        '<p>You will be redirected to Stripe-hosted checkout in production.</p>' +
-        '<div class="settings-stripe-actions">' +
-        '<button type="button" class="btn-save" id="stripeMockConfirm">Simulate successful payment</button>' +
-        '<button type="button" class="settings-ghost-btn" id="stripeMockCancel">Cancel</button>' +
-        '</div></div>';
-    document.body.appendChild(modal);
-    const close = () => modal.remove();
-    modal.querySelector('#stripeMockCancel')?.addEventListener('click', close);
-    modal.querySelector('#stripeMockConfirm')?.addEventListener('click', () => {
-        close();
-        onDone();
-    });
-}
-
 function buildFlowBanner(stepId, isWorkflow) {
     const body = document.querySelector('.portal-settings-body');
     if (!body) return;
@@ -383,12 +408,13 @@ function buildFlowBanner(stepId, isWorkflow) {
     const percent = getWorkflowCompletion(stepId);
     banner.innerHTML =
         '<div class="settings-flow-head">' +
-        `<strong>${isWorkflow ? `Chapter: ${step?.chapter || 'Setup'}` : 'Settings'}</strong>` +
+        `<strong>${isWorkflow ? `${step?.chapter || 'Setup'}` : 'Settings'}</strong>` +
         `<span>${stepLabel}</span>` +
         '</div>' +
-        `<p>${STEP_BENEFIT_COPY[stepId] || 'Update your preferences and save changes when needed.'}</p>` +
+        `<p class="settings-flow-benefit">${STEP_BENEFIT_COPY[stepId] || 'Update your preferences and save changes when needed.'}</p>` +
         (isWorkflow
-            ? `<div class="settings-progress-wrap"><div class="settings-progress-bar"><span style="width:${percent}%"></span></div><small>${percent}% complete</small></div>`
+            ? `<p class="settings-flow-pause" style="color:var(--text-secondary);font-size:0.9rem;margin:10px 0 0">${FLOW_PAUSE_COPY}</p>` +
+              `<div class="settings-progress-wrap"><div class="settings-progress-bar"><span style="width:${percent}%"></span></div><small>Step ${idx >= 0 ? idx + 1 : 1} of ${total} — small steps, no rush</small></div>`
             : '');
 }
 
@@ -406,7 +432,7 @@ function buildActionBar({ stepId, isWorkflow, onSave, onCancel, onNext, onSkip, 
     const flowSteps = activeFlowSteps();
     const idx = getStepIndex(stepId);
     const hasNext = idx >= 0 && idx < flowSteps.length - 1;
-    const nextLabel = hasNext ? 'Save & Next' : 'Finish setup';
+    const nextLabel = hasNext ? 'Save & continue' : 'Save & finish';
 
     actions.innerHTML =
         '<div class="settings-flow-actions-left">' +
@@ -414,7 +440,7 @@ function buildActionBar({ stepId, isWorkflow, onSave, onCancel, onNext, onSkip, 
         '</div>' +
         '<div class="settings-flow-actions-right">' +
         (isWorkflow && OPTIONAL_STEPS.has(stepId)
-            ? '<button type="button" class="settings-ghost-btn" id="settingsFlowSkip">Skip for now</button>'
+            ? '<button type="button" class="settings-ghost-btn" id="settingsFlowSkip">I\'ll do this later</button>'
             : '') +
         '<button type="button" class="btn-save" id="settingsFlowSave">Save</button>' +
         (isWorkflow ? `<button type="button" class="btn-save" id="settingsFlowNext">${nextLabel}</button>` : '') +
@@ -525,11 +551,20 @@ async function mountSettingsWorkflow() {
             onNext: async () => {
                 const payload = serializeForm(form);
                 if (stepId === 'billing') {
-                    openStripeMock(async () => {
-                        payload.stripe_payment_status = 'paid';
-                        const saveRes = await saveStepData(client, stepId, payload, true);
-                        await navigateNext(saveRes);
-                    });
+                    const tier = String(payload.billing_tier || 'free').toLowerCase();
+                    if (tier === 'free') {
+                        payload.stripe_payment_status = 'not_required';
+                    } else if (!payload.stripe_payment_status || payload.stripe_payment_status === 'pending') {
+                        payload.stripe_payment_status = 'pending';
+                    }
+                    const saveRes = await saveStepData(client, stepId, payload, true);
+                    setStatus(
+                        tier === 'free'
+                            ? 'You are on the free plan. Upgrade only if you want to, anytime in Settings.'
+                            : 'Plan preference saved. You can complete payment whenever you are ready under Settings → Billing.',
+                        'positive'
+                    );
+                    await navigateNext(saveRes);
                     return;
                 }
                 const saveRes = await saveStepData(client, stepId, payload, true);

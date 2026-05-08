@@ -1,7 +1,6 @@
 import { createLogtoClient } from './logto-client.js';
 import { guardSession } from './guard-session.js';
 import { financeApiFetch } from './api.js';
-import { claimPageScript } from './page-script-guard.js';
 import { getLegalContent } from './legal-store.js';
 
 /**
@@ -252,7 +251,7 @@ function readGoal() {
     return Number.isFinite(v) && v > 0 ? v : 1000;
 }
 
-async function loadPlan(client) {
+async function loadPlan(client, signal) {
     setError('');
     setStatus('Loading plan…');
 
@@ -265,6 +264,7 @@ async function loadPlan(client) {
             method: 'GET',
             headers: { Accept: 'application/json' }
         });
+        if (signal?.aborted) return;
         const text = await res.text();
         let data;
         try {
@@ -287,6 +287,8 @@ async function loadPlan(client) {
             throw new Error(`${path}: ${msg}`);
         }
 
+        if (signal?.aborted) return;
+
         const currency = data?.meta?.currency || 'NZD';
         renderRiskBanner(data?.summary || {});
         renderChart(data?.cuts || {});
@@ -298,6 +300,7 @@ async function loadPlan(client) {
 
         setStatus(`Plan for savings goal ${formatCurrency(goal, currency)}`);
     } catch (e) {
+        if (signal?.aborted) return;
         console.error('budget-planner', e);
         setInsightsFooter('');
         setStatus('');
@@ -305,24 +308,28 @@ async function loadPlan(client) {
     }
 }
 
-async function main() {
-    if (!claimPageScript('budget-planner-main')) return;
+/**
+ * @param {{ signal?: AbortSignal }} [opts]
+ */
+export async function bootBudgetPlannerPage(opts = {}) {
+    const { signal } = opts;
+    if (signal?.aborted) return;
     if (!(await guardSession())) return;
+    if (signal?.aborted) return;
     const client = createLogtoClient();
 
     const reload = async () => {
         try {
-            await loadPlan(client);
+            await loadPlan(client, signal);
         } catch (e) {
+            if (signal?.aborted) return;
             setError(friendlyErrorMessage(e));
         }
     };
 
-    document.getElementById('bpReload')?.addEventListener('click', reload);
-    document.getElementById('bpGoal')?.addEventListener('change', reload);
-    document.getElementById('bpErrorRetry')?.addEventListener('click', reload);
+    document.getElementById('bpReload')?.addEventListener('click', reload, { signal });
+    document.getElementById('bpGoal')?.addEventListener('change', reload, { signal });
+    document.getElementById('bpErrorRetry')?.addEventListener('click', reload, { signal });
 
     await reload();
 }
-
-main();

@@ -1,7 +1,6 @@
 import { createLogtoClient } from './logto-client.js';
 import { guardSession } from './guard-session.js';
 import { financeApiFetch } from './api.js';
-import { claimPageScript } from './page-script-guard.js';
 import { getLegalContent } from './legal-store.js';
 
 /**
@@ -208,7 +207,7 @@ function showSections() {
     });
 }
 
-async function loadPlan(client) {
+async function loadPlan(client, signal) {
     setError('');
     setStatus('Loading plan…');
 
@@ -219,6 +218,7 @@ async function loadPlan(client) {
             method: 'GET',
             headers: { Accept: 'application/json' }
         });
+        if (signal?.aborted) return;
         const text = await res.text();
         let data;
         try {
@@ -241,6 +241,8 @@ async function loadPlan(client) {
             throw new Error(`${path}: ${msg}`);
         }
 
+        if (signal?.aborted) return;
+
         renderAlert(data?.alert);
         renderMission(data?.meta || {}, data?.goal_progress || {});
         renderDayStrip(data?.daily_planner || []);
@@ -253,6 +255,7 @@ async function loadPlan(client) {
         showSections();
         setStatus(data?.meta?.generated_at ? `Updated ${data.meta.generated_at}` : '');
     } catch (e) {
+        if (signal?.aborted) return;
         console.error('weekly-planner', e);
         setInsightsFooter('');
         setStatus('');
@@ -260,23 +263,27 @@ async function loadPlan(client) {
     }
 }
 
-async function main() {
-    if (!claimPageScript('weekly-planner-main')) return;
+/**
+ * @param {{ signal?: AbortSignal }} [opts]
+ */
+export async function bootWeeklyPlannerPage(opts = {}) {
+    const { signal } = opts;
+    if (signal?.aborted) return;
     if (!(await guardSession())) return;
+    if (signal?.aborted) return;
     const client = createLogtoClient();
 
     const reload = async () => {
         try {
-            await loadPlan(client);
+            await loadPlan(client, signal);
         } catch (e) {
+            if (signal?.aborted) return;
             setError(friendlyErrorMessage(e));
         }
     };
 
-    document.getElementById('wpReload')?.addEventListener('click', reload);
-    document.getElementById('wpErrorRetry')?.addEventListener('click', reload);
+    document.getElementById('wpReload')?.addEventListener('click', reload, { signal });
+    document.getElementById('wpErrorRetry')?.addEventListener('click', reload, { signal });
 
     await reload();
 }
-
-main();

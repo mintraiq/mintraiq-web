@@ -15,6 +15,7 @@ export async function fetchFinanceDashboardJson(logtoClient, startDate, endDate)
 
     const res = await fetch(url, {
         method: 'POST',
+        cache: 'no-store',
         headers: {
             Authorization: `Bearer ${token}`,
             Accept: 'application/json',

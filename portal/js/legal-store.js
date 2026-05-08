@@ -1,5 +1,6 @@
 import { financeApiFetch } from './api.js';
 
+/** Session copy of legal text / agreement status — intentional; finance API requests still use no-store. */
 const LEGAL_SESSION_KEY = 'mintraiq_legal_content_v1';
 let legalCache = null;
 

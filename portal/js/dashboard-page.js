@@ -1,8 +1,7 @@
-import { createLogtoClient } from './js/logto-client.js';
-import { fetchFinanceDashboardJson, monthRangeStrings } from './js/finance-dashboard.js';
-import * as render from './js/dashboard-render.js';
-import { claimPageScript } from './js/page-script-guard.js';
-import { getLegalContent } from './js/legal-store.js';
+import { createLogtoClient } from './logto-client.js';
+import { fetchFinanceDashboardJson, monthRangeStrings } from './finance-dashboard.js';
+import * as render from './dashboard-render.js';
+import { getLegalContent } from './legal-store.js';
 
 function readBootstrap() {
     const raw = sessionStorage.getItem('mintraiq_bootstrap');
@@ -39,12 +38,20 @@ function applyBootstrapHeader(bootstrap) {
 function setInsightsFooter(text) {
     const el = document.getElementById('dashboardInsightsFooter');
     if (!el) return;
-    const fallback = getLegalContent()?.content?.insights_footer || 'This is AI-generated analysis and does not constitute financial advice under NZ law.';
+    const fallback =
+        getLegalContent()?.content?.insights_footer ||
+        'This is AI-generated analysis and does not constitute financial advice under NZ law.';
     el.textContent = text || fallback;
 }
 
-async function main() {
-    if (!claimPageScript('dashboard-main')) return;
+/**
+ * Runs on every Turbo visit — ES module top-level runs only once, so this must be called from turbo-workspace-boot.
+ * @param {{ signal?: AbortSignal }} [opts]
+ */
+export async function bootDashboardPage(opts = {}) {
+    const { signal } = opts;
+    if (signal?.aborted) return;
+
     const bootstrap = readBootstrap();
     if (!bootstrap || typeof bootstrap !== 'object') {
         window.location.replace('./index.html');
@@ -65,11 +72,15 @@ async function main() {
         return;
     }
 
+    if (signal?.aborted) return;
+
     const { start, end } = monthRangeStrings();
     if (statusEl) statusEl.textContent = 'Loading…';
 
     try {
         const data = await fetchFinanceDashboardJson(client, start, end);
+        if (signal?.aborted) return;
+
         setInsightsFooter(data?.insights_footer || '');
 
         if (data.ai_status === 'DATA_MISSING') {
@@ -92,6 +103,7 @@ async function main() {
         }
         render.renderHighExpenseAlerts(data);
     } catch (e) {
+        if (signal?.aborted) return;
         console.error(e);
         setInsightsFooter('');
         if (statusEl) statusEl.textContent = '';
@@ -102,5 +114,3 @@ async function main() {
         render.showLoadError(e.message || e);
     }
 }
-
-main();

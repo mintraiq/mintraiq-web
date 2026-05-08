@@ -1,7 +1,6 @@
 import { createLogtoClient } from './logto-client.js';
 import { guardSession } from './guard-session.js';
 import { financeApiFetch } from './api.js';
-import { claimPageScript } from './page-script-guard.js';
 
 /** @typedef {{ id: string, date: string, amount: number, description: string, category: string, needs_review: boolean, flag: string, type: string }} TxRow */
 
@@ -491,7 +490,10 @@ async function syncAkahu(client) {
     }
 }
 
-function wireFilters() {
+/**
+ * @param {AbortSignal} [signal]
+ */
+function wireFilters(signal) {
     const rerender = () => {
         normalizeDateRange(true);
         renderTable();
@@ -500,35 +502,45 @@ function wireFilters() {
             selected = null;
         }
     };
-    document.getElementById('txSearch')?.addEventListener('input', rerender);
-    document.getElementById('txDescription')?.addEventListener('input', rerender);
-    document.getElementById('txCategory')?.addEventListener('change', rerender);
-    document.getElementById('txReviewOnly')?.addEventListener('change', rerender);
-    document.getElementById('txDateFrom')?.addEventListener('change', rerender);
-    document.getElementById('txDateTo')?.addEventListener('change', () => {
-        normalizeDateRange(true);
-        rerender();
-    });
-    document.getElementById('txPageSize')?.addEventListener('change', rerender);
-    document.getElementById('txClearFilters')?.addEventListener('click', clearFiltersToDefault);
-    document.querySelectorAll('.tx-sort-btn[data-sort-key]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            const key = btn.getAttribute('data-sort-key') || 'date';
-            if (sortKey === key) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-            else {
-                sortKey = key;
-                sortDir = key === 'date' ? 'desc' : 'asc';
-            }
+    document.getElementById('txSearch')?.addEventListener('input', rerender, { signal });
+    document.getElementById('txDescription')?.addEventListener('input', rerender, { signal });
+    document.getElementById('txCategory')?.addEventListener('change', rerender, { signal });
+    document.getElementById('txReviewOnly')?.addEventListener('change', rerender, { signal });
+    document.getElementById('txDateFrom')?.addEventListener('change', rerender, { signal });
+    document.getElementById('txDateTo')?.addEventListener(
+        'change',
+        () => {
+            normalizeDateRange(true);
             rerender();
-        });
+        },
+        { signal }
+    );
+    document.getElementById('txPageSize')?.addEventListener('change', rerender, { signal });
+    document.getElementById('txClearFilters')?.addEventListener('click', clearFiltersToDefault, { signal });
+    document.querySelectorAll('.tx-sort-btn[data-sort-key]').forEach((btn) => {
+        btn.addEventListener(
+            'click',
+            () => {
+                const key = btn.getAttribute('data-sort-key') || 'date';
+                if (sortKey === key) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+                else {
+                    sortKey = key;
+                    sortDir = key === 'date' ? 'desc' : 'asc';
+                }
+                rerender();
+            },
+            { signal }
+        );
     });
     updateSortIndicators();
 }
 
-function wireTableInteractions() {
+/**
+ * @param {AbortSignal} [signal]
+ */
+function wireTableInteractions(signal) {
     const tbody = document.querySelector('#txTable tbody');
-    if (!tbody || tbody.dataset.wired === '1') return;
-    tbody.dataset.wired = '1';
+    if (!tbody) return;
     tbody.addEventListener('click', async (e) => {
         const t = e.target;
         if (!(t instanceof Element)) return;
@@ -564,24 +576,31 @@ function wireTableInteractions() {
         }
         selected = allRows.find((r) => r.id === id) || null;
         renderTable();
-    });
+    }, { signal });
 }
 
-async function main() {
-    if (!claimPageScript('transactions-main')) return;
+/**
+ * @param {{ signal?: AbortSignal }} [opts]
+ */
+export async function bootTransactionsPage(opts = {}) {
+    const { signal } = opts;
+    if (signal?.aborted) return;
     if (!(await guardSession())) return;
+    if (signal?.aborted) return;
     const client = createLogtoClient();
     currentClient = client;
 
-    document.getElementById('txReload')?.addEventListener('click', () => loadTransactions(client));
-    document.getElementById('txSyncAkahu')?.addEventListener('click', () => syncAkahu(client));
+    document.getElementById('txReload')?.addEventListener('click', () => void loadTransactions(client), { signal });
+    document.getElementById('txSyncAkahu')?.addEventListener('click', () => void syncAkahu(client), { signal });
     setDefaultDateRange();
-    wireFilters();
-    wireTableInteractions();
+    wireFilters(signal);
+    wireTableInteractions(signal);
 
     try {
         await loadTransactions(client);
+        if (signal?.aborted) return;
     } catch (e) {
+        if (signal?.aborted) return;
         console.error(e);
         const errBox = document.getElementById('txError');
         if (errBox) {
@@ -592,5 +611,3 @@ async function main() {
         if (status) status.textContent = '';
     }
 }
-
-main();

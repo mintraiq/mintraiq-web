@@ -24,6 +24,7 @@ export async function bootstrapSession(logtoClient) {
 
     const res = await fetch(url, {
         method: 'POST',
+        cache: 'no-store',
         headers: {
             Authorization: `Bearer ${accessToken}`,
             Accept: 'application/json',

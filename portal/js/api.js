@@ -4,6 +4,8 @@ import { getAccessTokenOrReauth } from './logto-client.js';
 /**
  * Authenticated fetch to finance_api (same audience as bootstrap).
  * Path is relative to financeApiBase, e.g. "/generate" → POST {base}/generate
+ * Defaults to cache: 'no-store' so workspace data stays live; override with options.cache if needed.
+ * Legal copy may still be held in session via `legal-store.js` after a successful fetch.
  */
 export async function financeApiFetch(logtoClient, path, options = {}) {
     if (!CONFIG.financeApiResource) {
@@ -21,5 +23,10 @@ export async function financeApiFetch(logtoClient, path, options = {}) {
         Authorization: `Bearer ${token}`
     };
 
-    return fetch(url, { ...options, headers });
+    const { cache: cacheOpt, ...rest } = options;
+    return fetch(url, {
+        cache: cacheOpt ?? 'no-store',
+        ...rest,
+        headers
+    });
 }

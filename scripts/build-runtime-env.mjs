@@ -10,7 +10,7 @@
  * Note: any value shipped to the browser is visible to users (DevTools). Never put API keys
  * or Logto client secrets here — only public IDs and HTTPS URLs.
  */
-import { writeFileSync, readFileSync, existsSync } from 'fs';
+import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -93,5 +93,6 @@ const body =
     ';\n' +
     "})(typeof window !== 'undefined' ? window : this);\n";
 
+mkdirSync(dirname(outFile), { recursive: true });
 writeFileSync(outFile, body, 'utf8');
 console.log('Wrote', outFile, `(${Object.keys(merged).length} keys)`);

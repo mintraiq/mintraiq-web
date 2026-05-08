@@ -3,15 +3,34 @@ import { financeApiFetch } from './api.js';
 import { visitWithTurbo } from './turbo-visit.js';
 
 const FLOW_STEPS = [
-    { id: 'profile', href: './settings-profile.html', label: 'Personal profile' },
-    { id: 'billing', href: './settings-billing.html', label: 'Billing & plan' },
-    { id: 'security', href: './settings-security.html', label: 'Security' },
-    { id: 'banks', href: './settings-banks.html', label: 'Banks & income' },
-    { id: 'goals', href: './settings-goals.html', label: 'Savings goals' },
-    { id: 'categories', href: './settings-categories.html', label: 'Custom categories' },
-    { id: 'ai', href: './settings-ai.html', label: 'AI advisor settings' },
-    { id: 'notifications', href: './settings-notifications.html', label: 'Alerts & nudges' }
+    { id: 'profile', href: './settings-profile.html', label: 'Personal profile', chapter: 'Your identity' },
+    { id: 'security', href: './settings-security.html', label: 'Security', chapter: 'Your identity' },
+    { id: 'banks', href: './settings-banks.html', label: 'Banks & income', chapter: 'Your money' },
+    { id: 'billing', href: './settings-billing.html', label: 'Billing & plan', chapter: 'Your money' },
+    { id: 'goals', href: './settings-goals.html', label: 'Savings goals', chapter: 'Your strategy' },
+    { id: 'categories', href: './settings-categories.html', label: 'Custom categories', chapter: 'Your strategy' },
+    { id: 'ai', href: './settings-ai.html', label: 'AI advisor settings', chapter: 'Your strategy' },
+    { id: 'notifications', href: './settings-notifications.html', label: 'Alerts & nudges', chapter: 'Your strategy' }
 ];
+
+const OPTIONAL_STEPS = new Set(['goals', 'notifications']);
+const STEP_INTERSTITIAL = {
+    banks: 'Syncing with NZ banks... finding your hidden savings.',
+    billing: 'Preparing secure checkout handoff...',
+    goals: 'Calibrating your strategy engine...',
+    categories: 'Learning your spending style...',
+    ai: 'Training your advisor personality...'
+};
+const STEP_BENEFIT_COPY = {
+    profile: 'Set your identity so we can personalize your financial insights.',
+    security: 'Protect your account before connecting live bank data.',
+    banks: 'Connect Akahu to unlock live balances and transactions.',
+    billing: 'Select your plan to enable advanced automation limits.',
+    goals: 'Tell us what success looks like, and we will optimize toward it.',
+    categories: 'Pick what matters so categorization feels native to your life.',
+    ai: 'Tune how strict or friendly the AI coach should be.',
+    notifications: 'Choose when we should nudge you before spending drifts.'
+};
 
 const DRAFT_KEY = 'mintraiq_settings_workflow_draft_v1';
 const MODE_KEY = 'mintraiq_settings_workflow_mode_v1';
@@ -47,6 +66,10 @@ function getStepIndex(stepId) {
     return FLOW_STEPS.findIndex((s) => s.id === stepId);
 }
 
+function getStepById(stepId) {
+    return FLOW_STEPS.find((s) => s.id === stepId) || null;
+}
+
 function isWorkflowMode(stepId) {
     const bootstrap = readBootstrap();
     const setupParam = new URLSearchParams(window.location.search).get('setup') === '1';
@@ -58,6 +81,13 @@ function isWorkflowMode(stepId) {
     }
     sessionStorage.removeItem(MODE_KEY);
     return false;
+}
+
+function getWorkflowCompletion(stepId) {
+    const idx = getStepIndex(stepId);
+    if (idx < 0) return 25;
+    const ratio = (idx + 1) / FLOW_STEPS.length;
+    return Math.min(100, Math.round(25 + ratio * 75));
 }
 
 function sanitizeInput(v) {
@@ -90,6 +120,100 @@ function applyToForm(form, data) {
         }
         el.value = String(data[el.name] ?? '');
     });
+}
+
+function hydrateLowFrictionWidgets(stepId, form, data) {
+    if (!form) return;
+    if (stepId === 'categories') {
+        const selected = new Set(String(data?.preferred_categories || '').split(',').map((x) => x.trim()).filter(Boolean));
+        form.querySelectorAll('[data-category-chip]').forEach((btn) => {
+            const v = String(btn.getAttribute('data-category-chip') || '');
+            const on = selected.has(v);
+            btn.classList.toggle('is-selected', on);
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+    }
+    if (stepId === 'ai') {
+        const slider = form.querySelector('#aiToneSlider');
+        const hidden = form.querySelector('input[name="ai_tone"]');
+        const label = form.querySelector('#aiToneSliderLabel');
+        if (slider && hidden && label) {
+            const map = hidden.value || 'balanced';
+            const value = map === 'strict' ? '0' : map === 'casual' ? '100' : '50';
+            slider.value = value;
+            label.textContent = map === 'strict' ? 'Strict / Disciplined' : map === 'casual' ? 'Casual / Friendly' : 'Balanced';
+        }
+    }
+}
+
+function wireLowFrictionWidgets(stepId, form, onDirty) {
+    if (!form) return;
+    if (stepId === 'categories') {
+        const hidden = form.querySelector('input[name="preferred_categories"]');
+        const chips = [...form.querySelectorAll('[data-category-chip]')];
+        const sync = () => {
+            const selected = chips
+                .filter((c) => c.classList.contains('is-selected'))
+                .map((c) => c.getAttribute('data-category-chip'))
+                .filter(Boolean);
+            if (hidden) hidden.value = selected.join(', ');
+        };
+        chips.forEach((chip) => {
+            chip.addEventListener('click', () => {
+                chip.classList.toggle('is-selected');
+                chip.setAttribute('aria-pressed', chip.classList.contains('is-selected') ? 'true' : 'false');
+                sync();
+                onDirty();
+            });
+        });
+        sync();
+    }
+    if (stepId === 'goals') {
+        const hidden = form.querySelector('input[name="goals_package"]');
+        const goalInput = form.querySelector('input[name="monthly_savings_goal"]');
+        const emergencyInput = form.querySelector('input[name="emergency_fund_target"]');
+        const buttons = [...form.querySelectorAll('[data-goal-preset]')];
+        buttons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                buttons.forEach((b) => b.classList.remove('is-selected'));
+                btn.classList.add('is-selected');
+                const preset = btn.getAttribute('data-goal-preset') || '';
+                if (hidden) hidden.value = preset;
+                if (preset === 'home') {
+                    if (goalInput) goalInput.value = '2500';
+                    if (emergencyInput) emergencyInput.value = '12000';
+                } else if (preset === 'debt') {
+                    if (goalInput) goalInput.value = '1800';
+                    if (emergencyInput) emergencyInput.value = '6000';
+                } else if (preset === 'wealth') {
+                    if (goalInput) goalInput.value = '3200';
+                    if (emergencyInput) emergencyInput.value = '15000';
+                }
+                onDirty();
+            });
+        });
+    }
+    if (stepId === 'ai') {
+        const slider = form.querySelector('#aiToneSlider');
+        const hidden = form.querySelector('input[name="ai_tone"]');
+        const label = form.querySelector('#aiToneSliderLabel');
+        if (slider && hidden && label) {
+            slider.addEventListener('input', () => {
+                const v = Number(slider.value || 50);
+                if (v <= 33) {
+                    hidden.value = 'strict';
+                    label.textContent = 'Strict / Disciplined';
+                } else if (v >= 67) {
+                    hidden.value = 'casual';
+                    label.textContent = 'Casual / Friendly';
+                } else {
+                    hidden.value = 'balanced';
+                    label.textContent = 'Balanced';
+                }
+                onDirty();
+            });
+        }
+    }
 }
 
 function getFormForStep(stepId) {
@@ -214,16 +338,21 @@ function buildFlowBanner(stepId, isWorkflow) {
     }
     const idx = getStepIndex(stepId);
     const total = FLOW_STEPS.length;
+    const step = getStepById(stepId);
     const stepLabel = idx >= 0 ? `${idx + 1}/${total} · ${FLOW_STEPS[idx].label}` : '';
+    const percent = getWorkflowCompletion(stepId);
     banner.innerHTML =
         '<div class="settings-flow-head">' +
-        `<strong>${isWorkflow ? 'New workspace setup' : 'Settings'}</strong>` +
+        `<strong>${isWorkflow ? `Chapter: ${step?.chapter || 'Setup'}` : 'Settings'}</strong>` +
         `<span>${stepLabel}</span>` +
         '</div>' +
-        `<p>${isWorkflow ? 'Complete each step to finish your initial setup. Your data syncs to your API as you proceed.' : 'Update your preferences and save changes when needed.'}</p>`;
+        `<p>${STEP_BENEFIT_COPY[stepId] || 'Update your preferences and save changes when needed.'}</p>` +
+        (isWorkflow
+            ? `<div class="settings-progress-wrap"><div class="settings-progress-bar"><span style="width:${percent}%"></span></div><small>${percent}% complete</small></div>`
+            : '');
 }
 
-function buildActionBar({ stepId, isWorkflow, onSave, onCancel, onNext, isDirty }) {
+function buildActionBar({ stepId, isWorkflow, onSave, onCancel, onNext, onSkip, isDirty }) {
     const body = document.querySelector('.portal-settings-body');
     if (!body) return;
     let actions = document.getElementById('settingsFlowActions');
@@ -243,6 +372,9 @@ function buildActionBar({ stepId, isWorkflow, onSave, onCancel, onNext, isDirty 
         '<button type="button" class="settings-ghost-btn" id="settingsFlowCancel">Cancel</button>' +
         '</div>' +
         '<div class="settings-flow-actions-right">' +
+        (isWorkflow && OPTIONAL_STEPS.has(stepId)
+            ? '<button type="button" class="settings-ghost-btn" id="settingsFlowSkip">Skip for now</button>'
+            : '') +
         '<button type="button" class="btn-save" id="settingsFlowSave">Save</button>' +
         (isWorkflow ? `<button type="button" class="btn-save" id="settingsFlowNext">${nextLabel}</button>` : '') +
         '</div>';
@@ -250,6 +382,7 @@ function buildActionBar({ stepId, isWorkflow, onSave, onCancel, onNext, isDirty 
     const cancelBtn = actions.querySelector('#settingsFlowCancel');
     const saveBtn = actions.querySelector('#settingsFlowSave');
     const nextBtn = actions.querySelector('#settingsFlowNext');
+    const skipBtn = actions.querySelector('#settingsFlowSkip');
 
     if (cancelBtn) {
         cancelBtn.style.display = isDirty ? '' : 'none';
@@ -261,6 +394,9 @@ function buildActionBar({ stepId, isWorkflow, onSave, onCancel, onNext, isDirty 
     }
     if (nextBtn) {
         nextBtn.addEventListener('click', onNext);
+    }
+    if (skipBtn) {
+        skipBtn.addEventListener('click', onSkip);
     }
 }
 
@@ -282,9 +418,44 @@ async function mountSettingsWorkflow() {
 
     const fromApi = await loadStepData(client, stepId);
     applyToForm(form, fromApi);
+    hydrateLowFrictionWidgets(stepId, form, fromApi);
 
     let initialSnapshot = JSON.stringify(serializeForm(form));
     let dirty = false;
+
+    const showInterstitial = (message, cb) => {
+        if (!message) {
+            cb();
+            return;
+        }
+        const modal = document.createElement('div');
+        modal.className = 'settings-stripe-modal';
+        modal.innerHTML =
+            '<div class="settings-stripe-dialog">' +
+            `<h3>${message}</h3>` +
+            '<p>Please wait a moment…</p>' +
+            '</div>';
+        document.body.appendChild(modal);
+        window.setTimeout(() => {
+            modal.remove();
+            cb();
+        }, 750);
+    };
+
+    const navigateNext = async (saveRes) => {
+        if (saveRes?.next_step === 'complete' || stepId === FLOW_STEPS[FLOW_STEPS.length - 1].id) {
+            const finalRes = await completeOnboarding(client);
+            visitWithTurbo(resolveFinalRedirect(finalRes));
+            return;
+        }
+        if (saveRes?.next_step) {
+            const nextMsg = STEP_INTERSTITIAL[saveRes.next_step];
+            showInterstitial(nextMsg, () => visitWithTurbo(`./settings-${saveRes.next_step}.html?setup=1`));
+            return;
+        }
+        const nextMsg = STEP_INTERSTITIAL[FLOW_STEPS[getStepIndex(stepId) + 1]?.id];
+        showInterstitial(nextMsg, () => visitWithTurbo(nextHref(stepId)));
+    };
 
     const syncActions = () =>
         buildActionBar({
@@ -309,35 +480,22 @@ async function mountSettingsWorkflow() {
                 syncActions();
             },
             onNext: async () => {
-                const doNavigate = () => {
-                    const href = nextHref(stepId);
-                    visitWithTurbo(href);
-                };
                 const payload = serializeForm(form);
                 if (stepId === 'billing') {
                     openStripeMock(async () => {
                         payload.stripe_payment_status = 'paid';
                         const saveRes = await saveStepData(client, stepId, payload, true);
-                        if (saveRes?.next_step === 'complete' || stepId === FLOW_STEPS[FLOW_STEPS.length - 1].id) {
-                            const finalRes = await completeOnboarding(client);
-                            visitWithTurbo(resolveFinalRedirect(finalRes));
-                            return;
-                        }
-                        visitWithTurbo(`./settings-${saveRes?.next_step || FLOW_STEPS[getStepIndex(stepId) + 1].id}.html?setup=1`);
+                        await navigateNext(saveRes);
                     });
                     return;
                 }
                 const saveRes = await saveStepData(client, stepId, payload, true);
-                if (saveRes?.next_step === 'complete' || stepId === FLOW_STEPS[FLOW_STEPS.length - 1].id) {
-                    const finalRes = await completeOnboarding(client);
-                    visitWithTurbo(resolveFinalRedirect(finalRes));
-                    return;
-                }
-                if (saveRes?.next_step) {
-                    visitWithTurbo(`./settings-${saveRes.next_step}.html?setup=1`);
-                    return;
-                }
-                doNavigate();
+                await navigateNext(saveRes);
+            },
+            onSkip: async () => {
+                const payload = { ...serializeForm(form), skipped_for_now: true };
+                const saveRes = await saveStepData(client, stepId, payload, true);
+                await navigateNext(saveRes);
             }
         });
 
@@ -350,6 +508,10 @@ async function mountSettingsWorkflow() {
         syncActions();
     });
     form?.addEventListener('submit', (e) => e.preventDefault());
+    wireLowFrictionWidgets(stepId, form, () => {
+        dirty = JSON.stringify(serializeForm(form)) !== initialSnapshot;
+        syncActions();
+    });
 
     syncActions();
 }

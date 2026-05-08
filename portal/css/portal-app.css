@@ -262,6 +262,27 @@ html.is-turbo-transitioning .main-wrap {
     margin: 0;
     color: var(--text-secondary, #a0a0a0);
 }
+.settings-progress-wrap {
+    margin-top: 12px;
+}
+.settings-progress-bar {
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+}
+.settings-progress-bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #00ff9d, #2f80ed);
+}
+.settings-progress-wrap small {
+    display: block;
+    margin-top: 6px;
+    color: var(--text-secondary, #a0a0a0);
+    font-size: 0.78rem;
+}
 .settings-flow-status {
     margin: 0 0 10px;
     font-size: 0.88rem;
@@ -332,6 +353,60 @@ html.is-turbo-transitioning .main-wrap {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
+}
+.settings-preset-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+}
+.settings-preset-btn {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+    color: #dbe7ff;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+}
+.settings-preset-btn.is-selected {
+    border-color: rgba(0, 255, 157, 0.45);
+    background: rgba(0, 255, 157, 0.1);
+    color: var(--accent-green, #00ff9d);
+}
+.settings-chip-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.settings-chip {
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.02);
+    color: #dbe7ff;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 0.86rem;
+    cursor: pointer;
+}
+.settings-chip.is-selected {
+    border-color: rgba(47, 128, 237, 0.55);
+    background: rgba(47, 128, 237, 0.18);
+    color: #9cc5ff;
+}
+.settings-tone-slider {
+    width: min(520px, 100%);
+    accent-color: #2f80ed;
+}
+.settings-tone-label {
+    margin: 8px 0 6px;
+    font-weight: 700;
+}
+.settings-tone-extremes {
+    width: min(520px, 100%);
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-secondary, #a0a0a0);
+    font-size: 0.82rem;
 }
 
 .form-group {

@@ -40,6 +40,12 @@
                                 <h3>Savings goals &amp; income baseline</h3>
                             </div>
                             <form data-settings-step="goals">
+                                <input type="hidden" name="goals_package" value="home" />
+                                <div class="settings-preset-grid" style="margin-bottom:16px">
+                                    <button type="button" class="settings-preset-btn is-selected" data-goal-preset="home">Save for a home</button>
+                                    <button type="button" class="settings-preset-btn" data-goal-preset="debt">Get out of debt</button>
+                                    <button type="button" class="settings-preset-btn" data-goal-preset="wealth">Build long-term wealth</button>
+                                </div>
                                 <div class="form-grid-2">
                                     <label class="form-group">
                                         <span>Monthly income target</span>
@@ -58,6 +64,7 @@
                                         <input name="primary_income_source" class="form-control" placeholder="Employer or source" />
                                     </label>
                                 </div>
+                                <p style="color:var(--text-secondary);margin:6px 0 0">Pick a preset, then fine-tune if needed. You can skip this for now and calibrate later.</p>
                             </form>
                         </div>
                     </div>

@@ -40,13 +40,23 @@
                                 <h3>AI categories preferences</h3>
                             </div>
                             <form data-settings-step="categories">
+                                <input type="hidden" id="categoryInclude" name="preferred_categories" value="Dining Out, Groceries, Rent" />
                                 <div class="form-group">
-                                    <label for="categoryInclude">Preferred categories (comma-separated)</label>
-                                    <textarea id="categoryInclude" name="preferred_categories" class="form-control" rows="3" style="max-width:100%"></textarea>
+                                    <label>Tap categories that matter most to you</label>
+                                    <div class="settings-chip-cloud">
+                                        <button type="button" class="settings-chip is-selected" data-category-chip="Dining Out" aria-pressed="true">Dining Out</button>
+                                        <button type="button" class="settings-chip is-selected" data-category-chip="Groceries" aria-pressed="true">Groceries</button>
+                                        <button type="button" class="settings-chip is-selected" data-category-chip="Rent" aria-pressed="true">Rent</button>
+                                        <button type="button" class="settings-chip" data-category-chip="Transport" aria-pressed="false">Transport</button>
+                                        <button type="button" class="settings-chip" data-category-chip="Travel" aria-pressed="false">Travel</button>
+                                        <button type="button" class="settings-chip" data-category-chip="Subscriptions" aria-pressed="false">Subscriptions</button>
+                                        <button type="button" class="settings-chip" data-category-chip="Utilities" aria-pressed="false">Utilities</button>
+                                        <button type="button" class="settings-chip" data-category-chip="Healthcare" aria-pressed="false">Healthcare</button>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="categoryExclude">Blocked categories (comma-separated)</label>
-                                    <textarea id="categoryExclude" name="blocked_categories" class="form-control" rows="3" style="max-width:100%"></textarea>
+                                    <label for="categoryExclude">Blocked categories (optional)</label>
+                                    <input id="categoryExclude" name="blocked_categories" class="form-control" placeholder="e.g. gambling, crypto" />
                                 </div>
                                 <label class="form-group" style="display:flex;align-items:center;gap:10px;cursor:pointer">
                                     <input type="checkbox" name="strict_category_matching" />

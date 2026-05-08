@@ -24,7 +24,19 @@ const defaults = {
     signInRedirectUri: ''
 };
 
-export const CONFIG = { ...defaults, ...(window.__MINTRAIQ_ENV__ || {}) };
+/** Skip empty strings from generated runtime-env so local defaults still work when build omits tenant IDs. */
+function mergePublicEnv(base, env) {
+    const out = { ...base };
+    if (!env || typeof env !== 'object') return out;
+    for (const [k, v] of Object.entries(env)) {
+        if (v == null) continue;
+        if (typeof v === 'string' && v.trim() === '') continue;
+        out[k] = v;
+    }
+    return out;
+}
+
+export const CONFIG = mergePublicEnv(defaults, window.__MINTRAIQ_ENV__);
 
 /** Base URL for this portal (handles hosting under a subpath, e.g. /myapp/portal/). */
 export function getPortalBase() {

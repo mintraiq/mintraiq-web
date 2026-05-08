@@ -18,12 +18,16 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 const outFile = join(root, 'config', 'runtime-env.js');
 
-/** Default public browser config (overridable via PUBLIC_* / env.public). */
+/**
+ * Default public browser config (overridable via PUBLIC_* / env.public).
+ * Logto endpoint + SPA app id are not secrets (OIDC), but real tenant values should
+ * come from env / Vercel — do not rely on baked-in defaults in the repo.
+ */
 const DEFAULT_PUBLIC_ENV = {
-    logtoEndpoint: 'https://ufq3nf.logto.app',
-    logtoAppId: 'jj76jvuz39xoys68ys7ly',
+    logtoEndpoint: '',
+    logtoAppId: '',
     financeApiBase: 'http://127.0.0.1:5000/api',
-    financeApiResource: 'https://api.finance-ai.suite.com',
+    financeApiResource: '',
     signInRedirectUri: '',
     legacyFlaskBase: 'http://127.0.0.1:5000',
     fastApiDocsUrl: 'http://127.0.0.1:5000/api/docs'

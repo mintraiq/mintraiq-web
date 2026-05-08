@@ -2,7 +2,7 @@ import { createLogtoClient } from './js/logto-client.js';
 import { bootstrapSession } from './js/bootstrap.js';
 import { visitWithTurbo } from './js/turbo-visit.js';
 import { claimPageScript } from './js/page-script-guard.js';
-import { agreeToLegalTerms, loadLegalContent } from './js/legal-store.js';
+import { agreeToLegalTerms, clearLegalContentState, loadLegalContent } from './js/legal-store.js';
 
 const statusEl = document.getElementById('status');
 
@@ -151,7 +151,21 @@ async function main() {
             await showWelcomeTermsModal(legalState?.content, async () => {
                 const version = legalState?.content?.version;
                 await agreeToLegalTerms(client, version);
-                data.user_status = { ...(data.user_status || {}), has_agreed: true };
+                data.user_status = {
+                    ...(data.user_status || {}),
+                    has_agreed: true,
+                    has_agreed_to_tos: true,
+                    agreed_version: version,
+                    tos_version: version,
+                    agreed_at: new Date().toISOString(),
+                    tos_agreed_at: new Date().toISOString()
+                };
+                clearLegalContentState();
+                try {
+                    await loadLegalContent(client);
+                } catch {
+                    /* cache will refresh on next settings visit */
+                }
             });
         }
 

@@ -2,6 +2,9 @@ node_modules/
 apps/ninja-react/node_modules/
 mintraiq/react-embed/embed.html
 
+# Generated browser public config (set PUBLIC_* or env.public, then npm run build:env)
+config/runtime-env.js
+
 # Local overrides (never commit secrets)
 portal/js/config.local.js
 .env

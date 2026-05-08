@@ -11,23 +11,69 @@ function safeParse(json) {
     }
 }
 
+function coerceVersion(v) {
+    if (v == null || v === '') return '';
+    return String(v).trim();
+}
+
 function sanitizeContent(raw) {
     if (!raw || typeof raw !== 'object') return null;
+    const tosRaw = raw.tos ?? raw.terms ?? raw.terms_of_service ?? raw.text ?? '';
+    const tos = typeof tosRaw === 'string' ? tosRaw : '';
     return {
-        version: typeof raw.version === 'string' ? raw.version : '',
-        tos: typeof raw.tos === 'string' ? raw.tos : '',
+        version: coerceVersion(raw.version ?? raw.tos_version),
+        tos,
         disclaimer: typeof raw.disclaimer === 'string' ? raw.disclaimer : '',
         insights_footer: typeof raw.insights_footer === 'string' ? raw.insights_footer : ''
     };
 }
 
+/**
+ * Accepts both portal-friendly keys and DB-shaped keys from FastAPI / legal/content.
+ * has_agreed | has_agreed_to_tos; agreed_version | tos_version; agreed_at | tos_agreed_at
+ */
 function sanitizeUserStatus(raw) {
     if (!raw || typeof raw !== 'object') return null;
+    const hasAgreed = raw.has_agreed === true || raw.has_agreed_to_tos === true;
+    const agreedVersion = coerceVersion(raw.agreed_version ?? raw.tos_version);
+    let agreedAt = '';
+    const at = raw.agreed_at ?? raw.tos_agreed_at;
+    if (typeof at === 'string') agreedAt = at;
+    else if (at != null) agreedAt = String(at);
     return {
-        has_agreed: raw.has_agreed === true,
-        agreed_version: typeof raw.agreed_version === 'string' ? raw.agreed_version : '',
-        agreed_at: typeof raw.agreed_at === 'string' ? raw.agreed_at : ''
+        has_agreed: hasAgreed,
+        agreed_version: agreedVersion,
+        agreed_at: agreedAt
     };
+}
+
+export function mergeUserStatuses(a, b) {
+    if (!a && !b) return null;
+    const x = a || { has_agreed: false, agreed_version: '', agreed_at: '' };
+    const y = b || { has_agreed: false, agreed_version: '', agreed_at: '' };
+    const at = x.agreed_at || y.agreed_at;
+    return {
+        has_agreed: !!(x.has_agreed || y.has_agreed),
+        agreed_version: coerceVersion(x.agreed_version || y.agreed_version),
+        agreed_at: at != null && at !== '' ? String(at) : ''
+    };
+}
+
+/** Merge profile / bootstrap extras (some APIs nest agreement on profile only). */
+export function userStatusFromBootstrapPayload(bootstrap) {
+    if (!bootstrap || typeof bootstrap !== 'object') return null;
+    const u = bootstrap.user_status && typeof bootstrap.user_status === 'object' ? sanitizeUserStatus(bootstrap.user_status) : null;
+    const p = bootstrap.profile
+        ? sanitizeUserStatus({
+              has_agreed_to_tos: bootstrap.profile.has_agreed_to_tos,
+              has_agreed: bootstrap.profile.has_agreed,
+              tos_version: bootstrap.profile.tos_version,
+              agreed_version: bootstrap.profile.agreed_version,
+              tos_agreed_at: bootstrap.profile.tos_agreed_at,
+              agreed_at: bootstrap.profile.agreed_at
+          })
+        : null;
+    return mergeUserStatuses(u, p);
 }
 
 function saveToSession(state) {
@@ -88,11 +134,15 @@ export async function loadLegalContent(logtoClient, opts = {}) {
         throw new Error(msg);
     }
     const content = sanitizeContent(data.content || data);
-    if (!content) throw new Error('Legal content response is invalid.');
-    const state = {
-        content,
-        user_status: sanitizeUserStatus(data.user_status)
-    };
+    const topUser =
+        data.user_status && typeof data.user_status === 'object' ? sanitizeUserStatus(data.user_status) : null;
+    const nestedProfile =
+        data.profile && typeof data.profile === 'object' ? sanitizeUserStatus(data.profile) : null;
+    const user_status = mergeUserStatuses(topUser, nestedProfile);
+    if (!content || (!content.tos && !content.disclaimer && !content.insights_footer && !content.version)) {
+        throw new Error('Legal content response is invalid.');
+    }
+    const state = { content, user_status };
     saveToSession(state);
     return state;
 }

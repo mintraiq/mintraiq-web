@@ -18,3 +18,6 @@
 
 ## 5. Content Security Policy (Vercel)
 - **`vercel.json`** sends a site-wide `Content-Security-Policy` on production deploys: jsDelivr, cdnjs, Vercel Analytics, **`esm.sh`** (Logto browser SDK import), Google Fonts, `'unsafe-inline'` for existing inline boot scripts, and broad **`connect-src https:`** for configurable API bases. Remove `'unsafe-inline'` after migrating inline scripts to modules. Local static servers do not apply these headers unless configured separately.
+
+## 6. OIDC / Logto in the browser
+- **Logto Application ID + endpoint URL** are **public** by design for an SPA (same as any OAuth client id). They are **not** equivalent to a password. **Never** ship a Logto **client secret** or API keys in `runtime-env.js` or any static asset. `config/runtime-env.js` is generated at build time from **`PUBLIC_*`** variables and should not contain secrets.

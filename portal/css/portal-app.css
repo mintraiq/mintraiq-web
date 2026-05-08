@@ -1230,12 +1230,36 @@ html.is-turbo-transitioning .main-wrap {
 
 .legal-pre {
     margin: 0;
-    white-space: pre-wrap;
     color: var(--text-secondary);
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 8px;
     padding: 12px;
+}
+
+.legal-tos-host .legal-tos-para {
+    margin: 0 0 10px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+}
+
+.legal-tos-host .legal-tos-para:last-child {
+    margin-bottom: 0;
+}
+
+.legal-tos-host .legal-tos-list {
+    margin: 0 0 12px 1.1rem;
+    padding: 0;
+    line-height: 1.55;
+    list-style-position: outside;
+}
+
+.legal-tos-host .legal-tos-list li {
+    margin-bottom: 8px;
+}
+
+.legal-tos-host .legal-tos-list--ordered {
+    list-style-type: decimal;
 }
 
 .legal-agreement-badge {

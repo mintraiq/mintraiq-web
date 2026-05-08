@@ -44,7 +44,7 @@ Static marketing pages, a **Logto-powered portal** (`portal/`), **FastAPI refere
 
 Prefer **`env.public.example`** → copy to **`env.public`** and run **`npm run build:env`**, or set **`PUBLIC_*`** variables on Vercel (see [Deploy to Vercel](#deploy-to-vercel)). Optional last-mile overrides in **`portal/env.js`**.
 
-`config/runtime-env.js` is a **single** generated script (defaults live in `scripts/build-runtime-env.mjs`, not a second browsable file). Treat anything shipped to the browser as **public**—never put API keys or Logto client secrets there.
+`config/runtime-env.js` is a **generated** script from `npm run build:env` (or Vercel `PUBLIC_*` at build time). It is **gitignored** in this repo so tenant-specific values are not committed; run **`npm run build:env`** locally after clone (or copy from `env.public.example`). Treat anything shipped to the browser as **public**—never put API keys or Logto **client secrets** there. The Logto **SPA application id** and **endpoint URL** are normal public OIDC metadata (not a password).
 
 - `financeApiBase` — e.g. `https://your-api.example.com/api` (bootstrap path is `/api/bootstrap` under that base).
 - `financeApiResource` — **required**: same string as **`settings.api_identifier`** in FastAPI (Logto API resource).

@@ -35,7 +35,44 @@
                             <p>Connect accounts and map income sources.</p>
                         </div>
                         <div class="card">
-                            <p style="color:var(--text-secondary);margin:0">Bank linking and Plaid-style flows are not active in this static bundle. Configure ingestion on your backend, then surface status here via API.</p>
+                            <div class="card-header">
+                                <i class="fas fa-university"></i>
+                                <h3>Bank connectors (Akahu)</h3>
+                            </div>
+                            <form data-settings-step="banks">
+                                <div class="form-grid-2">
+                                    <label class="form-group">
+                                        <span>Primary bank</span>
+                                        <select name="primary_bank" class="form-control">
+                                            <option value="ANZ">ANZ</option>
+                                            <option value="ASB">ASB</option>
+                                            <option value="BNZ">BNZ</option>
+                                            <option value="Westpac">Westpac</option>
+                                        </select>
+                                    </label>
+                                    <label class="form-group">
+                                        <span>Connector status</span>
+                                        <select name="akahu_status" class="form-control">
+                                            <option value="disconnected">Disconnected</option>
+                                            <option value="connected">Connected</option>
+                                            <option value="reauth_required">Re-auth required</option>
+                                        </select>
+                                    </label>
+                                    <label class="form-group">
+                                        <span>Income account name</span>
+                                        <input name="income_account_name" class="form-control" placeholder="Salary account" />
+                                    </label>
+                                    <label class="form-group">
+                                        <span>Income source type</span>
+                                        <select name="income_source_type" class="form-control">
+                                            <option value="salary">Salary</option>
+                                            <option value="business">Business income</option>
+                                            <option value="mixed">Mixed</option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <p style="color:var(--text-secondary);margin:8px 0 0">Akahu OAuth will be launched from this step once backend connector endpoints are enabled.</p>
+                            </form>
                         </div>
                     </div>
                 </div>

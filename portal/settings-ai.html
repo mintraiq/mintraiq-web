@@ -39,10 +39,10 @@
                                 <i class="fas fa-robot"></i>
                                 <h3>AI personality</h3>
                             </div>
-                            <form id="aiSettingsForm">
+                            <form id="aiSettingsForm" data-settings-step="ai">
                                 <div class="form-group">
                                     <label for="aiTone">How should the AI talk to you?</label>
-                                    <select id="aiTone" class="form-control">
+                                    <select id="aiTone" name="ai_tone" class="form-control">
                                         <option value="professional">Professional &amp; direct</option>
                                         <option value="encouraging">Encouraging &amp; gentle</option>
                                         <option value="strict">Strict &amp; disciplined</option>
@@ -50,12 +50,9 @@
                                 </div>
                                 <div class="form-group" style="margin-top:20px">
                                     <label>
-                                        <input type="checkbox" id="autoCategorize" checked style="margin-right:10px" />
+                                        <input type="checkbox" id="autoCategorize" name="auto_categorize" checked style="margin-right:10px" />
                                         Allow AI to auto-correct my manual categorizations
                                     </label>
-                                </div>
-                                <div style="text-align:right;margin-top:20px">
-                                    <button type="submit" class="btn-save">Update AI</button>
                                 </div>
                             </form>
                         </div>

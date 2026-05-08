@@ -35,8 +35,30 @@
                             <p>Set targets and track progress against your accounts.</p>
                         </div>
                         <div class="card">
-                            <p style="color:var(--text-secondary);margin:0 0 16px">Goal persistence will use your FastAPI backend. Workspace overview:</p>
-                            <a href="./goals.html" class="btn-primary" style="display:inline-flex"><i class="fas fa-bullseye"></i> Goals (portal)</a>
+                            <div class="card-header">
+                                <i class="fas fa-bullseye"></i>
+                                <h3>Savings goals &amp; income baseline</h3>
+                            </div>
+                            <form data-settings-step="goals">
+                                <div class="form-grid-2">
+                                    <label class="form-group">
+                                        <span>Monthly income target</span>
+                                        <input type="number" min="0" step="1" name="monthly_income_target" class="form-control" />
+                                    </label>
+                                    <label class="form-group">
+                                        <span>Monthly savings goal</span>
+                                        <input type="number" min="0" step="1" name="monthly_savings_goal" class="form-control" />
+                                    </label>
+                                    <label class="form-group">
+                                        <span>Emergency fund target</span>
+                                        <input type="number" min="0" step="1" name="emergency_fund_target" class="form-control" />
+                                    </label>
+                                    <label class="form-group">
+                                        <span>Primary income source</span>
+                                        <input name="primary_income_source" class="form-control" placeholder="Employer or source" />
+                                    </label>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

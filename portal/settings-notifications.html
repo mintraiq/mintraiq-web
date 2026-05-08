@@ -35,11 +35,35 @@
                             <p>Choose when MintrAIQ should surface warnings and tips.</p>
                         </div>
                         <div class="card">
-                            <p style="color:var(--text-secondary);margin:0 0 16px">Notification preferences will sync to your backend. See also the workspace <a href="./notifications.html" style="color:var(--accent-blue)">Notifications</a> hub.</p>
-                            <label class="form-group" style="display:flex;align-items:center;gap:10px;cursor:pointer">
-                                <input type="checkbox" checked disabled />
-                                <span style="color:var(--text-secondary)">Weekly email summary (placeholder)</span>
-                            </label>
+                            <div class="card-header">
+                                <i class="fas fa-bell"></i>
+                                <h3>Alerts &amp; nudges channels</h3>
+                            </div>
+                            <form data-settings-step="notifications">
+                                <p style="color:var(--text-secondary);margin:0 0 16px">Notification preferences sync with your API and drive workspace nudges.</p>
+                                <div class="form-grid-2">
+                                    <label class="form-group" style="display:flex;align-items:center;gap:10px;cursor:pointer">
+                                        <input type="checkbox" name="weekly_summary_enabled" checked />
+                                        <span>Weekly summary digest</span>
+                                    </label>
+                                    <label class="form-group" style="display:flex;align-items:center;gap:10px;cursor:pointer">
+                                        <input type="checkbox" name="spend_spike_alert_enabled" checked />
+                                        <span>Spend spike alert</span>
+                                    </label>
+                                    <label class="form-group" style="display:flex;align-items:center;gap:10px;cursor:pointer">
+                                        <input type="checkbox" name="goal_risk_alert_enabled" checked />
+                                        <span>Savings goal risk alert</span>
+                                    </label>
+                                    <label class="form-group">
+                                        <span>Primary delivery channel</span>
+                                        <select name="primary_delivery_channel" class="form-control">
+                                            <option value="in_app">In-app</option>
+                                            <option value="email">Email</option>
+                                            <option value="both">Both</option>
+                                        </select>
+                                    </label>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

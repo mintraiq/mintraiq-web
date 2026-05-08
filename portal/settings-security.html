@@ -35,7 +35,37 @@
                             <p>Password, sessions, and two-factor (preview).</p>
                         </div>
                         <div class="card">
-                            <p style="color:var(--text-secondary);margin:0">Authentication is handled by Logto for this deploy. Session and device management UI will appear here when wired to your identity provider APIs.</p>
+                            <div class="card-header">
+                                <i class="fas fa-shield-alt"></i>
+                                <h3>MFA configuration</h3>
+                            </div>
+                            <form data-settings-step="security">
+                                <div class="form-grid-2">
+                                    <label class="form-group">
+                                        <span>Require MFA at sign-in</span>
+                                        <select name="mfa_required" class="form-control">
+                                            <option value="true">Yes</option>
+                                            <option value="false">No</option>
+                                        </select>
+                                    </label>
+                                    <label class="form-group">
+                                        <span>Preferred MFA method</span>
+                                        <select name="mfa_method" class="form-control">
+                                            <option value="totp">Authenticator app (TOTP)</option>
+                                            <option value="sms">SMS</option>
+                                            <option value="email">Email code</option>
+                                        </select>
+                                    </label>
+                                    <label class="form-group">
+                                        <span>Recovery email</span>
+                                        <input type="email" name="recovery_email" class="form-control" autocomplete="email" />
+                                    </label>
+                                    <label class="form-group">
+                                        <span>Session timeout (minutes)</span>
+                                        <input type="number" min="5" max="720" name="session_timeout_mins" class="form-control" value="60" />
+                                    </label>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

@@ -35,7 +35,24 @@
                             <p>Rename, merge, and color-code expense categories.</p>
                         </div>
                         <div class="card">
-                            <p style="color:var(--text-secondary);margin:0">Category CRUD will call your finance API. This page is a layout placeholder for the Vercel portal.</p>
+                            <div class="card-header">
+                                <i class="fas fa-tags"></i>
+                                <h3>AI categories preferences</h3>
+                            </div>
+                            <form data-settings-step="categories">
+                                <div class="form-group">
+                                    <label for="categoryInclude">Preferred categories (comma-separated)</label>
+                                    <textarea id="categoryInclude" name="preferred_categories" class="form-control" rows="3" style="max-width:100%"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="categoryExclude">Blocked categories (comma-separated)</label>
+                                    <textarea id="categoryExclude" name="blocked_categories" class="form-control" rows="3" style="max-width:100%"></textarea>
+                                </div>
+                                <label class="form-group" style="display:flex;align-items:center;gap:10px;cursor:pointer">
+                                    <input type="checkbox" name="strict_category_matching" />
+                                    <span>Use strict category matching when AI auto-labels transactions</span>
+                                </label>
+                            </form>
                         </div>
                     </div>
                 </div>

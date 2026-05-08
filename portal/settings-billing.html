@@ -35,8 +35,38 @@
                             <p>License tiers and payment method (static preview).</p>
                         </div>
                         <div class="card">
-                            <p style="color:var(--text-secondary);margin:0 0 16px">Compare tiers and upgrade flows on the dedicated page.</p>
-                            <a href="./license.html" class="btn-primary" style="display:inline-flex"><i class="fas fa-crown"></i> License &amp; tiers</a>
+                            <div class="card-header">
+                                <i class="fas fa-credit-card"></i>
+                                <h3>Plan &amp; payment</h3>
+                            </div>
+                            <form data-settings-step="billing">
+                                <div class="form-grid-2">
+                                    <div class="form-group">
+                                        <label for="billingTier">License tier</label>
+                                        <select id="billingTier" name="billing_tier" class="form-control">
+                                            <option value="free">Free</option>
+                                            <option value="pro">Pro</option>
+                                            <option value="business">Business</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="billingCycle">Billing cycle</label>
+                                        <select id="billingCycle" name="billing_cycle" class="form-control">
+                                            <option value="monthly">Monthly</option>
+                                            <option value="annual">Annual</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cardholderName">Cardholder name</label>
+                                        <input id="cardholderName" name="cardholder_name" class="form-control" autocomplete="cc-name" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="paymentStatus">Payment status</label>
+                                        <input id="paymentStatus" name="stripe_payment_status" class="form-control" value="pending" readonly />
+                                    </div>
+                                </div>
+                                <p style="color:var(--text-secondary);margin:8px 0 0">Checkout is mocked in onboarding and will redirect to Stripe-hosted checkout in production.</p>
+                            </form>
                         </div>
                     </div>
                 </div>

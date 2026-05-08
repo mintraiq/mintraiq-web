@@ -39,31 +39,28 @@
                                 <i class="far fa-id-card"></i>
                                 <h3>Identity</h3>
                             </div>
-                            <form id="profileForm">
+                            <form id="profileForm" data-settings-step="profile">
                                 <div class="form-grid-2">
                                     <div class="form-group">
                                         <label for="profileName">Display name</label>
-                                        <input type="text" id="profileName" class="form-control" autocomplete="name" required />
+                                        <input type="text" id="profileName" name="display_name" class="form-control" autocomplete="name" required />
                                     </div>
                                     <div class="form-group">
                                         <label for="profileEmail">Email</label>
-                                        <input type="email" id="profileEmail" class="form-control" disabled style="opacity:0.65" />
+                                        <input type="email" id="profileEmail" name="email" class="form-control" disabled style="opacity:0.65" />
                                     </div>
                                     <div class="form-group">
                                         <label for="profileMobile">Mobile</label>
-                                        <input type="text" id="profileMobile" class="form-control" autocomplete="tel" />
+                                        <input type="text" id="profileMobile" name="mobile" class="form-control" autocomplete="tel" />
                                     </div>
                                     <div class="form-group">
                                         <label for="profileCurrency">Default currency</label>
-                                        <select id="profileCurrency" class="form-control">
+                                        <select id="profileCurrency" name="default_currency" class="form-control">
                                             <option value="NZD">NZD</option>
                                             <option value="AUD">AUD</option>
                                             <option value="USD">USD</option>
                                         </select>
                                     </div>
-                                </div>
-                                <div style="text-align:right;margin-top:20px">
-                                    <button type="submit" class="btn-save">Save changes</button>
                                 </div>
                             </form>
                         </div>

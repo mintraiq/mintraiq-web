@@ -56,6 +56,10 @@ export function getPortalBase() {
 export function resolveDashboardEntry(bootstrap) {
     if (!bootstrap || typeof bootstrap !== 'object') return './dashboard.html';
 
+    if (bootstrap.onboarding_complete === false || bootstrap.is_new_user === true) {
+        return './onboarding.html';
+    }
+
     if (bootstrap.routing && bootstrap.routing.redirect_to_license === true) {
         return '../coming-soon.html?from=license';
     }

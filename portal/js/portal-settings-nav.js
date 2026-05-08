@@ -1,3 +1,5 @@
+import './settings-workflow.js';
+
 /**
  * Settings section nav — horizontal tabs under a compact dashboard link.
  * Mounts into #settings-nav-root inside #portal-settings-nav-region (data-turbo-permanent on settings pages).

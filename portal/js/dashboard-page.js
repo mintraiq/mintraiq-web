@@ -61,6 +61,10 @@ export async function bootDashboardPage(opts = {}) {
         window.location.replace('./index.html');
         return;
     }
+    if (bootstrap.onboarding_complete === false) {
+        window.location.replace('./onboarding.html');
+        return;
+    }
 
     applyBootstrapHeader(bootstrap);
 

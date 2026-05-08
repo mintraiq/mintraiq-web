@@ -40,6 +40,22 @@ html.is-turbo-transitioning .main-wrap {
     box-sizing: border-box;
 }
 
+/* Keep portal page width visually stable even when vertical scrollbars appear on data-heavy screens. */
+.main-content {
+    scrollbar-gutter: stable;
+}
+
+/* Ensure direct page sections occupy the same content column width on every workspace page. */
+.main-content:not(.main-content--settings) > .top-header,
+.main-content:not(.main-content--settings) > .card,
+.main-content:not(.main-content--settings) > .wp-layout,
+.main-content:not(.main-content--settings) > .bp-layout,
+.main-content:not(.main-content--settings) > .tx-layout {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
 .btn-primary {
     display: inline-flex;
     align-items: center;

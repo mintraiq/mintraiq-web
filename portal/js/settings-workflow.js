@@ -2,7 +2,7 @@ import { createLogtoClient } from './logto-client.js';
 import { financeApiFetch } from './api.js';
 import { visitWithTurbo } from './turbo-visit.js';
 
-const FLOW_STEPS = [
+const DEFAULT_FLOW_STEPS = [
     { id: 'profile', href: './settings-profile.html', label: 'Personal profile', chapter: 'Your identity' },
     { id: 'security', href: './settings-security.html', label: 'Security', chapter: 'Your identity' },
     { id: 'banks', href: './settings-banks.html', label: 'Banks & income', chapter: 'Your money' },
@@ -48,6 +48,45 @@ function readBootstrap() {
     return parseJsonSafe(sessionStorage.getItem('mintraiq_bootstrap'));
 }
 
+function titleFromStep(stepId) {
+    const byId = {
+        profile: 'Personal profile',
+        security: 'Security',
+        billing: 'Billing & plan',
+        banks: 'Banks & income',
+        goals: 'Savings goals',
+        categories: 'Custom categories',
+        ai: 'AI advisor settings',
+        notifications: 'Alerts & nudges'
+    };
+    return byId[stepId] || String(stepId || '');
+}
+
+function deriveFlowSteps(bootstrap) {
+    const chapters = bootstrap?.onboarding?.chapters;
+    if (!Array.isArray(chapters) || !chapters.length) return DEFAULT_FLOW_STEPS;
+    const out = [];
+    chapters.forEach((chapter) => {
+        const chapterTitle = String(chapter?.title || chapter?.id || 'Setup');
+        const steps = Array.isArray(chapter?.steps) ? chapter.steps : [];
+        steps.forEach((stepIdRaw) => {
+            const stepId = String(stepIdRaw || '').trim();
+            if (!stepId) return;
+            out.push({
+                id: stepId,
+                href: `./settings-${stepId}.html`,
+                label: titleFromStep(stepId),
+                chapter: chapterTitle
+            });
+        });
+    });
+    return out.length ? out : DEFAULT_FLOW_STEPS;
+}
+
+function activeFlowSteps() {
+    return deriveFlowSteps(readBootstrap());
+}
+
 function readDraft() {
     return parseJsonSafe(sessionStorage.getItem(DRAFT_KEY)) || {};
 }
@@ -63,11 +102,11 @@ function getStepId() {
 }
 
 function getStepIndex(stepId) {
-    return FLOW_STEPS.findIndex((s) => s.id === stepId);
+    return activeFlowSteps().findIndex((s) => s.id === stepId);
 }
 
 function getStepById(stepId) {
-    return FLOW_STEPS.find((s) => s.id === stepId) || null;
+    return activeFlowSteps().find((s) => s.id === stepId) || null;
 }
 
 function isWorkflowMode(stepId) {
@@ -86,7 +125,7 @@ function isWorkflowMode(stepId) {
 function getWorkflowCompletion(stepId) {
     const idx = getStepIndex(stepId);
     if (idx < 0) return 25;
-    const ratio = (idx + 1) / FLOW_STEPS.length;
+    const ratio = (idx + 1) / Math.max(1, activeFlowSteps().length);
     return Math.min(100, Math.round(25 + ratio * 75));
 }
 
@@ -337,9 +376,10 @@ function buildFlowBanner(stepId, isWorkflow) {
         body.prepend(banner);
     }
     const idx = getStepIndex(stepId);
-    const total = FLOW_STEPS.length;
+    const flowSteps = activeFlowSteps();
+    const total = flowSteps.length;
     const step = getStepById(stepId);
-    const stepLabel = idx >= 0 ? `${idx + 1}/${total} · ${FLOW_STEPS[idx].label}` : '';
+    const stepLabel = idx >= 0 ? `${idx + 1}/${total} · ${flowSteps[idx].label}` : '';
     const percent = getWorkflowCompletion(stepId);
     banner.innerHTML =
         '<div class="settings-flow-head">' +
@@ -363,8 +403,9 @@ function buildActionBar({ stepId, isWorkflow, onSave, onCancel, onNext, onSkip, 
         body.appendChild(actions);
     }
 
+    const flowSteps = activeFlowSteps();
     const idx = getStepIndex(stepId);
-    const hasNext = idx >= 0 && idx < FLOW_STEPS.length - 1;
+    const hasNext = idx >= 0 && idx < flowSteps.length - 1;
     const nextLabel = hasNext ? 'Save & Next' : 'Finish setup';
 
     actions.innerHTML =
@@ -401,9 +442,10 @@ function buildActionBar({ stepId, isWorkflow, onSave, onCancel, onNext, onSkip, 
 }
 
 function nextHref(stepId) {
+    const flowSteps = activeFlowSteps();
     const idx = getStepIndex(stepId);
-    if (idx < 0 || idx >= FLOW_STEPS.length - 1) return './dashboard.html';
-    return `${FLOW_STEPS[idx + 1].href}?setup=1`;
+    if (idx < 0 || idx >= flowSteps.length - 1) return './dashboard.html';
+    return `${flowSteps[idx + 1].href}?setup=1`;
 }
 
 async function mountSettingsWorkflow() {
@@ -443,7 +485,8 @@ async function mountSettingsWorkflow() {
     };
 
     const navigateNext = async (saveRes) => {
-        if (saveRes?.next_step === 'complete' || stepId === FLOW_STEPS[FLOW_STEPS.length - 1].id) {
+        const flowSteps = activeFlowSteps();
+        if (saveRes?.next_step === 'complete' || stepId === flowSteps[flowSteps.length - 1].id) {
             const finalRes = await completeOnboarding(client);
             visitWithTurbo(resolveFinalRedirect(finalRes));
             return;
@@ -453,7 +496,7 @@ async function mountSettingsWorkflow() {
             showInterstitial(nextMsg, () => visitWithTurbo(`./settings-${saveRes.next_step}.html?setup=1`));
             return;
         }
-        const nextMsg = STEP_INTERSTITIAL[FLOW_STEPS[getStepIndex(stepId) + 1]?.id];
+        const nextMsg = STEP_INTERSTITIAL[flowSteps[getStepIndex(stepId) + 1]?.id];
         showInterstitial(nextMsg, () => visitWithTurbo(nextHref(stepId)));
     };
 

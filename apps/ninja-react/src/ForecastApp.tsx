@@ -1,43 +1,23 @@
-import { useEffect, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
-import { fetchSampleJson } from './sample';
+import { fetchDashboardSample } from './api/samples';
+import { queryKeys } from './queryKeys';
 
 Chart.register(...registerables);
 
-type DashboardSample = {
-    forecast?: { future_dates?: string[]; future?: number[] };
-    monthly?: {
-        predicted_expense?: number;
-        historical_avg_expense?: number;
-        predicted_income?: number;
-        predicted_savings?: number;
-        top_categories?: { category: string; amount: number }[];
-    };
-    explanations?: string[];
-    risk?: { level?: string; score?: number; explanation?: string[] };
-    recommendations?: { title?: string; severity?: string; description?: string }[];
-};
-
-export function ForecastApp() {
+export function ForecastApp(): JSX.Element {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const chartRef = useRef<Chart | null>(null);
-    const [data, setData] = useState<DashboardSample | null>(null);
-    const [err, setErr] = useState<string | null>(null);
 
-    useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            try {
-                const j = (await fetchSampleJson('dashboard.json')) as DashboardSample;
-                if (!cancelled) setData(j);
-            } catch (e) {
-                if (!cancelled) setErr(String((e as Error).message));
-            }
-        })();
-        return () => {
-            cancelled = true;
-        };
-    }, []);
+    const {
+        data,
+        error,
+        isPending
+    } = useQuery({
+        queryKey: queryKeys.samples.dashboard(),
+        queryFn: fetchDashboardSample,
+    });
 
     useEffect(() => {
         if (!data?.forecast?.future_dates || !data.forecast.future || !canvasRef.current) return;
@@ -75,15 +55,15 @@ export function ForecastApp() {
         };
     }, [data]);
 
-    if (err) {
+    if (error) {
         return (
             <div className="card" style={{ padding: 20, borderColor: 'rgba(255,71,87,0.45)' }}>
                 <strong>Could not load sample</strong>
-                <p style={{ color: 'var(--text-secondary)', marginTop: 8 }}>{err}</p>
+                <p style={{ color: 'var(--text-secondary)', marginTop: 8 }}>{String((error as Error).message)}</p>
             </div>
         );
     }
-    if (!data) {
+    if (isPending || !data) {
         return <p style={{ color: 'var(--text-secondary)' }}>Loading forecast…</p>;
     }
 

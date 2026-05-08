@@ -1,61 +1,31 @@
-import { useEffect, useState } from 'react';
-import { fetchSampleJson } from './sample';
+import { useQuery } from '@tanstack/react-query';
+import { fetchBudgetPlanSample } from './api/samples';
+import { queryKeys } from './queryKeys';
 
-type CutRow = {
-    original: number;
-    suggested: number;
-    cut_amount: number;
-    cut_pct: number;
-    impact_score: number;
-};
-
-type BudgetPayload = {
-    meta?: { currency?: string; period?: string; generated_at?: string; engine_version?: string };
-    summary?: {
-        monthly_income?: number;
-        current_savings?: number;
-        savings_goal?: number;
-        gap_to_close?: number;
-        status?: string;
-        total_savings_after_cuts?: number;
-    };
-    cuts?: Record<string, CutRow>;
-    coach_advice?: string;
-};
-
-function fmtMoney(n: number | undefined, currency = 'NZD') {
+function fmtMoney(n: number | undefined, currency = 'NZD'): string {
     if (n == null || Number.isNaN(n)) return '—';
     return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(n);
 }
 
-export function BudgetPlannerApp() {
-    const [data, setData] = useState<BudgetPayload | null>(null);
-    const [err, setErr] = useState<string | null>(null);
+export function BudgetPlannerApp(): JSX.Element {
+    const {
+        data,
+        error,
+        isPending
+    } = useQuery({
+        queryKey: queryKeys.samples.budgetPlan(),
+        queryFn: fetchBudgetPlanSample,
+    });
 
-    useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            try {
-                const j = (await fetchSampleJson('budget_plan.json')) as BudgetPayload;
-                if (!cancelled) setData(j);
-            } catch (e) {
-                if (!cancelled) setErr(String((e as Error).message));
-            }
-        })();
-        return () => {
-            cancelled = true;
-        };
-    }, []);
-
-    if (err) {
+    if (error) {
         return (
             <div className="card" style={{ padding: 20, borderColor: 'rgba(255,71,87,0.45)' }}>
                 <strong>Could not load sample</strong>
-                <p style={{ color: 'var(--text-secondary)', marginTop: 8 }}>{err}</p>
+                <p style={{ color: 'var(--text-secondary)', marginTop: 8 }}>{String((error as Error).message)}</p>
             </div>
         );
     }
-    if (!data) {
+    if (isPending || !data) {
         return <p style={{ color: 'var(--text-secondary)' }}>Loading budget planner…</p>;
     }
 

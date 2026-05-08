@@ -2,6 +2,7 @@ import { createLogtoClient } from './logto-client.js';
 import { guardSession } from './guard-session.js';
 import { financeApiFetch } from './api.js';
 import { claimPageScript } from './page-script-guard.js';
+import { getLegalContent } from './legal-store.js';
 
 /**
  * Budget Planner page — fetches the authenticated monthly plan and renders the result.
@@ -31,6 +32,12 @@ function setText(id, text) {
 
 function setStatus(text) {
     setText('bpStatus', text || '');
+}
+
+function setInsightsFooter(text) {
+    const el = document.getElementById('monthlyInsightsFooter');
+    if (!el) return;
+    el.textContent = text || getLegalContent()?.insights_footer || '';
 }
 
 function setError(message) {
@@ -287,10 +294,12 @@ async function loadPlan(client) {
         renderCoach(data?.coach_advice || '');
         renderPeriod(data?.meta || {});
         renderCuts(data?.cuts || {}, currency);
+        setInsightsFooter(data?.insights_footer || '');
 
         setStatus(`Plan for savings goal ${formatCurrency(goal, currency)}`);
     } catch (e) {
         console.error('budget-planner', e);
+        setInsightsFooter('');
         setStatus('');
         throw e;
     }

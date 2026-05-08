@@ -2,6 +2,7 @@ import { createLogtoClient } from './js/logto-client.js';
 import { fetchFinanceDashboardJson, monthRangeStrings } from './js/finance-dashboard.js';
 import * as render from './js/dashboard-render.js';
 import { claimPageScript } from './js/page-script-guard.js';
+import { getLegalContent } from './js/legal-store.js';
 
 function readBootstrap() {
     const raw = sessionStorage.getItem('mintraiq_bootstrap');
@@ -35,6 +36,13 @@ function applyBootstrapHeader(bootstrap) {
     }
 }
 
+function setInsightsFooter(text) {
+    const el = document.getElementById('dashboardInsightsFooter');
+    if (!el) return;
+    const fallback = getLegalContent()?.insights_footer || 'This is AI-generated analysis and does not constitute financial advice under NZ law.';
+    el.textContent = text || fallback;
+}
+
 async function main() {
     if (!claimPageScript('dashboard-main')) return;
     const bootstrap = readBootstrap();
@@ -62,6 +70,7 @@ async function main() {
 
     try {
         const data = await fetchFinanceDashboardJson(client, start, end);
+        setInsightsFooter(data?.insights_footer || '');
 
         if (data.ai_status === 'DATA_MISSING') {
             if (statusEl) statusEl.textContent = '';
@@ -84,6 +93,7 @@ async function main() {
         render.renderHighExpenseAlerts(data);
     } catch (e) {
         console.error(e);
+        setInsightsFooter('');
         if (statusEl) statusEl.textContent = '';
         if (e.status === 401) {
             window.location.replace('./index.html');

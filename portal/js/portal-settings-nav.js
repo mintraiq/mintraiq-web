@@ -1,7 +1,7 @@
 /**
  * Settings section nav — horizontal tabs under a compact dashboard link.
  * Mounts into #settings-nav-root inside #portal-settings-nav-region (data-turbo-permanent on settings pages).
- * body[data-settings-nav] = profile | billing | security | goals | banks | categories | notifications | ai
+ * body[data-settings-nav] = profile | billing | security | goals | banks | categories | notifications | ai | legal
  */
 function escapeAttr(s) {
     return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
@@ -30,7 +30,8 @@ const GROUPS = [
             { id: 'banks', href: './settings-banks.html', icon: 'fa-university', label: 'Banks & income' },
             { id: 'categories', href: './settings-categories.html', icon: 'fa-tag', label: 'Custom categories' },
             { id: 'notifications', href: './settings-notifications.html', icon: 'fa-bell', label: 'Alerts & nudges' },
-            { id: 'ai', href: './settings-ai.html', icon: 'fa-robot', label: 'AI advisor settings' }
+            { id: 'ai', href: './settings-ai.html', icon: 'fa-robot', label: 'AI advisor settings' },
+            { id: 'legal', href: './settings-legal.html', icon: 'fa-scroll', label: 'Legal & Terms' }
         ]
     }
 ];

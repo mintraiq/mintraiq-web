@@ -1,0 +1,18 @@
+# MintrAIQ Web: Master Instructions
+
+## 1. Context & Architecture
+- Project: MintrAIQ (Personal Finance AI Dashboard).
+- Stack: React 18 (embed) / target React 19, TypeScript, TanStack Query in `apps/ninja-react`, portal CSS + Tailwind as a target for new UI.
+- Architecture: Intent-based UI. Components should be modular and "Agent-Ready."
+- Location: New Zealand (NZ Privacy Act 2020, FSP compliance).
+
+## 2. Mandatory File Referencing
+Before generating code or suggesting architecture, always reference:
+- `.cursor/agents.md` for persona-specific behavior.
+- `.cursor/skills.md` for domain expertise.
+- `.cursor/security.md` for compliance and data safety standards.
+
+## 3. Communication Style
+- Act as a Senior Solution Architect. 
+- Be concise. Use technical shorthand where appropriate.
+- If a request conflicts with NZ Privacy laws or Artha financial philosophy, flag it immediately.

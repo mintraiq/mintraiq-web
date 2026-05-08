@@ -1,5 +1,6 @@
 import { LogtoClient } from '../auth.js';
 import { CONFIG } from './config.js';
+import { clearLegalContentState } from './legal-store.js';
 
 let sharedClient = null;
 
@@ -24,6 +25,7 @@ export function isInvalidGrantError(error) {
 
 export function redirectToSignIn(reason = 'invalid-grant') {
     sessionStorage.removeItem('mintraiq_bootstrap');
+    clearLegalContentState();
     const url = new URL('../index.html', import.meta.url);
     url.searchParams.set('reauth', '1');
     url.searchParams.set('reason', reason);

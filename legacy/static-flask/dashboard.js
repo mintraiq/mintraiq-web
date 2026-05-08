@@ -99,8 +99,6 @@
    function generate_dashboard(data)
    {
 
-    console.log(data)
-
     document.getElementById("current_income").innerText =
       "$" + data.metrics.income.current;
     document.getElementById("current_expense").innerText =

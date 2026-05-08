@@ -1,63 +1,26 @@
-import { useEffect, useState } from 'react';
-import { fetchSampleJson } from './sample';
+import { useQuery } from '@tanstack/react-query';
+import { fetchWeeklyPlanSample } from './api/samples';
+import { queryKeys } from './queryKeys';
 
-type SummaryCard = {
-    label: string;
-    value: string;
-    icon?: string;
-    color?: string;
-    sublabel?: string;
-};
+export function WeeklyPlannerApp(): JSX.Element {
+    const {
+        data,
+        error,
+        isPending
+    } = useQuery({
+        queryKey: queryKeys.samples.weeklyPlan(),
+        queryFn: fetchWeeklyPlanSample,
+    });
 
-type WeeklyPayload = {
-    meta?: { week_label?: string; week_start?: string; week_end?: string };
-    user?: { name?: string; savings_goal_monthly?: number; savings_goal_weekly?: number };
-    summary?: Record<string, SummaryCard>;
-    goal_progress?: {
-        target_monthly?: number;
-        achieved_monthly?: number;
-        percentage?: number;
-        status_label?: string;
-    };
-    categories?: {
-        id: string;
-        name: string;
-        emoji?: string;
-        weekly_budget?: string;
-        daily_allowance?: string;
-        tip?: string;
-        badge?: { label?: string; color?: string };
-    }[];
-};
-
-export function WeeklyPlannerApp() {
-    const [data, setData] = useState<WeeklyPayload | null>(null);
-    const [err, setErr] = useState<string | null>(null);
-
-    useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            try {
-                const j = (await fetchSampleJson('weekly_plan.json')) as WeeklyPayload;
-                if (!cancelled) setData(j);
-            } catch (e) {
-                if (!cancelled) setErr(String((e as Error).message));
-            }
-        })();
-        return () => {
-            cancelled = true;
-        };
-    }, []);
-
-    if (err) {
+    if (error) {
         return (
             <div className="card" style={{ padding: 20, borderColor: 'rgba(255,71,87,0.45)' }}>
                 <strong>Could not load sample</strong>
-                <p style={{ color: 'var(--text-secondary)', marginTop: 8 }}>{err}</p>
+                <p style={{ color: 'var(--text-secondary)', marginTop: 8 }}>{String((error as Error).message)}</p>
             </div>
         );
     }
-    if (!data) {
+    if (isPending || !data) {
         return <p style={{ color: 'var(--text-secondary)' }}>Loading weekly planner…</p>;
     }
 

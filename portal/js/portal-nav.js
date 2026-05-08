@@ -6,6 +6,7 @@
  */
 import { createLogtoClient } from './logto-client.js';
 import { installPortalTransitions } from './turbo-transitions.js';
+import { clearLegalContentState, loadLegalContent } from './legal-store.js';
 
 const WORKSPACE = [
     { id: 'dashboard', href: './dashboard.html', icon: 'fa-chart-line', label: 'Dashboard' },
@@ -68,6 +69,7 @@ function ensureSidebarDelegation() {
             const client = createLogtoClient();
             const postLogout = new URL('../intro.html', window.location.href).href;
             sessionStorage.removeItem('mintraiq_bootstrap');
+            clearLegalContentState();
             await client.signOut(postLogout);
             return;
         }
@@ -83,6 +85,10 @@ export function mountPortalNav() {
     if (!root) return;
 
     ensureSidebarDelegation();
+    const client = createLogtoClient();
+    if (client) {
+        loadLegalContent(client).catch(() => {});
+    }
 
     if (!root.dataset.portalNavBuilt) {
         const links = WORKSPACE.map((item) => {

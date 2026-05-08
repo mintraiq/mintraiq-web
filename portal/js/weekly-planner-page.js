@@ -2,6 +2,7 @@ import { createLogtoClient } from './logto-client.js';
 import { guardSession } from './guard-session.js';
 import { financeApiFetch } from './api.js';
 import { claimPageScript } from './page-script-guard.js';
+import { getLegalContent } from './legal-store.js';
 
 /**
  * Weekly Planner page — calls authenticated GET {financeApiBase}/weekly-planner.
@@ -16,6 +17,12 @@ function setText(id, text) {
 
 function setStatus(text) {
     setText('wpStatus', text || '');
+}
+
+function setInsightsFooter(text) {
+    const el = document.getElementById('weeklyInsightsFooter');
+    if (!el) return;
+    el.textContent = text || getLegalContent()?.insights_footer || '';
 }
 
 function setError(message) {
@@ -242,10 +249,12 @@ async function loadPlan(client) {
         renderCoach(data?.ai_coach || {});
         renderSectors(data?.categories || []);
         renderFixedNote(data?.fixed_costs);
+        setInsightsFooter(data?.insights_footer || '');
         showSections();
         setStatus(data?.meta?.generated_at ? `Updated ${data.meta.generated_at}` : '');
     } catch (e) {
         console.error('weekly-planner', e);
+        setInsightsFooter('');
         setStatus('');
         throw e;
     }

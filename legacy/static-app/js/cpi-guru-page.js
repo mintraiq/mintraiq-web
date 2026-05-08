@@ -1,16 +1,26 @@
 document.addEventListener('DOMContentLoaded', async function () {
     var loading = document.getElementById('loadingState');
     var results = document.getElementById('resultsContainer');
+    var insightsFooter = document.getElementById('cpiInsightsFooter');
+
+    function setInsightsFooter(text) {
+        if (!insightsFooter) return;
+        insightsFooter.textContent =
+            (typeof text === 'string' && text.trim()) ||
+            'This is AI-generated analysis and does not constitute financial advice under NZ law.';
+    }
 
     try {
         var data = await window.fetchSecureAPI('/cpi-guru', 'POST');
         if (data && data.status === 'SUCCESS') {
+            setInsightsFooter(data.insights_footer || (data.meta && data.meta.insights_footer));
             renderResults(data);
         } else {
             throw new Error('Not enough data to calculate inflation.');
         }
     } catch (error) {
         console.error('CPI Guru failed:', error);
+        setInsightsFooter('');
         if (loading) {
             loading.innerHTML =
                 '<i class="fas fa-exclamation-triangle fa-3x" style="color: var(--accent-red); margin-bottom: 20px;"></i>' +

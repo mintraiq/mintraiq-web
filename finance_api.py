@@ -1,3 +1,5 @@
+from urllib.request import HTTPBasicAuthHandler
+
 import pandas as pd
 from jose import jwt
 import datetime
@@ -29,25 +31,66 @@ from pydantic import BaseModel
 import httpx
 
 
+from fastapi.security import OAuth2AuthorizationCodeBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends, HTTPException
+from typing import List, Dict, Any, Optional
+from functools import lru_cache
+# Logto public keys for verification
+# Your Logto settings
+LOGTO_ENDPOINT = settings.logto_endpoint
+JWKS_URL = settings.jwks_url
+AI_FORECAST_URL = settings.ai_forecast_url
+API_IDENTIFIER = settings.api_identifier
+OCR_API_URL = settings.ocr_api_url
+SWAGGER_APP_ID = settings.swagger_app_id
+SWAGGER_RESOURCE = settings.swagger_resource
+# 1. Point FastAPI to your specific Logto endpoints
+# (Replace ufq3nf.logto.app with your actual Logto domain from your early errors)
+logto_oauth2_scheme = OAuth2AuthorizationCodeBearer(
+    authorizationUrl=f"{LOGTO_ENDPOINT}/oidc/auth?resource={SWAGGER_RESOURCE}",
+    tokenUrl=f"{LOGTO_ENDPOINT}/oidc/token",
+    scopes={"openid": "Required for Logto login", "profile": "Get user profile"}
+)
+
 
 logger = logging.getLogger(__name__)
 
 finance_api_app =  FastAPI(
-    title="Finance AI Dashboard API",
-    description="Extract structured data from receipt images using LLM",
+    title="MintrAIQ AI Dashboard API",
+    description="AI based personal finance assistant using LLM",
     version="1.0.0",
+    # This block is what tells Swagger to pre-fill the Client ID
+    # and turn on the PKCE flow so it doesn't need a secret!
+    swagger_ui_init_oauth={
+        "clientId": f"{SWAGGER_APP_ID}",
+        "usePkceWithAuthorizationCodeGrant": True,
+        "additionalQueryStringParams": {
+            "resource": f"{SWAGGER_RESOURCE}"
+        }
+    }
 )
 fallback = {404: {"description": "Not Found"}}
 # In your FastAPI setup:
+import os
+from fastapi.middleware.cors import CORSMiddleware
+
+# Read from Environment, fallback to Vercel (3000), Flask legacy (5000), and Expo Mobile (8081)
+_cors_raw = os.getenv(
+    "CORS_ALLOW_ORIGINS",
+    "http://localhost:3000,http://localhost:5000,https://api-dev.mintraiq.com,https://mintraiq.com,http://localhost:8081,http://127.0.0.1:3000"
+)
+
+# Clean up the string into a valid Python list
+_allow_origins = [o.strip() for o in _cors_raw.split(",") if o.strip()]
+
 finance_api_app.add_middleware(
     CORSMiddleware,
-    # MUST be the exact domain of your frontend (no trailing slashes).
-    # For the static portal (e.g. http://localhost:8080), add that origin here or use env-driven
-    # allow_origins in your canonical finance_api repo — see README "CORS (backend repo)".
-    allow_origins=["http://localhost:5000"],
+    allow_origins=_allow_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],  # Be explicit for security
+    allow_headers=["Authorization", "Content-Type"],  # Authorization is now the key
+    max_age=600
 )
 # Internal Promo Code Database (In production, move this to a MongoDB collection)
 INTERNAL_PROMOS = {
@@ -58,11 +101,7 @@ INTERNAL_PROMOS = {
 
 client = MongoClient(settings.mongo_db_url)
 
-# Logto public keys for verification
-JWKS_URL = settings.jwks_url
-AI_FORECAST_URL = settings.ai_forecast_url
-API_IDENTIFIER = settings.api_identifier
-OCR_API_URL = settings.ocr_api_url
+
 dataprocessor = DataProcessor()
 
 # Initialize singletons
@@ -71,8 +110,7 @@ mintra_scan_model  = MintraExpenseCategorizer()
 ## Univeresal DB Class for all collections
 db          = FinanceDB()
 
-# Your Logto settings
-LOGTO_ENDPOINT = settings.logto_endpoint
+
 # 2. Fetch the JWKS from Logto at server startup
 # This runs exactly once when you start main.py, caching the keys in memory.
 try:
@@ -157,7 +195,14 @@ class FinanceData(BaseModel):
         alias_generator=to_camel,
         populate_by_name=True  # Allows you to still use snake_case inside Python logic
     )
-
+# 1. The Updated Payload Model
+class TransactionReviewPayload(BaseModel):
+    txn_id: str
+    category_value: str
+    training_required: bool
+    updated_by: str
+    updated_at: datetime
+    update_similar: bool = True # Default to True for the bulk-update experience
 
 class BudgetPlanner(BaseModel):
     start_date : str
@@ -170,6 +215,43 @@ class BudgetPlanner(BaseModel):
         alias_generator=to_camel,
         populate_by_name=True  # Allows you to still use snake_case inside Python logic
     )
+# Model for the Review Endpoint
+class TransactionReviewPayload(BaseModel):
+    txn_id: str
+    category_value: str
+    training_required: bool
+    updated_by: str
+    updated_at: datetime
+
+# Model for the Enquiry Endpoint Request
+class EnquiryItem(BaseModel):
+    id: str
+    query: str
+
+class TransactionEnquiryRequest(BaseModel):
+    items: List[EnquiryItem]
+
+# Individual step validation schemas
+class ProfileStep(BaseModel):
+    display_name: str
+    mobile: str
+    default_currency: str = "NZD"
+
+class BillingStep(BaseModel):
+    billing_tier: str
+    billing_cycle: str
+    cardholder_name: str
+    stripe_payment_status: str
+
+class SecurityStep(BaseModel):
+    mfa_required: bool
+    mfa_method: str
+    session_timeout_mins: int
+
+# Main Save Request
+class WorkflowSaveRequest(BaseModel):
+    data: Dict[str, Any]
+    mark_complete: bool = True
 
 def get_current_date_range(user_id: str, range_type: str = "month") -> BudgetPlanner:
     """
@@ -224,9 +306,76 @@ class BootstrapPayload(BaseModel):
     email: EmailStr
 
 
-@finance_api_app.post("/api/bootstrap")
+
+# 3. Protect your routes
+@finance_api_app.get("/secure-data")
+def swagger_logto_auth(token: str = Depends(logto_oauth2_scheme)):
+    return {"message": "You are authenticated via Logto!", "token": token}
+
+#    user_id : str
+def get_userid(identity_id):
+    provider = "logto"
+    provider_subject = identity_id
+
+    user = db.get_user(provider,provider_subject)
+    userid = user["_id"]
+    return userid
+
+
+# CRITICAL CHANGE: auto_error=False
+# This tells Swagger to show the padlock, but stops FastAPI from crashing
+# if a Web Dashboard user logs in with ONLY a cookie!
+token_auth_scheme = HTTPBearer(auto_error=False)
+
+async def validate_token(request: Request ,swagger_auth: HTTPAuthorizationCredentials = Depends(token_auth_scheme)):
+    token = None
+
+    # 1. Check for Mobile App Token (Bearer Header)
+    auth_header = request.headers.get('Authorization')
+    # 1. Check for Mobile App or Swagger UI Token (Captured safely by HTTPBearer)
+    if swagger_auth:
+        token = swagger_auth.credentials
+        logger.debug(f"Received token from Mobile/Swagger: {token[:10]}...")
+
+    # 1.5. Safety net for manual Mobile Headers (just in case they bypass HTTPBearer)
+    elif auth_header and auth_header.startswith('Bearer '):
+        token = auth_header.split(' ')[1]
+        logger.debug(f"Received token from Mobile Header{token}")
+    # 2. Fallback to Web Dashboard (HttpOnly Cookie)
+    if not token:
+        token = request.cookies.get('ninja_access_token')
+
+    if not token:
+        raise HTTPException(status_code=401, detail="Unauthorized: No secure token found.")
+
+    try:
+        # 2. Pass the raw string directly into jwt.decode
+        payload = jwt.decode(
+            token,  # <--- REMOVED .credentials HERE
+            jwks,
+            algorithms=['RS256', 'ES384'],
+            audience=API_IDENTIFIER,
+            issuer=f"{LOGTO_ENDPOINT}/oidc"
+        )
+        return payload
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Invalid Ninja token: {str(e)}")
+# Assuming validate_token is your unified dependency we built earlier
+@finance_api_app.get("/auth")
+async def test_authentication(user_jwt: dict = Depends(validate_token)):
+    """Secure endpoint to verify Logto JWTs are decoding correctly."""
+    return {
+        "status": "success",
+        "message": "Authentication successful. Your token is valid!",
+        # This will spit back the exact data Logto put inside your token (like your user ID)
+        "decoded_payload": user_jwt
+    }
+
+@finance_api_app.post("/bootstrap")
 async def bootstrap_user_session(
         payload: BootstrapPayload,
+        # YES: Only use validate_token here.
+        # It handles the Swagger UI text box AND the decoding all at once!
         user_jwt: dict = Depends(validate_token)
 ):
     """
@@ -258,7 +407,8 @@ async def bootstrap_user_session(
             "name": payload.name,
             "email": payload.email,
             "tier": "free",
-            "created_at": now
+            "created_at": now,
+            "has_agreed_to_tos" : False
         }
         db.user_data.insert_one(db_user)
 
@@ -290,7 +440,7 @@ async def bootstrap_user_session(
         # Example logic: Force them to upgrade page if they hit limits
         requires_license_page = True
 
-    # 5. Return the "Flight Plan" to the Frontend
+        # 5. Return the "Flight Plan" to the Frontend
     return {
         "status": "success",
         "is_new_user": is_new_user,
@@ -304,42 +454,6 @@ async def bootstrap_user_session(
         }
     }
 
-#    user_id : str
-def get_userid(identity_id):
-    provider = "logto"
-    provider_subject = identity_id
-
-    user = db.get_user(provider,provider_subject)
-    userid = user["_id"]
-    return userid
-
-async def validate_token(request: Request):
-    token = None
-
-    # 1. Check for Mobile App Token (Bearer Header)
-    auth_header = request.headers.get('Authorization')
-    if auth_header and auth_header.startswith('Bearer '):
-        token = auth_header.split(' ')[1]
-        logger.debug(f"Received token from Mobile Header{token}")
-    # 2. Fallback to Web Dashboard (HttpOnly Cookie)
-    if not token:
-        token = request.cookies.get('ninja_access_token')
-
-    if not token:
-        raise HTTPException(status_code=401, detail="Unauthorized: No secure token found.")
-
-    try:
-        # 2. Pass the raw string directly into jwt.decode
-        payload = jwt.decode(
-            token,  # <--- REMOVED .credentials HERE
-            jwks,
-            algorithms=['RS256', 'ES384'],
-            audience=API_IDENTIFIER,
-            issuer=f"{LOGTO_ENDPOINT}/oidc"
-        )
-        return payload
-    except Exception as e:
-        raise HTTPException(status_code=401, detail=f"Invalid Ninja token: {str(e)}")
 
 @finance_api_app.post('/generate')
 def generate_dashboard(financedata : FinanceData, user: dict = Depends(validate_token)):
@@ -373,7 +487,7 @@ def generate_dashboard(financedata : FinanceData, user: dict = Depends(validate_
                 }
                 try :
                     async with httpx.AsyncClient(timeout=60) as client:
-                        response = await client.post(AI_FORECAST_URL+"/forecast/recommendations", json=payload)
+                        response = await client.post(AI_FORECAST_URL+"/ai/forecast/recommendations", json=payload)
                         return response.json()
                 except Exception as e:
                     logger.error(f"AI Service Error: {e}")
@@ -1018,8 +1132,9 @@ async def update_savings_goal(
 @finance_api_app.get("/budget-planner")
 async def get_budget_plan(request:Request,user: dict = Depends(validate_token)):
     user_id = get_userid(user.get("sub"))
-    auth_header = request.cookies.get('ninja_access_token')
-
+    #auth_header = request.cookies.get('ninja_access_token')
+    # 1. Check for Mobile App Token (Bearer Header)
+    auth_header = request.headers.get('Authorization')
     try:
         async def call_fastapi():
             async with httpx.AsyncClient(timeout=60) as client:
@@ -1028,13 +1143,13 @@ async def get_budget_plan(request:Request,user: dict = Depends(validate_token)):
                 forwarded_headers = {}
                 if auth_header:
                     # CRITICAL FIX: Format it as a Bearer token!
-                    forwarded_headers["Authorization"] = f"Bearer {auth_header}"
+                    forwarded_headers = {"Authorization": auth_header} if auth_header else {}
                 
                 # Get current month range
                 date_payload = get_current_date_range(user_id, "month")
                 response = await client.post(
-                    f"{AI_FORECAST_URL}/plan/budget-planner", 
-                    json=date_payload.model_dump(by_alias=True),
+                    f"{AI_FORECAST_URL}/plan/budget-planner",
+                    json=date_payload.model_dump(),
                     headers=forwarded_headers
                 )
                 return response.json()
@@ -1047,24 +1162,24 @@ async def get_budget_plan(request:Request,user: dict = Depends(validate_token)):
         return {"error": "AI Service Unavailable"}
 
 
-@finance_api_app.post("/weekly-planner")
+@finance_api_app.get("/weekly-planner")
 async def get_weekly_plan(request: Request,user: dict = Depends(validate_token)):
     user_id = get_userid(user.get("sub"))
-    auth_header = request.cookies.get('ninja_access_token')
-
+    #auth_header = request.cookies.get('ninja_access_token')
+    # 1. Check for Mobile App Token (Bearer Header)
+    auth_header = request.headers.get('Authorization')
     try:
         async def call_fastapi():
             async with httpx.AsyncClient(timeout=60) as client:
                 forwarded_headers = {}
-                if auth_header:
-                    # CRITICAL FIX: Format it as a Bearer token!
-                    forwarded_headers["Authorization"] = f"Bearer {auth_header}"
+
+                forwarded_headers = {"Authorization": auth_header} if auth_header else {}
                 
                 # Get current week range
                 date_payload = get_current_date_range(user_id, "week")
                 response = await client.post(
                     f"{AI_FORECAST_URL}/plan/weekly",
-                    json=date_payload.model_dump(by_alias=True),
+                    json=date_payload.model_dump(),
                     headers=forwarded_headers
                 )
                 return response.json()
@@ -1386,3 +1501,369 @@ async def sync_akahu_transactions(background_tasks: BackgroundTasks, user: dict 
     except Exception as e:
         logger.exception(f"Akahu Sync Error: {e}")
         raise HTTPException(status_code=500, detail="Failed to pull data from bank. Please check your token.")
+
+
+# ---------------------------------------------------------
+# METHOD 1: Review Transaction & Flag for AI Training
+# ---------------------------------------------------------
+@finance_api_app.post("/transactions/review")
+async def review_transaction(
+        payload: TransactionReviewPayload,
+        user_jwt: dict = Depends(validate_token),
+
+):
+    """
+    Updates the transaction category. If update_similar is True, it updates
+    all transactions matching the same description. Flags for AI training if requested.
+    """
+    #user_id = user_jwt.get("sub")
+    user_id = get_userid(user_jwt.get("sub"))
+    # Step 1: Fetch the original transaction
+    original_txn = await db.get_transaction_by_id(user_id, payload.txn_id)
+    if not original_txn:
+        raise HTTPException(status_code=404, detail="Transaction not found or unauthorized.")
+
+    # Step 2: Extract the description (Change "description" to whatever field holds "EROAD")
+    description_to_match = original_txn.get("Description")
+
+    if not description_to_match:
+        raise HTTPException(status_code=422, detail="Transaction has no description to match against.")
+
+    # Step 3: Perform the update (Bulk or Single)
+    updated_count = 0
+    if payload.update_similar:
+        updated_count = await db.update_similar_transactions(
+            user_id=user_id,
+            description=description_to_match,
+            new_category=payload.category_value
+        )
+    else:
+        # Fallback if the user only wants to update a single transaction
+        result = await db.transactions.update_one(
+            {"_id": original_txn["_id"]},
+            {"$set": {"category_value": payload.category_value, "updated_at": datetime.utcnow()}}
+        )
+        updated_count = result.modified_count
+
+    # Step 4: Handle the AI Training Flag
+    if payload.training_required:
+        training_data = {
+            "user_id": user_id,
+            "raw_description": description_to_match,
+            "corrected_category": payload.category_value,
+            "updated_by": payload.updated_by,
+            "flagged_at": datetime.utcnow()
+        }
+        await db.flag_for_ai_training(training_data)
+
+    return {
+        "status": "success",
+        "message": f"Successfully updated {updated_count} transaction(s).",
+        "data": {
+            "description_matched": description_to_match,
+            "transactions_updated": updated_count,
+            "new_category": payload.category_value,
+            "training_flagged": payload.training_required
+        }
+    }
+
+
+# ---------------------------------------------------------
+# METHOD 2: Transaction Enquiry / Enrichment
+# ---------------------------------------------------------
+@finance_api_app.post("/transactions/enquiry")
+async def transaction_enquiry(
+        request_data: TransactionEnquiryRequest,
+        user_jwt: dict = Depends(validate_token)
+):
+    """
+    Simulates sending raw transaction strings to an AI/Enrichment engine
+    and returning formatted merchant, category, and location data.
+    """
+    user_id = get_userid(user_jwt.get("sub"))
+    # --- YOUR ENRICHMENT LOGIC GOES HERE ---
+    # In production, you would pass request_data.items to your AI or Akahu API.
+    # For now, we are returning the exact mocked JSON response you provided.
+
+    return {
+        "success": True,
+        "items": [
+            {
+                "id": "1",
+                "query": "CJ PALMERSTON NTH - 203PALM NTH",
+                "results": [
+                    {
+                        "confidence": 0.99,
+                        "category": {
+                            "_id": "nzfcc_ckouvvywi004508mlacrd41wf",
+                            "name": "Fast food stores",
+                            "groups": {
+                                "personal_finance": {
+                                    "_id": "group_clasr0ysw0011hk4m6hlk9fq0",
+                                    "name": "Lifestyle"
+                                }
+                            }
+                        },
+                        "merchant": {
+                            "_id": "merchant_cjjwm2gy5004bguzydvu4dttf",
+                            "name": "Carl's Jr.",
+                            "logo": "https://cdn.akahu.nz/logos/merchants/merchant_cjjwm2gy5004bguzydvu4dttf",
+                            "website": "https://www.carlsjr.co.nz",
+                            "tags": []
+                        },
+                        "outlet": {
+                            "_id": "outlet_cm0lyuatv000008jy9kwr2t8f",
+                            "name": "Carl's Jr. Palmerston North",
+                            "phone": "06 358 5075",
+                            "location": {
+                                "accuracy": "establishment",
+                                "formatted": "415 Ferguson Street, Palmerston North Central, Palmerston North 4410, New Zealand",
+                                "address": {
+                                    "street": "415 Ferguson Street",
+                                    "suburb": "Palmerston North Central",
+                                    "city": "Palmerston North",
+                                    "region": "Manawatū-Whanganui",
+                                    "country": "New Zealand",
+                                    "postal_code": "4410"
+                                },
+                                "coordinates": {
+                                    "lat": -40.3575,
+                                    "lon": 175.6175
+                                }
+                            },
+                            "tags": []
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "2",
+                "query": "CARD 2293 WHOLEMEAL TRAD CO LTDTAKAKA",
+                "results": [
+                    {
+                        "confidence": 0.99,
+                        "category": {
+                            "_id": "nzfcc_ckouvvyw1004408mlhy158i7j",
+                            "name": "Cafes and restaurants",
+                            "groups": {
+                                "personal_finance": {
+                                    "_id": "group_clasr0ysw0011hk4m6hlk9fq0",
+                                    "name": "Lifestyle"
+                                }
+                            }
+                        },
+                        "merchant": {
+                            "_id": "merchant_cksxp1au3001g09mp3ilt01tz",
+                            "name": "The Wholemeal Cafe",
+                            "logo": "https://cdn.akahu.nz/logos/merchants/merchant_cksxp1au3001g09mp3ilt01tz",
+                            "website": "http://www.wholemealcafe.co.nz/",
+                            "phone": "03 525 9426",
+                            "location": {
+                                "accuracy": "establishment",
+                                "formatted": "7110/60 Commercial Street, Tākaka 7110, New Zealand",
+                                "address": {
+                                    "street": "7110/60 Commercial Street",
+                                    "city": "Tākaka",
+                                    "region": "Tasman",
+                                    "country": "New Zealand",
+                                    "postal_code": "7110"
+                                },
+                                "coordinates": {
+                                    "lat": -40.8586533,
+                                    "lon": 172.8063369
+                                }
+                            },
+                            "tags": []
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+
+
+class TosAgreementPayload(BaseModel):
+    version: str
+
+# Path to your JSON file
+# 1. Get the directory where finance_api.py lives (e.g., .../app/api)
+current_dir = os.path.dirname(__file__)
+legal_dir = os.path.abspath(
+os.path.join(current_dir, "../..", "legal"))
+
+
+
+# 2. Go up one level to the 'app' folder, then down into 'data'
+LEGAL_FILE_PATH =  os.path.join(legal_dir,"nz", "legal_contents.json")
+
+# Optional: Print this once during startup to verify
+print(f"LEGAL_FILE_PATH is: {LEGAL_FILE_PATH}")
+
+@lru_cache()
+def load_legal_json():
+    """Reads the JSON file from disk once and caches it in memory."""
+    try:
+        with open(LEGAL_FILE_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        # Fallback in case the file is missing or corrupted
+        return {
+            "version": "0.0",
+            "disclaimer": "Legal content temporarily unavailable.",
+            "tos": "Error loading terms.",
+            "insights_footer": ""
+        }
+
+
+@finance_api_app.get("/legal/content")
+async def get_legal_content(
+        user_jwt: dict = Depends(validate_token)
+):
+    user_id = get_userid(user_jwt.get("sub"))
+    user_record = await db.get_user_profile(user_id)
+
+    # Load the static content from our JSON utility
+    legal_data = load_legal_json()
+
+    # Determine if the user has already agreed to the CURRENT version
+    current_version = legal_data.get("version")
+    user_agreed_version = user_record.get("tos_version") if user_record else None
+
+    # Logic: They are "agreed" ONLY if they have ticked the box AND the version matches
+    has_agreed = (
+            user_record.get("has_agreed_to_tos", False) and
+            user_agreed_version == current_version
+    )
+
+    return {
+        "user_status": {
+            "has_agreed": has_agreed,
+            "agreed_version": user_agreed_version,
+            "current_version": current_version
+        },
+        "content": legal_data
+    }
+
+
+@finance_api_app.post("/legal/agree")
+async def accept_tos(payload: TosAgreementPayload, user_jwt: dict = Depends(validate_token)):
+    """Call this when the user ticks the box and clicks 'Continue'."""
+    user_id = get_userid(user_jwt.get("sub"))
+    await db.update_user_tos_agreement(user_id, payload.version)
+    return {"status": "success", "message": "Agreement recorded."}
+
+
+@finance_api_app.post("/bootstrap")
+async def bootstrap(user_jwt: dict = Depends(validate_token)):
+    user_id = user_jwt.get("sub")
+    state = await db.get_onboarding_state(user_id)
+    user_profile = await db.get_user_profile(user_id)  # Logto data + MongoDB profile
+
+    # Required steps constant
+    REQUIRED = ["profile", "billing", "security", "banks", "goals", "categories", "ai", "notifications"]
+
+    completed = state.get("completed_steps", ["legal"]) if state else ["legal"]
+    # Logic to find the first required step that isn't in completed_steps
+    current = next((s for s in REQUIRED if s not in completed), "complete")
+
+    return {
+        "status": "success",
+        "is_new_user": state is None,
+        "onboarding_complete": state.get("onboarding_complete", False) if state else False,
+        "onboarding": {
+            "current_step": current,
+            "completed_steps": completed,
+            "required_steps": REQUIRED
+        },
+        "profile": {
+            "user_id": user_id,
+            "name": user_profile.get("name", "New User"),
+            "email": user_profile.get("email"),
+            "tier": user_profile.get("tier", "free"),
+            "default_currency": user_profile.get("default_currency", "NZD")
+        },
+        "routing": {
+            "dashboard_type": "full" if state and state.get("onboarding_complete") else "onboarding",
+            "redirect_to_license": False
+        }
+    }
+
+
+@finance_api_app.get("/settings/workflow/{step}")
+async def get_workflow_step(step: str, user_jwt: dict = Depends(validate_token)):
+    state = await db.get_onboarding_state(user_jwt.get("sub"))
+    if not state or step not in state.get("step_data", {}):
+        raise HTTPException(status_code=404, detail="Step data not found")
+
+    return {
+        "step": step,
+        "version": state.get("version", 1),
+        "updated_at": state.get("updated_at"),
+        "data": state["step_data"].get(step)
+    }
+
+
+@finance_api_app.get("/settings/workflow")
+async def get_full_workflow(user_jwt: dict = Depends(validate_token)):
+    state = await db.get_onboarding_state(user_jwt.get("sub"))
+    return {
+        "onboarding_complete": state.get("onboarding_complete", False) if state else False,
+        "current_step": state.get("current_step", "profile") if state else "profile",
+        "steps": state.get("step_data", {}) if state else {}
+    }
+
+
+@finance_api_app.put("/settings/workflow/{step}")
+async def save_workflow_step(
+        step: str,
+        payload: WorkflowSaveRequest,
+        user_jwt: dict = Depends(validate_token)\
+):
+    # Optional: Add Pydantic validation per step here
+    # if step == "profile": ProfileStep(**payload.data)
+
+    user_id = user_jwt.get("sub")
+    new_state = await db.save_onboarding_step(user_id, step, payload.data, payload.mark_complete)
+
+    completed = new_state.get("completed_steps", [])
+    REQUIRED = ["profile", "billing", "security", "banks", "goals", "categories", "ai", "notifications"]
+    next_step = next((s for s in REQUIRED if s not in completed), "complete")
+
+    return {
+        "ok": True,
+        "step": step,
+        "completed_steps": completed,
+        "next_step": next_step,
+        "onboarding_complete": next_step == "complete"
+    }
+
+
+@finance_api_app.post("/onboarding/complete")
+async def complete_onboarding(
+        user_jwt: dict = Depends(validate_token)
+):
+    user_id = user_jwt.get("sub")
+
+    # 1. Fetch the full final state to return to the user
+    final_state = await db.get_onboarding_state(user_id)
+
+    # 2. Mark the onboarding as complete in the DB
+    await db.db["user_onboarding_state"].update_one(
+        {"user_id": user_id},
+        {"$set": {
+            "onboarding_complete": True,
+            "completed_at": datetime.utcnow()
+        }}
+    )
+
+    return {
+        "ok": True,
+        "message": "Onboarding successful",
+        "redirect_target": "/transactions",  # Hint for the frontend
+        "onboarding_summary": {
+            "user_id": user_id,
+            "completed_at": datetime.utcnow().isoformat(),
+            "config_snapshot": final_state.get("step_data", {}),
+            "version": final_state.get("version", 1)
+        }
+    }

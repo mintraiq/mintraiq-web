@@ -1,8 +1,7 @@
 import './settings-workflow.js';
 
 /**
- * Settings section nav — horizontal tabs under a compact dashboard link.
- * Mounts into #settings-nav-root inside #portal-settings-nav-region (data-turbo-permanent on settings pages).
+ * Settings nav — grouped chapter stepper + section sub-tabs + Legal in footer.
  * body[data-settings-nav] = profile | billing | security | goals | banks | categories | notifications | ai | legal
  */
 function escapeAttr(s) {
@@ -16,73 +15,107 @@ function escapeHtml(s) {
         .replace(/>/g, '&gt;');
 }
 
-const GROUPS = [
+/** Three chapters: Essentials → Data → Game plan (Legal sits outside the flow). */
+const CHAPTERS = [
     {
-        title: 'ACCOUNT',
+        id: 'essentials',
+        label: 'The Essentials',
+        summary: 'Profile, security & how you want to pay (or not)',
         items: [
             { id: 'profile', href: './settings-profile.html', icon: 'fa-user', label: 'Personal profile' },
-            { id: 'billing', href: './settings-billing.html', icon: 'fa-bolt', label: 'Plan & billing (optional)' },
-            { id: 'security', href: './settings-security.html', icon: 'fa-shield-alt', label: 'Security' }
+            { id: 'security', href: './settings-security.html', icon: 'fa-shield-alt', label: 'Security' },
+            { id: 'billing', href: './settings-billing.html', icon: 'fa-bolt', label: 'Plan & billing' }
         ]
     },
     {
-        title: 'PREFERENCES',
+        id: 'data',
+        label: 'The Data',
+        summary: 'Bank link or statements — your call',
+        items: [{ id: 'banks', href: './settings-banks.html', icon: 'fa-university', label: 'Banks & income' }]
+    },
+    {
+        id: 'gameplan',
+        label: 'The Game Plan',
+        summary: 'Goals, categories, AI tone & nudges',
         items: [
             { id: 'goals', href: './settings-goals.html', icon: 'fa-bullseye', label: 'Savings goals' },
-            { id: 'banks', href: './settings-banks.html', icon: 'fa-university', label: 'Banks & income' },
             { id: 'categories', href: './settings-categories.html', icon: 'fa-tag', label: 'Custom categories' },
-            { id: 'notifications', href: './settings-notifications.html', icon: 'fa-bell', label: 'Alerts & nudges' },
-            { id: 'ai', href: './settings-ai.html', icon: 'fa-robot', label: 'AI advisor settings' },
-            { id: 'legal', href: './settings-legal.html', icon: 'fa-scroll', label: 'Legal & Terms' }
+            { id: 'ai', href: './settings-ai.html', icon: 'fa-robot', label: 'AI tuning' },
+            { id: 'notifications', href: './settings-notifications.html', icon: 'fa-bell', label: 'Notifications' }
         ]
     }
 ];
 
-function syncSettingsNavActive() {
-    const root = document.getElementById('settings-nav-root');
-    if (!root) return;
-    const active = document.body.getAttribute('data-settings-nav') || 'profile';
-    root.querySelectorAll('a.settings-tab[data-settings-nav-id]').forEach((a) => {
-        const id = a.getAttribute('data-settings-nav-id');
-        const on = id === active;
-        a.classList.toggle('active', on);
-        a.setAttribute('aria-current', on ? 'page' : 'false');
-    });
+function findChapterForStep(stepId) {
+    for (let i = 0; i < CHAPTERS.length; i++) {
+        const ch = CHAPTERS[i];
+        if (ch.items.some((it) => it.id === stepId)) {
+            return { chapter: ch, chapterIndex: i };
+        }
+    }
+    return null;
 }
 
 export function mountSettingsNav() {
     const root = document.getElementById('settings-nav-root');
     if (!root) return;
 
-    if (!root.dataset.settingsNavBuilt) {
-        const tabs = [];
-        GROUPS.forEach((g, gi) => {
-            if (gi > 0) {
-                tabs.push('<span class="settings-tabs-divider" aria-hidden="true"></span>');
-            }
-            for (const item of g.items) {
-                tabs.push(
-                    `<a class="settings-tab" href="${escapeAttr(item.href)}" data-settings-nav-id="${escapeAttr(item.id)}" title="${escapeAttr(g.title + ' · ' + item.label)}">` +
-                        `<i class="fas ${item.icon}" aria-hidden="true"></i>` +
-                        `<span>${escapeHtml(item.label)}</span>` +
-                        `</a>`
-                );
-            }
-        });
+    const active = document.body.getAttribute('data-settings-nav') || 'profile';
+    const loc = findChapterForStep(active);
 
-        root.innerHTML =
-            '<div class="settings-nav-head">' +
-            '<a class="settings-back-link" href="./dashboard.html"><i class="fas fa-arrow-left" aria-hidden="true"></i> Dashboard</a>' +
-            '<span class="settings-context-label">Settings</span>' +
-            '</div>' +
-            '<nav class="settings-tabs" aria-label="Settings sections">' +
-            tabs.join('') +
-            '</nav>';
+    const trackParts = CHAPTERS.map((ch, i) => {
+        const isCurrent = loc?.chapter?.id === ch.id;
+        const cls = ['settings-chapter-pill', isCurrent ? 'is-current' : ''].filter(Boolean).join(' ');
+        return (
+            `<li class="${cls}" title="${escapeAttr(ch.summary)}">` +
+            `<span class="settings-chapter-num" aria-hidden="true">${i + 1}</span>` +
+            `<span class="settings-chapter-name">${escapeHtml(ch.label)}</span>` +
+            `</li>`
+        );
+    });
 
-        root.dataset.settingsNavBuilt = '1';
+    let subnavHtml = '';
+    if (active === 'legal') {
+        subnavHtml =
+            '<p class="settings-legal-inline">' +
+            '<span class="settings-legal-inline-note">Outside the setup checklist — fine print &amp; privacy.</span>' +
+            ' <a class="settings-legal-inline-back" href="./settings-profile.html">Back to settings</a>' +
+            '</p>';
+    } else if (loc) {
+        const subs = [];
+        for (const item of loc.chapter.items) {
+            const on = item.id === active;
+            subs.push(
+                `<a class="settings-subtab${on ? ' active' : ''}" href="${escapeAttr(item.href)}" data-settings-nav-id="${escapeAttr(
+                    item.id
+                )}" title="${escapeAttr(item.label)}" aria-current="${on ? 'page' : 'false'}">` +
+                    `<i class="fas ${item.icon}" aria-hidden="true"></i>` +
+                    `<span>${escapeHtml(item.label)}</span>` +
+                    `</a>`
+            );
+        }
+        subnavHtml = `<nav class="settings-subtabs" aria-label="Steps in this chapter">${subs.join('')}</nav>`;
+    } else {
+        subnavHtml =
+            '<p class="settings-legal-inline">' +
+            '<a class="settings-legal-inline-back" href="./settings-profile.html">Personal profile</a>' +
+            '</p>';
     }
 
-    syncSettingsNavActive();
+    const legalActive = active === 'legal';
+
+    root.innerHTML =
+        '<div class="settings-nav-head">' +
+        '<a class="settings-back-link" href="./dashboard.html"><i class="fas fa-arrow-left" aria-hidden="true"></i> Dashboard</a>' +
+        '<span class="settings-context-label">Settings</span>' +
+        '</div>' +
+        '<ol class="settings-chapter-track" aria-label="High-level areas">' +
+        trackParts.join('') +
+        '</ol>' +
+        subnavHtml +
+        '<div class="settings-nav-footer">' +
+        `<a class="settings-legal-foot${legalActive ? ' active' : ''}" href="./settings-legal.html" data-settings-nav-id="legal">Legal &amp; Terms</a>` +
+        '</div>';
 }
 
 mountSettingsNav();

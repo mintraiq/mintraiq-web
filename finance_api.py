@@ -1759,9 +1759,17 @@ async def bootstrap(user_jwt: dict = Depends(validate_token)):
     state = await db.get_onboarding_state(user_id)
     user_profile = await db.get_user_profile(user_id)  # Logto data + MongoDB profile
 
-    # Required steps constant
-    # Billing/plan is optional during onboarding; users can upgrade anytime in Settings.
-    REQUIRED = ["profile", "security", "banks", "goals", "categories", "ai", "notifications"]
+    # Linear onboarding: Essentials → Data → Game plan (align with portal chapters).
+    REQUIRED = ["profile", "security", "billing", "banks", "goals", "categories", "ai", "notifications"]
+    ONBOARDING_CHAPTERS = [
+        {"id": "essentials", "title": "The Essentials", "steps": ["profile", "security", "billing"]},
+        {"id": "data", "title": "The Data", "steps": ["banks"]},
+        {
+            "id": "gameplan",
+            "title": "The Game Plan",
+            "steps": ["goals", "categories", "ai", "notifications"],
+        },
+    ]
 
     completed = state.get("completed_steps", ["legal"]) if state else ["legal"]
     # Logic to find the first required step that isn't in completed_steps
@@ -1774,7 +1782,8 @@ async def bootstrap(user_jwt: dict = Depends(validate_token)):
         "onboarding": {
             "current_step": current,
             "completed_steps": completed,
-            "required_steps": REQUIRED
+            "required_steps": REQUIRED,
+            "chapters": ONBOARDING_CHAPTERS,
         },
         "profile": {
             "user_id": user_id,
@@ -1827,8 +1836,7 @@ async def save_workflow_step(
     new_state = await db.save_onboarding_step(user_id, step, payload.data, payload.mark_complete)
 
     completed = new_state.get("completed_steps", [])
-    # Billing/plan is optional during onboarding; users can upgrade anytime in Settings.
-    REQUIRED = ["profile", "security", "banks", "goals", "categories", "ai", "notifications"]
+    REQUIRED = ["profile", "security", "billing", "banks", "goals", "categories", "ai", "notifications"]
     next_step = next((s for s in REQUIRED if s not in completed), "complete")
 
     return {

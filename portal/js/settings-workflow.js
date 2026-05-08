@@ -3,13 +3,14 @@ import { financeApiFetch } from './api.js';
 import { visitWithTurbo } from './turbo-visit.js';
 
 const DEFAULT_FLOW_STEPS = [
-    { id: 'profile', href: './settings-profile.html', label: 'Personal profile', chapter: 'A quick hello' },
-    { id: 'security', href: './settings-security.html', label: 'Security', chapter: 'Keep your space safe' },
-    { id: 'banks', href: './settings-banks.html', label: 'Banks & income', chapter: 'Where your money lives' },
-    { id: 'goals', href: './settings-goals.html', label: 'Savings goals', chapter: 'What you are aiming for' },
-    { id: 'categories', href: './settings-categories.html', label: 'Custom categories', chapter: 'Make it feel like yours' },
-    { id: 'ai', href: './settings-ai.html', label: 'AI advisor settings', chapter: 'How we talk with you' },
-    { id: 'notifications', href: './settings-notifications.html', label: 'Alerts & nudges', chapter: 'Gentle reminders' }
+    { id: 'profile', href: './settings-profile.html', label: 'Personal profile', chapter: 'The Essentials' },
+    { id: 'security', href: './settings-security.html', label: 'Security', chapter: 'The Essentials' },
+    { id: 'billing', href: './settings-billing.html', label: 'Plan & billing', chapter: 'The Essentials' },
+    { id: 'banks', href: './settings-banks.html', label: 'Banks & income', chapter: 'The Data' },
+    { id: 'goals', href: './settings-goals.html', label: 'Savings goals', chapter: 'The Game Plan' },
+    { id: 'categories', href: './settings-categories.html', label: 'Custom categories', chapter: 'The Game Plan' },
+    { id: 'ai', href: './settings-ai.html', label: 'AI tuning', chapter: 'The Game Plan' },
+    { id: 'notifications', href: './settings-notifications.html', label: 'Notifications', chapter: 'The Game Plan' }
 ];
 
 const OPTIONAL_STEPS = new Set(['goals', 'notifications', 'categories', 'ai']);
@@ -28,7 +29,7 @@ const STEP_BENEFIT_COPY = {
     banks:
         'Tell us whether you prefer a bank link or uploading statements on your own schedule. Either way helps us spot patterns and traps — no wrong answer.',
     billing:
-        'Stay on Free for as long as you like. Paid tiers are optional and only if you want more automation later — you can decide in Settings anytime.',
+        "MintrAIQ works hard so you don't have to, but we're not high-maintenance. Stay on Free for as long as you like. We're just happy to be here.",
     goals:
         'Goals are not a test. A rough direction helps us align with what matters; skip or guess and refine whenever you like.',
     categories:
@@ -61,7 +62,7 @@ function titleFromStep(stepId) {
     const byId = {
         profile: 'Personal profile',
         security: 'Security',
-        billing: 'Billing & plan',
+        billing: 'Plan & billing',
         banks: 'Banks & income',
         goals: 'Savings goals',
         categories: 'Custom categories',
@@ -315,22 +316,15 @@ async function readJsonResponse(res) {
 }
 
 async function loadStepData(client, stepId) {
-    try {
-        const res = await financeApiFetch(client, `/settings/workflow/${stepId}`, { method: 'GET' });
-        if (res.ok) {
-            const data = await readJsonResponse(res);
-            if (data && typeof data === 'object' && data.data && typeof data.data === 'object') return data.data;
-        }
-    } catch {
-        // fallback below
-    }
+    /** One aggregate GET avoids per-step 404s when a step has not been saved yet. */
     try {
         const res = await financeApiFetch(client, '/settings/workflow', { method: 'GET' });
-        if (!res.ok) throw new Error('workflow read failed');
-        const data = await readJsonResponse(res);
-        if (data && typeof data === 'object' && data.steps && typeof data.steps === 'object') {
-            const stepData = data.steps[stepId];
-            if (stepData && typeof stepData === 'object') return stepData;
+        if (res.ok) {
+            const data = await readJsonResponse(res);
+            if (data && typeof data === 'object' && data.steps && typeof data.steps === 'object') {
+                const stepData = data.steps[stepId];
+                if (stepData && typeof stepData === 'object') return stepData;
+            }
         }
     } catch {
         // fallback below

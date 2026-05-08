@@ -146,6 +146,138 @@ html.is-turbo-transitioning .main-wrap {
     color: rgba(255, 255, 255, 0.28);
 }
 
+/* Settings: three-chapter stepper + section sub-tabs (Legal lives in footer). */
+.settings-chapter-track {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 10px;
+    list-style: none;
+    margin: 0;
+    padding: 0 0 6px;
+}
+.settings-chapter-pill {
+    flex: 1 1 140px;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(25, 25, 32, 0.55);
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.25;
+    transition:
+        border-color 0.15s,
+        color 0.15s,
+        background 0.15s;
+}
+.settings-chapter-pill.is-current {
+    color: #fff;
+    border-color: rgba(0, 255, 157, 0.35);
+    background: rgba(0, 255, 157, 0.08);
+}
+.settings-chapter-num {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.75);
+}
+.settings-chapter-pill.is-current .settings-chapter-num {
+    background: rgba(0, 255, 157, 0.2);
+    color: var(--accent-green, #00ff9d);
+}
+.settings-chapter-name {
+    display: block;
+}
+.settings-subtabs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+    padding: 4px 0 14px;
+}
+.settings-subtab {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(30, 30, 36, 0.45);
+    color: var(--text-secondary, #a0a0a0);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition:
+        background 0.15s,
+        color 0.15s,
+        border-color 0.15s;
+}
+.settings-subtab i {
+    font-size: 0.8rem;
+    opacity: 0.85;
+}
+.settings-subtab:hover {
+    color: #fff;
+    border-color: rgba(0, 255, 157, 0.22);
+    background: rgba(0, 255, 157, 0.05);
+}
+.settings-subtab.active {
+    color: var(--accent-green, #00ff9d);
+    border-color: rgba(0, 255, 157, 0.4);
+    background: rgba(0, 255, 157, 0.09);
+}
+.settings-nav-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 8px;
+    margin-top: 4px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.settings-legal-foot {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.38);
+    text-decoration: none;
+}
+.settings-legal-foot:hover {
+    color: var(--accent-green, #00ff9d);
+}
+.settings-legal-foot.active {
+    color: var(--accent-green, #00ff9d);
+}
+.settings-legal-inline {
+    margin: 0 0 12px;
+    padding: 8px 0 6px;
+    color: var(--text-secondary, #a0a0a0);
+    font-size: 0.88rem;
+    line-height: 1.45;
+}
+.settings-legal-inline-note {
+    display: inline-block;
+    margin-right: 6px;
+}
+.settings-legal-inline-back {
+    color: var(--accent-blue, #2f80ed);
+    font-weight: 600;
+    text-decoration: none;
+}
+.settings-legal-inline-back:hover {
+    text-decoration: underline;
+}
+
 .settings-tabs {
     display: flex;
     flex-wrap: wrap;
@@ -456,6 +588,12 @@ html.is-turbo-transitioning .main-wrap {
         padding-left: 18px;
         padding-right: 18px;
     }
+    .settings-chapter-track {
+        flex-direction: column;
+    }
+    .settings-chapter-pill {
+        flex-basis: auto;
+    }
     .settings-tabs {
         flex-wrap: nowrap;
         overflow-x: auto;
@@ -465,6 +603,17 @@ html.is-turbo-transitioning .main-wrap {
         margin-bottom: -2px;
     }
     .settings-tab {
+        flex-shrink: 0;
+    }
+    .settings-subtabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        padding-bottom: 10px;
+        margin-bottom: -2px;
+    }
+    .settings-subtab {
         flex-shrink: 0;
     }
 }

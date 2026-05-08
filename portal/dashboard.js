@@ -39,7 +39,7 @@ function applyBootstrapHeader(bootstrap) {
 function setInsightsFooter(text) {
     const el = document.getElementById('dashboardInsightsFooter');
     if (!el) return;
-    const fallback = getLegalContent()?.insights_footer || 'This is AI-generated analysis and does not constitute financial advice under NZ law.';
+    const fallback = getLegalContent()?.content?.insights_footer || 'This is AI-generated analysis and does not constitute financial advice under NZ law.';
     el.textContent = text || fallback;
 }
 

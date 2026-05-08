@@ -22,7 +22,7 @@ function setStatus(text) {
 function setInsightsFooter(text) {
     const el = document.getElementById('weeklyInsightsFooter');
     if (!el) return;
-    el.textContent = text || getLegalContent()?.insights_footer || '';
+    el.textContent = text || getLegalContent()?.content?.insights_footer || '';
 }
 
 function setError(message) {

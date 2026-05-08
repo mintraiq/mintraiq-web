@@ -14,16 +14,26 @@ function safeParse(json) {
 function sanitizeContent(raw) {
     if (!raw || typeof raw !== 'object') return null;
     return {
+        version: typeof raw.version === 'string' ? raw.version : '',
         tos: typeof raw.tos === 'string' ? raw.tos : '',
         disclaimer: typeof raw.disclaimer === 'string' ? raw.disclaimer : '',
         insights_footer: typeof raw.insights_footer === 'string' ? raw.insights_footer : ''
     };
 }
 
-function saveToSession(content) {
-    legalCache = content;
-    window.__MINTRAIQ_LEGAL__ = content;
-    sessionStorage.setItem(LEGAL_SESSION_KEY, JSON.stringify(content));
+function sanitizeUserStatus(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    return {
+        has_agreed: raw.has_agreed === true,
+        agreed_version: typeof raw.agreed_version === 'string' ? raw.agreed_version : '',
+        agreed_at: typeof raw.agreed_at === 'string' ? raw.agreed_at : ''
+    };
+}
+
+function saveToSession(state) {
+    legalCache = state;
+    window.__MINTRAIQ_LEGAL__ = state;
+    sessionStorage.setItem(LEGAL_SESSION_KEY, JSON.stringify(state));
 }
 
 export function clearLegalContentState() {
@@ -35,13 +45,22 @@ export function clearLegalContentState() {
 export function getLegalContent() {
     if (legalCache) return legalCache;
     if (window.__MINTRAIQ_LEGAL__) {
-        legalCache = sanitizeContent(window.__MINTRAIQ_LEGAL__);
+        const src = window.__MINTRAIQ_LEGAL__;
+        legalCache = {
+            content: sanitizeContent(src.content || src),
+            user_status: sanitizeUserStatus(src.user_status)
+        };
         return legalCache;
     }
     const raw = sessionStorage.getItem(LEGAL_SESSION_KEY);
     if (!raw) return null;
-    const parsed = sanitizeContent(safeParse(raw));
-    if (!parsed) return null;
+    const parsedRaw = safeParse(raw);
+    if (!parsedRaw) return null;
+    const parsed = {
+        content: sanitizeContent(parsedRaw.content || parsedRaw),
+        user_status: sanitizeUserStatus(parsedRaw.user_status)
+    };
+    if (!parsed.content) return null;
     legalCache = parsed;
     window.__MINTRAIQ_LEGAL__ = parsed;
     return parsed;
@@ -70,18 +89,26 @@ export async function loadLegalContent(logtoClient, opts = {}) {
     }
     const content = sanitizeContent(data.content || data);
     if (!content) throw new Error('Legal content response is invalid.');
-    saveToSession(content);
-    return content;
+    const state = {
+        content,
+        user_status: sanitizeUserStatus(data.user_status)
+    };
+    saveToSession(state);
+    return state;
 }
 
-export async function agreeToLegalTerms(logtoClient) {
+export async function agreeToLegalTerms(logtoClient, version) {
+    const normalizedVersion = String(version || '').trim();
+    if (!normalizedVersion) {
+        throw new Error('Legal content version is required.');
+    }
     const res = await financeApiFetch(logtoClient, '/legal/agree', {
         method: 'POST',
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ agreed: true })
+        body: JSON.stringify({ version: normalizedVersion })
     });
     if (!res.ok) {
         const text = await res.text();

@@ -1237,3 +1237,13 @@ html.is-turbo-transitioning .main-wrap {
     border-radius: 8px;
     padding: 12px;
 }
+
+.legal-agreement-badge {
+    margin: 0 0 12px;
+    padding: 10px 12px;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    border: 1px solid rgba(0, 255, 157, 0.35);
+    background: rgba(0, 255, 157, 0.08);
+    border-radius: 8px;
+}

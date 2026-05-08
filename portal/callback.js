@@ -139,17 +139,18 @@ async function main() {
         }
         statusEl.textContent = 'Calling finance API bootstrap…';
         const data = await bootstrapSession(client);
-        let legalContent = null;
+        let legalState = null;
         try {
-            legalContent = await loadLegalContent(client);
+            legalState = await loadLegalContent(client);
         } catch {
             // Keep onboarding flow resilient even if legal-content endpoint is temporarily unavailable.
         }
 
         if (shouldShowOnboardingLegal(data)) {
             statusEl.textContent = '';
-            await showWelcomeTermsModal(legalContent, async () => {
-                await agreeToLegalTerms(client);
+            await showWelcomeTermsModal(legalState?.content, async () => {
+                const version = legalState?.content?.version;
+                await agreeToLegalTerms(client, version);
                 data.user_status = { ...(data.user_status || {}), has_agreed: true };
             });
         }

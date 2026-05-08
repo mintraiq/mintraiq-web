@@ -2,6 +2,12 @@ import { createLogtoClient } from './logto-client.js';
 import { bootstrapSession } from './bootstrap.js';
 import { visitWithTurbo } from './turbo-visit.js';
 import { claimPageScript } from './page-script-guard.js';
+import {
+    agreeToLegalTerms,
+    clearLegalContentState,
+    loadLegalContent,
+    userStatusFromBootstrapPayload
+} from './legal-store.js';
 
 const STEP_TO_PAGE = {
     profile: './settings-profile.html?setup=1',
@@ -19,6 +25,49 @@ function status(msg) {
     if (node) node.textContent = msg;
 }
 
+function showTermsPhase(show) {
+    const loading = document.getElementById('onboardingPhaseLoading');
+    const terms = document.getElementById('onboardingPhaseTerms');
+    if (loading) {
+        loading.classList.toggle('onboarding-phase-hidden', show);
+        loading.hidden = show;
+    }
+    if (terms) {
+        terms.classList.toggle('onboarding-phase-hidden', !show);
+        terms.hidden = !show;
+    }
+}
+
+function mergeBootstrapUserStatus(bootstrap, version) {
+    const v = String(version || '').trim();
+    const now = new Date().toISOString();
+    return {
+        ...bootstrap,
+        user_status: {
+            ...(bootstrap.user_status && typeof bootstrap.user_status === 'object' ? bootstrap.user_status : {}),
+            has_agreed: true,
+            has_agreed_to_tos: true,
+            agreed_version: v,
+            tos_version: v,
+            agreed_at: now,
+            tos_agreed_at: now
+        },
+        profile: {
+            ...(bootstrap.profile && typeof bootstrap.profile === 'object' ? bootstrap.profile : {}),
+            has_agreed_to_tos: true,
+            tos_version: v,
+            tos_agreed_at: now
+        }
+    };
+}
+
+function goToNextSetupStep(bootstrap) {
+    const step = bootstrap?.onboarding?.current_step || 'profile';
+    const target = STEP_TO_PAGE[step] || STEP_TO_PAGE.profile;
+    status('Taking you to the next gentle step…');
+    visitWithTurbo(target, { replace: true });
+}
+
 async function main() {
     if (!claimPageScript('portal-onboarding-main')) return;
     const client = createLogtoClient();
@@ -27,21 +76,94 @@ async function main() {
         return;
     }
 
+    showTermsPhase(false);
     status('Just a moment — finding where you left off…');
+
     const bootstrap = await bootstrapSession(client);
-    sessionStorage.setItem('mintraiq_bootstrap', JSON.stringify({ ...bootstrap, at: Date.now() }));
+    let sessionBootstrap = { ...bootstrap, at: Date.now() };
+    sessionStorage.setItem('mintraiq_bootstrap', JSON.stringify(sessionBootstrap));
 
     if (bootstrap?.onboarding_complete) {
         visitWithTurbo('./dashboard.html', { replace: true });
         return;
     }
 
-    const step = bootstrap?.onboarding?.current_step || 'profile';
-    const target = STEP_TO_PAGE[step] || STEP_TO_PAGE.profile;
-    status('Taking you to the next gentle step…');
-    visitWithTurbo(target, { replace: true });
+    let legalState;
+    try {
+        legalState = await loadLegalContent(client);
+    } catch (e) {
+        status(String(e?.message || 'Could not load legal content. Check your connection and refresh this page.'));
+        return;
+    }
+
+    const fromLegal = legalState?.user_status?.has_agreed === true;
+    const fromBootstrap = userStatusFromBootstrapPayload(sessionBootstrap)?.has_agreed === true;
+    const agreed = fromLegal || fromBootstrap;
+
+    if (agreed) {
+        const merged = {
+            ...sessionBootstrap,
+            user_status: legalState.user_status || userStatusFromBootstrapPayload(sessionBootstrap)
+        };
+        sessionStorage.setItem('mintraiq_bootstrap', JSON.stringify({ ...merged, at: Date.now() }));
+        goToNextSetupStep(merged);
+        return;
+    }
+
+    const content = legalState?.content;
+    const version = String(content?.version || '').trim();
+    if (!version) {
+        status('Legal content is missing a version. Please contact support.');
+        return;
+    }
+
+    showTermsPhase(true);
+
+    const disEl = document.getElementById('onboardingDisclaimerBody');
+    const tosEl = document.getElementById('onboardingTosBody');
+    const footEl = document.getElementById('onboardingInsightsFoot');
+    if (disEl) disEl.textContent = content?.disclaimer || 'Disclaimer is not available.';
+    if (tosEl) tosEl.textContent = content?.tos || 'Terms are temporarily unavailable.';
+    if (footEl) footEl.textContent = content?.insights_footer || '';
+
+    const cb = document.getElementById('onboardingAgreeCheckbox');
+    const btn = document.getElementById('onboardingAgreeContinue');
+    const err = document.getElementById('onboardingTermsError');
+    if (!cb || !btn) return;
+
+    const syncBtn = () => {
+        btn.disabled = !cb.checked;
+        btn.style.opacity = cb.checked ? '1' : '0.55';
+    };
+    cb.addEventListener('change', syncBtn);
+    syncBtn();
+
+    btn.addEventListener('click', async () => {
+        if (!cb.checked || err) err.textContent = '';
+        btn.disabled = true;
+        btn.textContent = 'Saving…';
+        try {
+            await agreeToLegalTerms(client, version);
+            clearLegalContentState();
+            try {
+                await loadLegalContent(client, { force: true });
+            } catch {
+                /* session patch below is enough to proceed */
+            }
+            const merged = mergeBootstrapUserStatus(sessionBootstrap, version);
+            sessionBootstrap = { ...merged, at: Date.now() };
+            sessionStorage.setItem('mintraiq_bootstrap', JSON.stringify(sessionBootstrap));
+            goToNextSetupStep(sessionBootstrap);
+        } catch (e) {
+            if (err) err.textContent = String(e?.message || 'Could not record agreement. Please try again.');
+            btn.textContent = 'Agree and continue to setup';
+            btn.disabled = !cb.checked;
+            syncBtn();
+        }
+    });
 }
 
 main().catch((e) => {
+    showTermsPhase(false);
     status(String(e?.message || 'Could not open onboarding. Please refresh and try again.'));
 });

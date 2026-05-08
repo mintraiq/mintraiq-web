@@ -1,5 +1,5 @@
 import { createLogtoClient } from './logto-client.js';
-import { loadLegalContent } from './legal-store.js';
+import { loadLegalContent, userStatusFromBootstrapPayload } from './legal-store.js';
 import { bootstrapSession } from './bootstrap.js';
 
 function readBootstrap() {
@@ -22,6 +22,16 @@ function isOnboardingAllowedPath() {
     return false;
 }
 
+/** Terms must be accepted before any setup / data steps (chapter flow). Legal page is allowed without it. */
+function mustRedirectToOnboardingForLegal(bootstrap) {
+    if (!bootstrap || bootstrap.onboarding_complete === true) return false;
+    const path = window.location.pathname || '';
+    if (path.endsWith('/onboarding.html') || path.endsWith('/onboarding')) return false;
+    if (path.includes('settings-legal.html')) return false;
+    if (!/\/settings-[^.]+\.html$/.test(path)) return false;
+    return userStatusFromBootstrapPayload(bootstrap)?.has_agreed !== true;
+}
+
 async function ensureBootstrap(client) {
     let bootstrap = readBootstrap();
     if (bootstrap && bootstrap.status === 'success') return bootstrap;
@@ -38,6 +48,10 @@ export async function guardSession() {
         return false;
     }
     const bootstrap = await ensureBootstrap(client);
+    if (mustRedirectToOnboardingForLegal(bootstrap)) {
+        window.location.replace(new URL('../onboarding.html', import.meta.url).href);
+        return false;
+    }
     if (bootstrap?.onboarding_complete === false && !isOnboardingAllowedPath()) {
         window.location.replace(new URL('../onboarding.html', import.meta.url).href);
         return false;

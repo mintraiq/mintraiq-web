@@ -278,6 +278,66 @@ html.is-turbo-transitioning .main-wrap {
     text-decoration: underline;
 }
 
+/* Onboarding entry: terms gate before chapter setup */
+.onboarding-entry-main {
+    max-width: 720px;
+    margin-inline: auto;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 20px 40px;
+}
+.onboarding-phase-hidden {
+    display: none !important;
+}
+.onboarding-disclaimer-card .onboarding-disclaimer-body {
+    margin: 0;
+    color: var(--text-secondary, #a0a0a0);
+    line-height: 1.55;
+    font-size: 0.98rem;
+    white-space: pre-wrap;
+}
+.onboarding-tos-pre {
+    margin: 0;
+    max-height: min(320px, 45vh);
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: #c8d0e0;
+}
+.onboarding-consent-card .onboarding-consent-label {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    cursor: pointer;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: var(--text-secondary, #a0a0a0);
+    margin: 0;
+}
+.onboarding-consent-card input[type='checkbox'] {
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+.onboarding-terms-error {
+    color: #ffb4b4;
+    min-height: 1.2em;
+    margin: 12px 0 0;
+    font-size: 0.9rem;
+}
+.onboarding-consent-actions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
 .settings-tabs {
     display: flex;
     flex-wrap: wrap;

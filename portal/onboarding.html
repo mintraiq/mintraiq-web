@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js"></script>
     <meta name="view-transition" content="same-origin">
 </head>
-<body data-portal-nav="settings">
+<body data-portal-nav="settings" data-onboarding-page="1">
     <div class="dashboard-container">
         <div id="portal-sidebar-region" data-turbo-permanent>
             <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
@@ -24,15 +24,54 @@
                 <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
                 <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
             </div>
-            <main class="main-content">
-                <header class="top-header">
-                    <div class="header-left">
-                        <h2 style="margin:0;font-size:1.75rem">Welcome — let’s get you oriented</h2>
-                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">A few gentle steps so we can understand your money story. You can pause anytime and pick this up later.</p>
+            <main class="main-content onboarding-entry-main">
+                <div id="onboardingPhaseLoading">
+                    <header class="top-header">
+                        <div class="header-left">
+                            <h2 style="margin:0;font-size:1.75rem">Welcome — let’s get you oriented</h2>
+                            <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">One moment while we check your setup…</p>
+                        </div>
+                    </header>
+                    <div class="card">
+                        <p id="onboardingStatus" style="margin:0;color:var(--text-secondary)">Loading…</p>
                     </div>
-                </header>
-                <div class="card">
-                    <p id="onboardingStatus" style="margin:0;color:var(--text-secondary)">Loading your setup…</p>
+                </div>
+
+                <div id="onboardingPhaseTerms" class="onboarding-phase-hidden" hidden>
+                    <header class="top-header">
+                        <div class="header-left">
+                            <h2 style="margin:0;font-size:1.75rem">Before we connect anything</h2>
+                            <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">Please read the disclaimer and terms below. After you agree, we’ll open your setup steps — no bank or file access until then.</p>
+                        </div>
+                    </header>
+
+                    <div class="card onboarding-disclaimer-card" role="region" aria-label="Disclaimer">
+                        <div class="card-header">
+                            <i class="fas fa-info-circle" aria-hidden="true"></i>
+                            <h3>Disclaimer</h3>
+                        </div>
+                        <p id="onboardingDisclaimerBody" class="onboarding-disclaimer-body"></p>
+                    </div>
+
+                    <div class="card onboarding-tos-card">
+                        <div class="card-header">
+                            <i class="fas fa-scroll" aria-hidden="true"></i>
+                            <h3>Terms of service</h3>
+                        </div>
+                        <pre id="onboardingTosBody" class="onboarding-tos-pre" tabindex="0"></pre>
+                        <p id="onboardingInsightsFoot" class="nz-ai-disclaimer" role="note"></p>
+                    </div>
+
+                    <div class="card onboarding-consent-card">
+                        <label class="onboarding-consent-label">
+                            <input type="checkbox" id="onboardingAgreeCheckbox" autocomplete="off" />
+                            <span>I have read and agree to the Terms and Disclaimer. I understand MintrAIQ does not provide regulated financial advice.</span>
+                        </label>
+                        <p id="onboardingTermsError" class="onboarding-terms-error" role="alert"></p>
+                        <div class="onboarding-consent-actions">
+                            <button type="button" class="btn-save" id="onboardingAgreeContinue" disabled>Agree and continue to setup</button>
+                        </div>
+                    </div>
                 </div>
             </main>
         </div>

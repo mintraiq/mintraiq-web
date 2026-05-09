@@ -2,10 +2,15 @@ import { createLogtoClient } from './logto-client.js';
 import { financeApiFetch } from './api.js';
 import { visitWithTurbo } from './turbo-visit.js';
 
+/**
+ * Order must match finance_api bootstrap REQUIRED / save_workflow next_step:
+ * profile → billing → security → banks → goals → categories → ai → notifications
+ * Backend CORS must include PUT in allow_methods or browser preflight fails (OPTIONS 400) and nothing persists.
+ */
 const DEFAULT_FLOW_STEPS = [
     { id: 'profile', href: './settings-profile.html', label: 'Personal profile', chapter: 'The Essentials' },
-    { id: 'security', href: './settings-security.html', label: 'Security', chapter: 'The Essentials' },
     { id: 'billing', href: './settings-billing.html', label: 'Plan & billing', chapter: 'The Essentials' },
+    { id: 'security', href: './settings-security.html', label: 'Security', chapter: 'The Essentials' },
     { id: 'banks', href: './settings-banks.html', label: 'Banks & income', chapter: 'The Data' },
     { id: 'goals', href: './settings-goals.html', label: 'Savings goals', chapter: 'The Game Plan' },
     { id: 'categories', href: './settings-categories.html', label: 'Custom categories', chapter: 'The Game Plan' },
@@ -341,20 +346,43 @@ async function saveStepData(client, stepId, payload, markComplete = false) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ data: payload, mark_complete: markComplete })
         });
-        if (res.ok) return await readJsonResponse(res);
-    } catch {
-        // fallback below
+        const data = await readJsonResponse(res);
+        if (res.ok) return { ok: true, ...data };
+        const detail = data?.detail ?? data?.message;
+        const msg =
+            typeof detail === 'string'
+                ? detail
+                : Array.isArray(detail)
+                  ? detail.map((d) => d?.msg || JSON.stringify(d)).join('; ')
+                  : res.statusText || 'Save rejected';
+        return { ok: false, status: res.status, error: msg };
+    } catch (e) {
+        const net = String(e?.message || '');
+        return {
+            ok: false,
+            status: 0,
+            error:
+                net ||
+                'Network error. If OPTIONS /settings/workflow/... returns 400, the API CORS allow_methods list must include PUT.'
+        };
     }
-    return null;
 }
 
 async function completeOnboarding(client) {
     try {
         const res = await financeApiFetch(client, '/onboarding/complete', { method: 'POST' });
-        if (!res.ok) return null;
-        return await readJsonResponse(res);
-    } catch {
-        return null;
+        const data = await readJsonResponse(res);
+        if (res.ok) return { ok: true, ...data };
+        const detail = data?.detail ?? data?.message;
+        const msg =
+            typeof detail === 'string'
+                ? detail
+                : Array.isArray(detail)
+                  ? detail.map((d) => d?.msg || JSON.stringify(d)).join('; ')
+                  : res.statusText || 'Complete failed';
+        return { ok: false, status: res.status, error: msg };
+    } catch (e) {
+        return { ok: false, status: 0, error: String(e?.message || 'Could not complete onboarding') };
     }
 }
 
@@ -505,13 +533,29 @@ async function mountSettingsWorkflow() {
     };
 
     const navigateNext = async (saveRes) => {
+        if (!saveRes?.ok) {
+            const hint =
+                saveRes?.status === 0
+                    ? ' Save did not reach the server — often CORS: add PUT (and OPTIONS) to allow_methods on the API.'
+                    : '';
+            setStatus(`Could not save this step.${hint} ${saveRes?.error || ''}`.trim(), 'warning');
+            return;
+        }
         const flowSteps = activeFlowSteps();
-        if (saveRes?.next_step === 'complete' || stepId === flowSteps[flowSteps.length - 1].id) {
+        const isLast = stepId === flowSteps[flowSteps.length - 1].id;
+        if (saveRes.next_step === 'complete' || isLast) {
             const finalRes = await completeOnboarding(client);
+            if (!finalRes?.ok) {
+                setStatus(
+                    `Onboarding could not be finalized (${finalRes?.status || ''}). ${finalRes?.error || ''}`.trim(),
+                    'warning'
+                );
+                return;
+            }
             visitWithTurbo(resolveFinalRedirect(finalRes));
             return;
         }
-        if (saveRes?.next_step) {
+        if (saveRes.next_step) {
             const nextMsg = STEP_INTERSTITIAL[saveRes.next_step];
             showInterstitial(nextMsg, () => visitWithTurbo(`./settings-${saveRes.next_step}.html?setup=1`));
             return;
@@ -537,9 +581,18 @@ async function mountSettingsWorkflow() {
                     payload.stripe_payment_status = 'pending';
                 }
                 const saveRes = await saveStepData(client, stepId, payload, false);
-                initialSnapshot = JSON.stringify(payload);
-                dirty = false;
-                setStatus(saveRes?.ok ? 'Saved successfully.' : 'Saved locally. API endpoint unavailable.', saveRes?.ok ? 'positive' : 'warning');
+                if (saveRes?.ok) {
+                    initialSnapshot = JSON.stringify(payload);
+                    dirty = false;
+                    setStatus('Saved successfully.', 'positive');
+                } else {
+                    setStatus(
+                        saveRes?.status === 0
+                            ? `Not saved — ${saveRes.error || 'Request blocked (check API CORS allows PUT).'}`
+                            : `Not saved (${saveRes?.status}): ${saveRes?.error || 'Unknown error'}`,
+                        'warning'
+                    );
+                }
                 syncActions();
             },
             onNext: async () => {
@@ -552,12 +605,14 @@ async function mountSettingsWorkflow() {
                         payload.stripe_payment_status = 'pending';
                     }
                     const saveRes = await saveStepData(client, stepId, payload, true);
-                    setStatus(
-                        tier === 'free'
-                            ? 'You are on the free plan. Upgrade only if you want to, anytime in Settings.'
-                            : 'Plan preference saved. You can complete payment whenever you are ready under Settings → Billing.',
-                        'positive'
-                    );
+                    if (saveRes?.ok) {
+                        setStatus(
+                            tier === 'free'
+                                ? 'You are on the free plan. Upgrade only if you want to, anytime in Settings.'
+                                : 'Plan preference saved. You can complete payment whenever you are ready under Settings → Billing.',
+                            'positive'
+                        );
+                    }
                     await navigateNext(saveRes);
                     return;
                 }

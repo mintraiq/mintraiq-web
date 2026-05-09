@@ -11,8 +11,8 @@ import {
 
 const STEP_TO_PAGE = {
     profile: './settings-profile.html?setup=1',
-    security: './settings-security.html?setup=1',
     billing: './settings-billing.html?setup=1',
+    security: './settings-security.html?setup=1',
     banks: './settings-banks.html?setup=1',
     goals: './settings-goals.html?setup=1',
     categories: './settings-categories.html?setup=1',

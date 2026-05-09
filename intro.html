@@ -156,17 +156,25 @@
 
         /* Hero */
         .hero {
-            text-align: center;
-            padding: 48px 0 56px;
+            display: grid;
+            grid-template-columns: minmax(260px, 420px) minmax(0, 1fr);
+            align-items: center;
+            gap: clamp(24px, 4vw, 52px);
+            padding: 34px 0 46px;
             animation: fadeUp 0.7s ease backwards;
         }
 
         .hero-logo {
-            max-width: min(420px, 88vw);
+            width: 100%;
+            max-width: 420px;
             height: auto;
-            margin: 0 auto 28px;
+            margin: 0;
             display: block;
             filter: drop-shadow(0 20px 50px rgba(0, 0, 0, 0.45));
+        }
+
+        .hero-copy {
+            text-align: left;
         }
 
         .hero-eyebrow {
@@ -183,30 +191,30 @@
             font-weight: 800;
             line-height: 1.2;
             letter-spacing: -0.03em;
-            max-width: 720px;
-            margin: 0 auto 18px;
+            max-width: 18ch;
+            margin: 0 0 14px;
             text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 20px rgba(47, 128, 237, 0.12);
         }
 
         .hero-lead {
             font-size: 1.1rem;
             color: #c4ccdb;
-            max-width: 640px;
-            margin: 0 auto 28px;
+            max-width: 56ch;
+            margin: 0 0 14px;
             font-weight: 500;
         }
 
         .tagline {
             font-size: 1.05rem;
             font-weight: 600;
-            margin-bottom: 32px;
+            margin-bottom: 22px;
         }
 
         .hero-ctas {
             display: flex;
             flex-wrap: wrap;
             gap: 14px;
-            justify-content: center;
+            justify-content: flex-start;
         }
 
         /* Pillars */
@@ -516,6 +524,36 @@
                 grid-template-columns: 1fr;
             }
 
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+                padding-top: 30px;
+            }
+
+            .hero-logo {
+                max-width: min(360px, 88vw);
+                margin: 0 auto 10px;
+            }
+
+            .hero-copy {
+                text-align: center;
+            }
+
+            .hero h1 {
+                max-width: 18ch;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero-lead {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero-ctas {
+                justify-content: center;
+            }
+
             .pillars {
                 grid-template-columns: 1fr;
             }
@@ -555,26 +593,28 @@
         </header>
 
         <section class="hero">
-            <p class="hero-eyebrow">Your AI financial mentor</p>
             <img class="hero-logo" src="assets/mintraiq-logo.png" alt="MintrAIQ — Smart Money. Stronger You." width="420" height="auto">
-            <h1>Stop guessing. Start Minting.</h1>
-            <p class="hero-lead">
-                Your bank statements, turned into intelligent growth insights.
-            </p>
-            <p class="hero-lead" style="margin-top:-8px;">
-                Built for New Zealanders who want a smarter way to track, save, and plan&mdash;powered by AI, secured by bank-grade encryption.
-            </p>
-            <p class="tagline">
-                Smart Money. <span class="gradient-text">Stronger You.</span>
-            </p>
-            <div class="hero-ctas">
-                <a href="portal/index.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Start your 60-second setup</a>
-                <a href="mock-dashboard.html" class="btn btn-ghost"><i class="fas fa-chart-line"></i> View dashboard</a>
-            </div>
-            <p style="margin-top: 22px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; color: var(--text-secondary);">MOBILE APPS · STUB UNTIL LAUNCH</p>
-            <div class="hero-ctas" style="margin-top: 12px;">
-                <a href="coming-soon.html?from=google-play" class="btn btn-ghost" style="border-color: rgba(0, 255, 157, 0.35); color: var(--accent-green);"><i class="fab fa-google-play"></i> Google Play</a>
-                <a href="coming-soon.html?from=app-store" class="btn btn-ghost" style="border-color: rgba(47, 128, 237, 0.45); color: var(--accent-blue);"><i class="fab fa-apple"></i> App Store</a>
+            <div class="hero-copy">
+                <p class="hero-eyebrow">Your AI financial mentor</p>
+                <h1>Stop guessing. Start Minting.</h1>
+                <p class="hero-lead">
+                    Your bank statements, turned into intelligent growth insights.
+                </p>
+                <p class="hero-lead">
+                    Built for New Zealanders who want a smarter way to track, save, and plan&mdash;powered by AI, secured by bank-grade encryption.
+                </p>
+                <p class="tagline">
+                    Smart Money. <span class="gradient-text">Stronger You.</span>
+                </p>
+                <div class="hero-ctas">
+                    <a href="portal/index.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Start your 60-second setup</a>
+                    <a href="mock-dashboard.html" class="btn btn-ghost"><i class="fas fa-chart-line"></i> View dashboard</a>
+                </div>
+                <p style="margin-top: 20px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; color: var(--text-secondary);">MOBILE APPS · STUB UNTIL LAUNCH</p>
+                <div class="hero-ctas" style="margin-top: 12px;">
+                    <a href="coming-soon.html?from=google-play" class="btn btn-ghost" style="border-color: rgba(0, 255, 157, 0.35); color: var(--accent-green);"><i class="fab fa-google-play"></i> Google Play</a>
+                    <a href="coming-soon.html?from=app-store" class="btn btn-ghost" style="border-color: rgba(47, 128, 237, 0.45); color: var(--accent-blue);"><i class="fab fa-apple"></i> App Store</a>
+                </div>
             </div>
         </section>
 

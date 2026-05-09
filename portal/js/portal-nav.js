@@ -4,9 +4,9 @@
  * With Turbo Drive + data-turbo-permanent on #portal-sidebar-region, the shell builds once and only
  * syncs the active nav item on each visit (avoids sidebar flicker).
  */
-import { createLogtoClient } from './logto-client.js';
+import { clearClientSessionArtifacts, createLogtoClient } from './logto-client.js';
 import { installPortalTransitions } from './turbo-transitions.js';
-import { clearLegalContentState, loadLegalContent } from './legal-store.js';
+import { loadLegalContent } from './legal-store.js';
 
 const WORKSPACE = [
     { id: 'dashboard', href: './dashboard.html', icon: 'fa-chart-line', label: 'Dashboard' },
@@ -68,8 +68,7 @@ function ensureSidebarDelegation() {
             e.preventDefault();
             const client = createLogtoClient();
             const postLogout = new URL('../intro.html', window.location.href).href;
-            sessionStorage.removeItem('mintraiq_bootstrap');
-            clearLegalContentState();
+            clearClientSessionArtifacts();
             await client.signOut(postLogout);
             return;
         }

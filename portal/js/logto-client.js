@@ -3,6 +3,7 @@ import { CONFIG } from './config.js';
 import { clearLegalContentState } from './legal-store.js';
 
 let sharedClient = null;
+const SENSITIVE_SESSION_PREFIXES = ['mintraiq_settings_workflow_draft_v1', 'mintraiq_settings_workflow_mode_v1'];
 
 export function createLogtoClient() {
     if (sharedClient) return sharedClient;
@@ -24,12 +25,23 @@ export function isInvalidGrantError(error) {
 }
 
 export function redirectToSignIn(reason = 'invalid-grant') {
-    sessionStorage.removeItem('mintraiq_bootstrap');
-    clearLegalContentState();
+    clearClientSessionArtifacts();
     const url = new URL('../index.html', import.meta.url);
     url.searchParams.set('reauth', '1');
     url.searchParams.set('reason', reason);
     window.location.replace(url.href);
+}
+
+export function clearClientSessionArtifacts() {
+    sessionStorage.removeItem('mintraiq_bootstrap');
+    clearLegalContentState();
+    for (let i = sessionStorage.length - 1; i >= 0; i -= 1) {
+        const key = sessionStorage.key(i);
+        if (!key) continue;
+        if (SENSITIVE_SESSION_PREFIXES.some((prefix) => key.startsWith(prefix))) {
+            sessionStorage.removeItem(key);
+        }
+    }
 }
 
 export async function getAccessTokenOrReauth(logtoClient, resource) {

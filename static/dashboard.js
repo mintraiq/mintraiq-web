@@ -476,7 +476,9 @@
             });
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
+    function bootDashboard() {
+        if (document.body && document.body.dataset.mockDashboardBooted === '1') return;
+        if (document.body) document.body.dataset.mockDashboardBooted = '1';
         if (MINTRAIQ_USE_MOCK_DATA) {
             loadSampleDashboard().then(function (sample) {
                 if (sample) {
@@ -488,5 +490,8 @@
         } else {
             tryLiveApi();
         }
-    });
+    }
+
+    document.addEventListener('DOMContentLoaded', bootDashboard);
+    document.addEventListener('turbo:load', bootDashboard);
 })();

@@ -138,6 +138,11 @@ function getStepById(stepId) {
 
 function isWorkflowMode(stepId) {
     const bootstrap = readBootstrap();
+    /** After full onboarding, chapters are free navigation — never force the guided strip (?setup=1 ignored). */
+    if (bootstrap?.onboarding_complete === true) {
+        sessionStorage.removeItem(MODE_KEY);
+        return false;
+    }
     const setupParam = new URLSearchParams(window.location.search).get('setup') === '1';
     const fromSession = sessionStorage.getItem(MODE_KEY) === '1';
     const incomplete = bootstrap?.onboarding_complete !== true;

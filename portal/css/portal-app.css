@@ -409,6 +409,16 @@ html.is-turbo-transitioning .main-wrap {
     line-height: 1.45;
 }
 
+/* Billing “Money Talk” — justified body copy for even rag */
+.portal-settings-body .page-header--money-talk p.money-talk-prose,
+.portal-settings-body .money-talk-prose {
+    max-width: none;
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+    text-wrap: pretty;
+}
+
 .portal-settings-body .card {
     background: var(--bg-card, #1e1e24);
     border: 1px solid rgba(255, 255, 255, 0.06);

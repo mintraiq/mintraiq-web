@@ -217,42 +217,6 @@
             justify-content: flex-start;
         }
 
-        .secure-join-card {
-            margin-top: 14px;
-            padding: 18px 16px;
-            border-radius: 14px;
-            border: 1px solid rgba(122, 152, 205, 0.28);
-            background: linear-gradient(155deg, rgba(18, 25, 39, 0.96), rgba(23, 30, 45, 0.95));
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
-        }
-
-        .secure-join-card[hidden] {
-            display: none !important;
-        }
-
-        .secure-join-card h3 {
-            margin: 0 0 10px;
-            font-size: 1.08rem;
-            font-weight: 800;
-            letter-spacing: -0.01em;
-            color: #f4f8ff;
-        }
-
-        .secure-join-card p {
-            margin: 0 0 10px;
-            color: #c7d0df;
-            font-size: 0.92rem;
-            line-height: 1.55;
-            font-weight: 500;
-        }
-
-        .secure-join-card .secure-tip {
-            color: #9edfc1;
-            font-size: 0.86rem;
-            font-weight: 600;
-            margin-bottom: 14px;
-        }
-
         /* Pillars */
         .pillars {
             display: grid;
@@ -643,16 +607,8 @@
                     Smart Money. <span class="gradient-text">Stronger You.</span>
                 </p>
                 <div class="hero-ctas">
-                    <a href="portal/index.html" class="btn btn-primary" id="startSetupTrigger"><i class="fas fa-arrow-right"></i> Start your 60-second setup</a>
+                    <a href="index.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Start your 60-second setup</a>
                     <a href="mock-dashboard.html" class="btn btn-ghost"><i class="fas fa-chart-line"></i> View dashboard</a>
-                </div>
-                <div class="secure-join-card" id="secureJoinCard" hidden aria-live="polite">
-                    <h3>Your Money, Your Data, Your Terms</h3>
-                    <p>
-                        Welcome to a smarter way to track and grow. Your security is our priority&mdash;we use industry-leading encryption to keep your financial life private and under your control.
-                    </p>
-                    <p class="secure-tip">Mintr Tip: &ldquo;Think of me as your personal vault assistant. Only you have the keys! 🔐&rdquo;</p>
-                    <a href="portal/index.html" class="btn btn-primary"><i class="fas fa-lock"></i> Join MintrAIQ Securely</a>
                 </div>
                 <p style="margin-top: 20px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; color: var(--text-secondary);">MOBILE APPS · STUB UNTIL LAUNCH</p>
                 <div class="hero-ctas" style="margin-top: 12px;">
@@ -773,18 +729,5 @@
             </p>
         </div>
     </div>
-    <script>
-        (function () {
-            const trigger = document.getElementById('startSetupTrigger');
-            const card = document.getElementById('secureJoinCard');
-            if (!trigger || !card) return;
-
-            trigger.addEventListener('click', function (event) {
-                event.preventDefault();
-                card.hidden = false;
-                card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            });
-        })();
-    </script>
 </body>
 </html>

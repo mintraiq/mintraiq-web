@@ -26,6 +26,7 @@ const outFile = join(root, 'config', 'runtime-env.js');
 const DEFAULT_PUBLIC_ENV = {
     logtoEndpoint: '',
     logtoAppId: '',
+    logtoRegisterUrl: '',
     financeApiBase: 'http://127.0.0.1:5000/api',
     financeApiResource: '',
     signInRedirectUri: '',
@@ -36,6 +37,7 @@ const DEFAULT_PUBLIC_ENV = {
 const PUBLIC_TO_ENV = {
     PUBLIC_LOGTO_ENDPOINT: 'logtoEndpoint',
     PUBLIC_LOGTO_APP_ID: 'logtoAppId',
+    PUBLIC_LOGTO_REGISTER_URL: 'logtoRegisterUrl',
     PUBLIC_FINANCE_API_BASE: 'financeApiBase',
     PUBLIC_FINANCE_API_RESOURCE: 'financeApiResource',
     PUBLIC_SIGN_IN_REDIRECT_URI: 'signInRedirectUri',

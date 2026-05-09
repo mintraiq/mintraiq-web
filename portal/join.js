@@ -1,5 +1,5 @@
 import { createLogtoClient } from './js/logto-client.js';
-import { CONFIG, getPortalBase, resolveDashboardEntry } from './js/config.js';
+import { CONFIG, getPortalBase, resolveDashboardEntry, resolveLogtoRegisterUrl } from './js/config.js';
 import { bootstrapSession } from './js/bootstrap.js';
 import { visitWithTurbo } from './js/turbo-visit.js';
 import { claimPageScript } from './js/page-script-guard.js';
@@ -55,6 +55,12 @@ async function main() {
     if (!joinBtn) return;
 
     joinBtn.addEventListener('click', () => {
+        const registerUrl = resolveLogtoRegisterUrl();
+        if (registerUrl) {
+            if (statusEl) statusEl.textContent = 'Opening secure registration…';
+            window.location.assign(registerUrl);
+            return;
+        }
         if (statusEl) statusEl.textContent = 'Redirecting to Logto…';
         const redirectUri =
             (CONFIG.signInRedirectUri && String(CONFIG.signInRedirectUri).trim()) ||

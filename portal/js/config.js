@@ -7,13 +7,19 @@
  * Override for local dev (before module scripts):
  *   <script>window.__MINTRAIQ_ENV__ = {
  *     financeApiBase: "http://127.0.0.1:5000/api",
- *     financeApiResource: "https://your-api-resource-id-in-logto"
+ *     financeApiResource: "https://your-api-resource-id-in-logto",
+ *     logtoRegisterUrl: "https://your-tenant.logto.app/register?app_id=..." // optional; else PUBLIC_LOGTO_REGISTER_URL at build
  *   };</script>
  */
 const defaults = {
     logtoEndpoint: 'https://ufq3nf.logto.app',
     /** Logto Application (SPA) App ID from Logto Console — override in portal/env.js per environment. */
     logtoAppId: 'jj76jvuz39xoys68ys7ly',
+    /**
+     * Hosted Logto sign-up URL (new users). Override via PUBLIC_LOGTO_REGISTER_URI or window.__MINTRAIQ_ENV__.
+     * If unset, derived as `${logtoEndpoint}/register?app_id=${logtoAppId}`.
+     */
+    logtoRegisterUrl: '',
     financeApiBase: 'https://api-dev.mintraiq.com/api',
     /** Required for Bearer tokens accepted by finance_api.validate_token (JWT aud = API_IDENTIFIER). */
     financeApiResource: '',
@@ -37,6 +43,19 @@ function mergePublicEnv(base, env) {
 }
 
 export const CONFIG = mergePublicEnv(defaults, window.__MINTRAIQ_ENV__);
+
+/**
+ * Logto registration page for “Join” flows. Prefer explicit logtoRegisterUrl; otherwise build from endpoint + app id.
+ * @returns {string} HTTPS URL or empty if configuration is incomplete
+ */
+export function resolveLogtoRegisterUrl() {
+    const explicit = CONFIG.logtoRegisterUrl && String(CONFIG.logtoRegisterUrl).trim();
+    if (explicit) return explicit;
+    const base = CONFIG.logtoEndpoint && String(CONFIG.logtoEndpoint).replace(/\/$/, '');
+    const id = CONFIG.logtoAppId && String(CONFIG.logtoAppId).trim();
+    if (base && id) return `${base}/register?app_id=${encodeURIComponent(id)}`;
+    return '';
+}
 
 /** Base URL for this portal (handles hosting under a subpath, e.g. /myapp/portal/). */
 export function getPortalBase() {

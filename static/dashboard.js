@@ -7,6 +7,7 @@
     'use strict';
 
     var MINTRAIQ_USE_MOCK_DATA = true;
+    var SAMPLE_DASHBOARD_URL = './docs/samples/dashboard.json';
 
     function formatMoney(n) {
         var sign = n < 0 ? '-' : '';
@@ -88,6 +89,56 @@
                     r.title +
                     '</div><div style="color:#a0a0a0;font-size:0.88rem;line-height:1.45;">' +
                     r.text +
+                    '</div></div></li>'
+                );
+            })
+            .join('');
+    }
+
+    function fillHighExpenseAlertsFromSample(sample) {
+        var ul = document.getElementById('high_expense_id');
+        if (!ul) return;
+        var reasons = Array.isArray(sample && sample.explanations) ? sample.explanations.slice(0, 3) : [];
+        if (!reasons.length) {
+            fillHighExpenseAlerts();
+            return;
+        }
+        ul.innerHTML = reasons
+            .map(function (line, i) {
+                return (
+                    '<li style="margin-bottom:12px;padding-left:8px;border-left:3px solid #ff4757;line-height:1.45;">' +
+                    '<strong style="color:#fff;">Signal ' +
+                    (i + 1) +
+                    '</strong><br><span style="color:#a0a0a0;font-size:0.85rem;">' +
+                    String(line) +
+                    '</span></li>'
+                );
+            })
+            .join('');
+    }
+
+    function fillRecommendationsFromSample(sample) {
+        var list = document.getElementById('recommendationList');
+        if (!list) return;
+        var recs = Array.isArray(sample && sample.recommendations) ? sample.recommendations : [];
+        if (!recs.length) {
+            fillRecommendations();
+            return;
+        }
+        list.innerHTML = recs
+            .map(function (r) {
+                var sev = String(r.severity || 'Info').toUpperCase();
+                var title = String(r.title || r.type || 'Recommendation');
+                var desc = String(r.description || '');
+                return (
+                    '<li>' +
+                    '<div class="rec-icon"><i class="fas fa-lightbulb"></i></div>' +
+                    '<div><div style="font-weight:700;color:#fff;margin-bottom:4px;">' +
+                    title +
+                    ' <span style="font-size:0.72rem;color:#ff8a8a;">[' +
+                    sev +
+                    ']</span></div><div style="color:#a0a0a0;font-size:0.88rem;line-height:1.45;">' +
+                    desc +
                     '</div></div></li>'
                 );
             })
@@ -202,6 +253,129 @@
         }
     }
 
+    function renderChartsFromSample(sample) {
+        if (typeof Chart === 'undefined') return false;
+        var monthly = sample && sample.monthly ? sample.monthly : {};
+        var forecast = sample && sample.forecast ? sample.forecast : {};
+        var dates = Array.isArray(forecast.future_dates) ? forecast.future_dates : [];
+        var future = Array.isArray(forecast.future) ? forecast.future : [];
+        if (!dates.length || !future.length) return false;
+
+        var labels = dates.map(function (d) {
+            var parts = String(d).split('-');
+            return parts.length >= 2 ? parts[1] + '/' + parts[0].slice(2) : String(d);
+        });
+        var avg = Number(monthly.historical_avg_expense || 0);
+        var avgLine = labels.map(function () {
+            return avg;
+        });
+
+        var trendEl = document.getElementById('trendChart');
+        if (trendEl) {
+            new Chart(trendEl, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Forecast expense',
+                            data: future,
+                            borderColor: '#ff4757',
+                            backgroundColor: 'rgba(255,71,87,0.08)',
+                            fill: true,
+                            tension: 0.3,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Historical average',
+                            data: avgLine,
+                            borderColor: '#00ff9d',
+                            borderDash: [6, 4],
+                            pointRadius: 0,
+                            fill: false,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: function (v) {
+                                    return '$' + Number(v).toLocaleString('en-US', { maximumFractionDigits: 0 });
+                                }
+                            },
+                            grid: { color: '#333' }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        var topCats = Array.isArray(monthly.top_categories) ? monthly.top_categories.slice(0, 5) : [];
+        var breakEl = document.getElementById('breakdownChart');
+        if (breakEl && topCats.length) {
+            new Chart(breakEl, {
+                type: 'doughnut',
+                data: {
+                    labels: topCats.map(function (c) {
+                        return String(c.category || 'Other');
+                    }),
+                    datasets: [
+                        {
+                            data: topCats.map(function (c) {
+                                return Number(c.amount || 0);
+                            }),
+                            backgroundColor: ['#2f80ed', '#ff4757', '#00ff9d', '#bb6bd9', '#f1c40f'],
+                            borderWidth: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '58%',
+                    plugins: { legend: { position: 'right' } }
+                }
+            });
+        }
+
+        var forecastEl = document.getElementById('aiForecastChart');
+        if (forecastEl) {
+            new Chart(forecastEl, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Projected expense path',
+                            data: future,
+                            borderColor: '#bb6bd9',
+                            backgroundColor: 'rgba(187,107,217,0.15)',
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: '#333' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+        return true;
+    }
+
     function applyMockMetrics() {
         text('current_income', formatMoney(16238));
         text('current_expense', formatMoney(9342));
@@ -216,6 +390,68 @@
 
         var fill = document.getElementById('savings_progress_fill');
         if (fill) fill.style.width = '72%';
+    }
+
+    function applyMetricsFromSample(sample) {
+        var monthly = sample && sample.monthly ? sample.monthly : {};
+        var predIncome = Number(monthly.predicted_income || 0);
+        var predExpense = Number(monthly.predicted_expense || 0);
+        var predSavings = Number(monthly.predicted_savings || predIncome - predExpense);
+        var avgExpense = Number(monthly.historical_avg_expense || 0);
+        var topCats = Array.isArray(monthly.top_categories) ? monthly.top_categories : [];
+        var topCatTotal = topCats.reduce(function (acc, c) {
+            return acc + Number(c.amount || 0);
+        }, 0);
+
+        text('current_income', formatMoney(predIncome));
+        text('current_expense', formatMoney(predExpense));
+        text('current_investments', formatMoney(Math.max(0, topCatTotal * 0.12)));
+        text('current_savings', formatMoney(Math.max(0, predSavings)));
+
+        text('est_income', formatMoney(predIncome));
+        text('est_expenses', formatMoney(predExpense));
+        text('est_savings', formatMoney(predSavings));
+
+        text('eoy_projection', formatMoney(Math.max(0, predSavings * 12)));
+
+        var fill = document.getElementById('savings_progress_fill');
+        if (fill) {
+            var denom = predIncome > 0 ? predIncome : 1;
+            var ratio = Math.max(0, Math.min(100, Math.round((predSavings / denom) * 100)));
+            fill.style.width = ratio + '%';
+        }
+
+        var trendUp = document.querySelector('.metric-card.income .trend');
+        if (trendUp) {
+            var change = avgExpense > 0 ? ((predExpense - avgExpense) / avgExpense) * 100 : 0;
+            trendUp.className = 'trend ' + (change <= 0 ? 'up' : 'down');
+            trendUp.innerHTML =
+                '<i class="fas ' +
+                (change <= 0 ? 'fa-arrow-down' : 'fa-arrow-up') +
+                '"></i> ' +
+                Math.abs(change).toFixed(1) +
+                '% vs historical average';
+        }
+    }
+
+    function loadSampleDashboard() {
+        return fetch(SAMPLE_DASHBOARD_URL, { cache: 'no-store' })
+            .then(function (res) {
+                if (!res.ok) throw new Error('Sample data fetch failed: ' + res.status);
+                return res.json();
+            })
+            .catch(function () {
+                return null;
+            });
+    }
+
+    function runSampleDashboard(sample) {
+        injectDemoBanner();
+        applyMetricsFromSample(sample);
+        fillHighExpenseAlertsFromSample(sample);
+        fillRecommendationsFromSample(sample);
+        var rendered = renderChartsFromSample(sample);
+        if (!rendered) renderCharts();
     }
 
     function runMockDashboard() {
@@ -242,7 +478,13 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         if (MINTRAIQ_USE_MOCK_DATA) {
-            runMockDashboard();
+            loadSampleDashboard().then(function (sample) {
+                if (sample) {
+                    runSampleDashboard(sample);
+                } else {
+                    runMockDashboard();
+                }
+            });
         } else {
             tryLiveApi();
         }

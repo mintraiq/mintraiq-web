@@ -1,5 +1,5 @@
 import { createLogtoClient } from './js/logto-client.js';
-import { CONFIG, getPortalBase, resolveDashboardEntry, resolveLogtoRegisterUrl } from './js/config.js';
+import { CONFIG, getPortalBase, resolveDashboardEntry } from './js/config.js';
 import { bootstrapSession } from './js/bootstrap.js';
 import { visitWithTurbo } from './js/turbo-visit.js';
 import { claimPageScript } from './js/page-script-guard.js';
@@ -54,18 +54,22 @@ async function main() {
     const joinBtn = document.getElementById('joinMintraiq');
     if (!joinBtn) return;
 
-    joinBtn.addEventListener('click', () => {
-        const registerUrl = resolveLogtoRegisterUrl();
-        if (registerUrl) {
-            if (statusEl) statusEl.textContent = 'Opening secure registration…';
-            window.location.assign(registerUrl);
-            return;
-        }
-        if (statusEl) statusEl.textContent = 'Redirecting to Logto…';
+    joinBtn.addEventListener('click', async () => {
         const redirectUri =
             (CONFIG.signInRedirectUri && String(CONFIG.signInRedirectUri).trim()) ||
             `${getPortalBase()}/callback.html`;
-        client.signIn(redirectUri);
+        if (statusEl) statusEl.textContent = 'Opening secure registration…';
+        try {
+            // Use OIDC sign-in with sign-up first screen (app id comes from LogtoClient config).
+            // Direct /register?app_id=… navigation often lands on /unknown-session without a session.
+            await client.signIn({
+                redirectUri,
+                interactionMode: 'signUp'
+            });
+        } catch (e) {
+            console.error(e);
+            if (statusEl) statusEl.textContent = String(e.message || e);
+        }
     });
 }
 

@@ -46,8 +46,8 @@ function mergePublicEnv(base, env) {
 export const CONFIG = mergePublicEnv(defaults, window.__MINTRAIQ_ENV__);
 
 /**
- * Logto registration page for “Join” flows. Uses `app_id` query param per Logto hosted register
- * (e.g. https://tenant.logto.app/register?app_id=…).
+ * Builds a hosted `/register?app_id=…` URL (e.g. for docs or emails).
+ * The portal join page uses `LogtoClient.signIn({ interactionMode: 'signUp' })` instead of navigating here directly, so OIDC state exists and Logto does not show `/unknown-session`.
  * @returns {string} HTTPS URL or empty if configuration is incomplete
  */
 export function resolveLogtoRegisterUrl() {

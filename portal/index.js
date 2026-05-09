@@ -1,5 +1,5 @@
 import { createLogtoClient, isInvalidGrantError, purgeAuthForRelogin, redirectToSignIn } from './js/logto-client.js';
-import { CONFIG, getPortalBase, resolveDashboardEntry } from './js/config.js';
+import { getSignInRedirectUri, resolveDashboardEntry } from './js/config.js';
 import { bootstrapSession } from './js/bootstrap.js';
 import { visitWithTurbo } from './js/turbo-visit.js';
 import { claimPageScript } from './js/page-script-guard.js';
@@ -67,10 +67,7 @@ async function main() {
 
     document.getElementById('signIn').addEventListener('click', () => {
         if (statusEl) statusEl.textContent = 'Redirecting to Logto…';
-        const redirectUri =
-            (CONFIG.signInRedirectUri && String(CONFIG.signInRedirectUri).trim()) ||
-            `${getPortalBase()}/callback.html`;
-        client.signIn(redirectUri);
+        client.signIn(getSignInRedirectUri());
     });
 }
 

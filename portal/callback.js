@@ -1,6 +1,5 @@
 import { createLogtoClient } from './js/logto-client.js';
 import { bootstrapSession } from './js/bootstrap.js';
-import { visitWithTurbo } from './js/turbo-visit.js';
 import { claimPageScript } from './js/page-script-guard.js';
 
 const statusEl = document.getElementById('status');
@@ -29,7 +28,8 @@ async function main() {
         statusEl.textContent = 'Success. Opening your workspace…';
         const { resolveDashboardEntry } = await import('./js/config.js');
         const next = resolveDashboardEntry(data);
-        visitWithTurbo(next, { replace: true });
+        // Full navigation after OAuth — avoids Turbo/cache edge cases where the callback query must match the stored redirect_uri session.
+        window.location.replace(new URL(next, window.location.href).href);
     } catch (e) {
         const dev =
             typeof location !== 'undefined' &&

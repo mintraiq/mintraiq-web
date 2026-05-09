@@ -86,6 +86,22 @@ export function getPortalBase() {
 }
 
 /**
+ * Canonical OAuth redirect_uri for Logto (signIn + handleSignInCallback).
+ * Resolves relative CONFIG.signInRedirectUri against the current page so it always matches the browser location Logto redirects to.
+ * Must match an entry in Logto Console → Application → Redirect URIs exactly (scheme + host + path).
+ */
+export function getSignInRedirectUri() {
+    const raw =
+        (CONFIG.signInRedirectUri && String(CONFIG.signInRedirectUri).trim()) ||
+        `${getPortalBase()}/callback.html`;
+    try {
+        return new URL(raw, window.location.href).href;
+    } catch {
+        return raw;
+    }
+}
+
+/**
  * Map finance_api POST /api/bootstrap JSON to a static HTML entry.
  *
  * Backend shape (finance_api.py):

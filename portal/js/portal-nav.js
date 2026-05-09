@@ -4,7 +4,7 @@
  * With Turbo Drive + data-turbo-permanent on #portal-sidebar-region, the shell builds once and only
  * syncs the active nav item on each visit (avoids sidebar flicker).
  */
-import { clearClientSessionArtifacts, createLogtoClient } from './logto-client.js';
+import { clearClientSessionArtifacts, createLogtoClient, purgeAuthForRelogin } from './logto-client.js';
 import { installPortalTransitions } from './turbo-transitions.js';
 import { loadLegalContent } from './legal-store.js';
 
@@ -66,10 +66,16 @@ function ensureSidebarDelegation() {
 
         if (t.closest('#portalSignOut')) {
             e.preventDefault();
-            const client = createLogtoClient();
             const postLogout = new URL('../intro.html', window.location.href).href;
             clearClientSessionArtifacts();
-            await client.signOut(postLogout);
+            try {
+                const client = createLogtoClient();
+                await client.signOut(postLogout);
+            } catch (err) {
+                console.error(err);
+                purgeAuthForRelogin();
+                window.location.replace(postLogout);
+            }
             return;
         }
 
@@ -109,7 +115,7 @@ export function mountPortalNav() {
             '<div style="flex-grow:1"></div>' +
             '<div class="menu-section">Site</div>' +
             '<a href="../intro.html" class="menu-item" data-turbo="false"><i class="fas fa-arrow-left"></i> Marketing site</a>' +
-            '<button type="button" class="menu-item" id="portalSignOut" style="border:none;width:100%;cursor:pointer;background:transparent;font:inherit;color:inherit;text-align:left">' +
+            '<button type="button" class="menu-item" id="portalSignOut" data-turbo="false" style="border:none;width:100%;cursor:pointer;background:transparent;font:inherit;color:inherit;text-align:left">' +
             '<i class="fas fa-sign-out-alt"></i> Sign out</button>';
 
         root.dataset.portalNavBuilt = '1';

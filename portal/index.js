@@ -1,4 +1,4 @@
-import { createLogtoClient } from './js/logto-client.js';
+import { createLogtoClient, isInvalidGrantError, purgeAuthForRelogin, redirectToSignIn } from './js/logto-client.js';
 import { CONFIG, getPortalBase, resolveDashboardEntry } from './js/config.js';
 import { bootstrapSession } from './js/bootstrap.js';
 import { visitWithTurbo } from './js/turbo-visit.js';
@@ -38,10 +38,24 @@ async function openWorkspace(client) {
 
 async function main() {
     if (!claimPageScript('portal-index-main')) return;
+    /** Stale refresh token + valid-looking id token causes isAuthenticated→bootstrap→invalid_grant→reauth loop without clearing Logto storage. */
+    if (qs.get('reauth') === '1') {
+        purgeAuthForRelogin();
+    }
     const client = createLogtoClient();
     try {
         if (await client.isAuthenticated()) {
-            await openWorkspace(client);
+            try {
+                await openWorkspace(client);
+            } catch (err) {
+                if (isInvalidGrantError(err)) {
+                    redirectToSignIn('invalid-grant');
+                    return;
+                }
+                console.error(err);
+                if (statusEl) statusEl.textContent = String(err.message || err);
+                return;
+            }
             return;
         }
         if (statusEl) statusEl.textContent = '';

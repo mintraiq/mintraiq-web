@@ -1,4 +1,4 @@
-import { createLogtoClient } from './js/logto-client.js';
+import { createLogtoClient, purgeAuthForRelogin } from './js/logto-client.js';
 
 const pre = document.getElementById('payload');
 const raw = sessionStorage.getItem('mintraiq_bootstrap');
@@ -13,8 +13,14 @@ if (!raw) {
 }
 
 document.getElementById('logout').addEventListener('click', async () => {
-    const client = createLogtoClient();
     const postLogout = new URL('../intro.html', window.location.href).href;
     sessionStorage.removeItem('mintraiq_bootstrap');
-    await client.signOut(postLogout);
+    try {
+        const client = createLogtoClient();
+        await client.signOut(postLogout);
+    } catch (err) {
+        console.error(err);
+        purgeAuthForRelogin();
+        window.location.replace(postLogout);
+    }
 });

@@ -217,6 +217,39 @@
             justify-content: flex-start;
         }
 
+        .secure-signin-card {
+            margin-top: 10px;
+            padding: 20px 18px;
+            border-radius: 14px;
+            background: linear-gradient(160deg, rgba(23, 30, 45, 0.92), rgba(17, 24, 37, 0.95));
+            border: 1px solid rgba(122, 152, 205, 0.24);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+        }
+
+        .secure-signin-title {
+            margin: 0 0 10px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            color: #f3f8ff;
+        }
+
+        .secure-signin-body {
+            margin: 0 0 12px;
+            font-size: 0.94rem;
+            line-height: 1.55;
+            color: #c7d0df;
+            font-weight: 500;
+        }
+
+        .secure-signin-tip {
+            margin: 0 0 16px;
+            font-size: 0.86rem;
+            line-height: 1.5;
+            color: #9edfc1;
+            font-weight: 600;
+        }
+
         /* Pillars */
         .pillars {
             display: grid;
@@ -554,6 +587,10 @@
                 justify-content: center;
             }
 
+            .secure-signin-card {
+                text-align: left;
+            }
+
             .pillars {
                 grid-template-columns: 1fr;
             }
@@ -606,9 +643,18 @@
                 <p class="tagline">
                     Smart Money. <span class="gradient-text">Stronger You.</span>
                 </p>
-                <div class="hero-ctas">
-                    <a href="portal/index.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Start your 60-second setup</a>
-                    <a href="mock-dashboard.html" class="btn btn-ghost"><i class="fas fa-chart-line"></i> View dashboard</a>
+                <div class="secure-signin-card" aria-label="Secure sign-in for new users">
+                    <h2 class="secure-signin-title">Your Money, Your Data, Your Terms</h2>
+                    <p class="secure-signin-body">
+                        Welcome to a smarter way to track and grow. Your security is our priority&mdash;we use industry-leading encryption to keep your financial life private and under your control.
+                    </p>
+                    <p class="secure-signin-tip">
+                        Mintr Tip: &ldquo;Think of me as your personal vault assistant. Only you have the keys! 🔐&rdquo;
+                    </p>
+                    <div class="hero-ctas">
+                        <a href="portal/index.html" class="btn btn-primary"><i class="fas fa-lock"></i> Join MintrAIQ Securely</a>
+                        <a href="mock-dashboard.html" class="btn btn-ghost"><i class="fas fa-chart-line"></i> View dashboard</a>
+                    </div>
                 </div>
                 <p style="margin-top: 20px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; color: var(--text-secondary);">MOBILE APPS · STUB UNTIL LAUNCH</p>
                 <div class="hero-ctas" style="margin-top: 12px;">

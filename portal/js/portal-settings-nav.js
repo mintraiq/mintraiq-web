@@ -15,6 +15,16 @@ function escapeHtml(s) {
         .replace(/>/g, '&gt;');
 }
 
+function readBootstrap() {
+    const raw = sessionStorage.getItem('mintraiq_bootstrap');
+    if (!raw) return null;
+    try {
+        return JSON.parse(raw);
+    } catch {
+        return null;
+    }
+}
+
 /** Three chapters: Essentials → Data → Game plan (Legal sits outside the flow). */
 const CHAPTERS = [
     {
@@ -62,6 +72,8 @@ export function mountSettingsNav() {
 
     const active = document.body.getAttribute('data-settings-nav') || 'profile';
     const loc = findChapterForStep(active);
+    const bootstrap = readBootstrap();
+    const isCompleted = bootstrap?.onboarding_complete === true;
 
     const trackParts = CHAPTERS.map((ch, i) => {
         const isCurrent = loc?.chapter?.id === ch.id;
@@ -83,7 +95,8 @@ export function mountSettingsNav() {
             '</p>';
     } else if (loc) {
         const subs = [];
-        for (const item of loc.chapter.items) {
+        const items = isCompleted ? CHAPTERS.flatMap((c) => c.items) : loc.chapter.items;
+        for (const item of items) {
             const on = item.id === active;
             subs.push(
                 `<a class="settings-subtab${on ? ' active' : ''}" href="${escapeAttr(item.href)}" data-settings-nav-id="${escapeAttr(
@@ -94,7 +107,7 @@ export function mountSettingsNav() {
                     `</a>`
             );
         }
-        subnavHtml = `<nav class="settings-subtabs" aria-label="Steps in this chapter">${subs.join('')}</nav>`;
+        subnavHtml = `<nav class="settings-subtabs" aria-label="${isCompleted ? 'All settings steps' : 'Steps in this chapter'}">${subs.join('')}</nav>`;
     } else {
         subnavHtml =
             '<p class="settings-legal-inline">' +

@@ -47,8 +47,8 @@ const STEP_BENEFIT_COPY = {
 const FLOW_PAUSE_COPY =
     'Pausing is fine — pick up anytime from Settings. Nothing here locks you in.';
 
-const DRAFT_KEY = 'mintraiq_settings_workflow_draft_v1';
-const MODE_KEY = 'mintraiq_settings_workflow_mode_v1';
+const DRAFT_KEY_BASE = 'mintraiq_settings_workflow_draft_v1';
+const MODE_KEY_BASE = 'mintraiq_settings_workflow_mode_v1';
 
 function patchSessionBootstrap(partial) {
     try {
@@ -73,6 +73,12 @@ function parseJsonSafe(raw) {
 
 function readBootstrap() {
     return parseJsonSafe(sessionStorage.getItem('mintraiq_bootstrap'));
+}
+
+function scopedStorageKey(base) {
+    const b = readBootstrap();
+    const uid = String(b?.profile?.user_id || b?.profile?.email || 'anon').trim();
+    return `${base}:${uid}`;
 }
 
 function titleFromStep(stepId) {
@@ -115,13 +121,13 @@ function activeFlowSteps() {
 }
 
 function readDraft() {
-    return parseJsonSafe(sessionStorage.getItem(DRAFT_KEY)) || {};
+    return parseJsonSafe(sessionStorage.getItem(scopedStorageKey(DRAFT_KEY_BASE))) || {};
 }
 
 function writeDraft(stepId, payload) {
     const current = readDraft();
     current[stepId] = payload;
-    sessionStorage.setItem(DRAFT_KEY, JSON.stringify(current));
+    sessionStorage.setItem(scopedStorageKey(DRAFT_KEY_BASE), JSON.stringify(current));
 }
 
 function getStepId() {
@@ -140,18 +146,18 @@ function isWorkflowMode(stepId) {
     const bootstrap = readBootstrap();
     /** After full onboarding, chapters are free navigation — never force the guided strip (?setup=1 ignored). */
     if (bootstrap?.onboarding_complete === true) {
-        sessionStorage.removeItem(MODE_KEY);
+        sessionStorage.removeItem(scopedStorageKey(MODE_KEY_BASE));
         return false;
     }
     const setupParam = new URLSearchParams(window.location.search).get('setup') === '1';
-    const fromSession = sessionStorage.getItem(MODE_KEY) === '1';
+    const fromSession = sessionStorage.getItem(scopedStorageKey(MODE_KEY_BASE)) === '1';
     const incomplete = bootstrap?.onboarding_complete !== true;
     const inFlow = (incomplete || setupParam || fromSession) && getStepIndex(stepId) >= 0;
     if (inFlow) {
-        sessionStorage.setItem(MODE_KEY, '1');
+        sessionStorage.setItem(scopedStorageKey(MODE_KEY_BASE), '1');
         return true;
     }
-    sessionStorage.removeItem(MODE_KEY);
+    sessionStorage.removeItem(scopedStorageKey(MODE_KEY_BASE));
     return false;
 }
 
@@ -356,6 +362,17 @@ async function loadStepData(client, stepId) {
     return draft[stepId] || {};
 }
 
+async function loadWorkflowState(client) {
+    try {
+        const res = await financeApiFetch(client, '/settings/workflow', { method: 'GET' });
+        if (!res.ok) return null;
+        const data = await readJsonResponse(res);
+        return data && typeof data === 'object' ? data : null;
+    } catch {
+        return null;
+    }
+}
+
 async function saveStepData(client, stepId, payload, markComplete = false) {
     writeDraft(stepId, payload);
     try {
@@ -521,10 +538,17 @@ async function mountSettingsWorkflow() {
     const form = getFormForStep(stepId);
     const client = createLogtoClient();
     if (!(await client.isAuthenticated())) return;
+    const workflowState = await loadWorkflowState(client);
+    if (workflowState?.onboarding_complete === true) {
+        patchSessionBootstrap({ onboarding_complete: true });
+    }
     const isWorkflow = isWorkflowMode(stepId);
     buildFlowBanner(stepId, isWorkflow);
 
-    const fromApi = await loadStepData(client, stepId);
+    const fromApi =
+        workflowState?.steps && typeof workflowState.steps === 'object' && workflowState.steps[stepId]
+            ? workflowState.steps[stepId]
+            : await loadStepData(client, stepId);
     applyToForm(form, fromApi);
     hydrateLowFrictionWidgets(stepId, form, fromApi);
 
@@ -574,7 +598,7 @@ async function mountSettingsWorkflow() {
                 return;
             }
             patchSessionBootstrap({ onboarding_complete: true });
-            sessionStorage.removeItem(MODE_KEY);
+            sessionStorage.removeItem(scopedStorageKey(MODE_KEY_BASE));
             visitWithTurbo(resolveFinalRedirect(finalRes));
             return;
         }

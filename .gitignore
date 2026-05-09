@@ -11,7 +11,8 @@ portal/js/config.local.js
 .env.local
 # Local secrets — never commit (use config.example.json as a template)
 config.json
-# finance_api.py is tracked (reference for Cursor / frontend alignment). Canonical deployment may still live in your API monorepo.
+# FastAPI mirror / local reference — canonical API lives in your backend repo; do not commit from this tree
+finance_api.py
 # Local Flask app reference (canonical app elsewhere)
 expense_loader.py
 # Local copy of env.public.example for build:env (tunnels, localhost)

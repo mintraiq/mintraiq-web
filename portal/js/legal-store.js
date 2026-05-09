@@ -3,6 +3,8 @@ import { financeApiFetch } from './api.js';
 /** Session copy of legal text / agreement status — intentional; finance API requests still use no-store. */
 const LEGAL_SESSION_KEY = 'mintraiq_legal_content_v1';
 let legalCache = null;
+/** Coalesce parallel GET /legal/content calls (e.g. portal-nav + onboarding). */
+let legalLoadInFlight = null;
 
 function safeParse(json) {
     try {
@@ -117,35 +119,48 @@ export async function loadLegalContent(logtoClient, opts = {}) {
     if (!opts.force) {
         const cached = getLegalContent();
         if (cached) return cached;
+        if (legalLoadInFlight) return legalLoadInFlight;
     }
-    const res = await financeApiFetch(logtoClient, '/legal/content', {
-        method: 'GET',
-        headers: { Accept: 'application/json' }
-    });
-    const text = await res.text();
-    let data = {};
-    try {
-        data = text ? JSON.parse(text) : {};
-    } catch {
-        throw new Error(`Legal content returned non-JSON (${res.status}).`);
+
+    const task = (async () => {
+        const res = await financeApiFetch(logtoClient, '/legal/content', {
+            method: 'GET',
+            headers: { Accept: 'application/json' }
+        });
+        const text = await res.text();
+        let data = {};
+        try {
+            data = text ? JSON.parse(text) : {};
+        } catch {
+            throw new Error(`Legal content returned non-JSON (${res.status}).`);
+        }
+        if (!res.ok) {
+            const detail = data && data.detail;
+            const msg = typeof detail === 'string' ? detail : data.message || `Failed to load legal content (${res.status})`;
+            throw new Error(msg);
+        }
+        const content = sanitizeContent(data.content || data);
+        const topUser =
+            data.user_status && typeof data.user_status === 'object' ? sanitizeUserStatus(data.user_status) : null;
+        const nestedProfile =
+            data.profile && typeof data.profile === 'object' ? sanitizeUserStatus(data.profile) : null;
+        const user_status = mergeUserStatuses(topUser, nestedProfile);
+        if (!content || (!content.tos && !content.disclaimer && !content.insights_footer && !content.version)) {
+            throw new Error('Legal content response is invalid.');
+        }
+        const state = { content, user_status };
+        saveToSession(state);
+        return state;
+    })();
+
+    if (!opts.force) {
+        legalLoadInFlight = task;
+        task.finally(() => {
+            if (legalLoadInFlight === task) legalLoadInFlight = null;
+        });
     }
-    if (!res.ok) {
-        const detail = data && data.detail;
-        const msg = typeof detail === 'string' ? detail : data.message || `Failed to load legal content (${res.status})`;
-        throw new Error(msg);
-    }
-    const content = sanitizeContent(data.content || data);
-    const topUser =
-        data.user_status && typeof data.user_status === 'object' ? sanitizeUserStatus(data.user_status) : null;
-    const nestedProfile =
-        data.profile && typeof data.profile === 'object' ? sanitizeUserStatus(data.profile) : null;
-    const user_status = mergeUserStatuses(topUser, nestedProfile);
-    if (!content || (!content.tos && !content.disclaimer && !content.insights_footer && !content.version)) {
-        throw new Error('Legal content response is invalid.');
-    }
-    const state = { content, user_status };
-    saveToSession(state);
-    return state;
+
+    return task;
 }
 
 export async function agreeToLegalTerms(logtoClient, version) {

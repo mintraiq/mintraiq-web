@@ -25,6 +25,36 @@ function status(msg) {
     if (node) node.textContent = msg;
 }
 
+function readStoredBootstrap() {
+    const raw = sessionStorage.getItem('mintraiq_bootstrap');
+    if (!raw) return null;
+    try {
+        return JSON.parse(raw);
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Reuse POST /bootstrap result from callback (or prior visit) to avoid a duplicate request.
+ * Fetch fresh if missing, incomplete, or stale for onboarding routing.
+ */
+async function loadBootstrapForOnboarding(client) {
+    const stored = readStoredBootstrap();
+    const freshEnough =
+        stored &&
+        stored.status === 'success' &&
+        typeof stored.onboarding === 'object' &&
+        stored.onboarding != null &&
+        typeof stored.at === 'number' &&
+        Date.now() - stored.at < 120_000;
+    if (freshEnough) {
+        const { at: _a, ...rest } = stored;
+        return rest;
+    }
+    return bootstrapSession(client);
+}
+
 function showTermsPhase(show) {
     const loading = document.getElementById('onboardingPhaseLoading');
     const terms = document.getElementById('onboardingPhaseTerms');
@@ -79,7 +109,7 @@ async function main() {
     showTermsPhase(false);
     status('Just a moment — finding where you left off…');
 
-    const bootstrap = await bootstrapSession(client);
+    const bootstrap = await loadBootstrapForOnboarding(client);
     let sessionBootstrap = { ...bootstrap, at: Date.now() };
     sessionStorage.setItem('mintraiq_bootstrap', JSON.stringify(sessionBootstrap));
 

@@ -80,13 +80,21 @@ function ensureSidebarDelegation() {
     });
 }
 
+function shouldPrefetchLegalForNav() {
+    if (typeof document === 'undefined') return true;
+    if (document.body?.dataset?.onboardingPage === '1') return false;
+    const path = document.location.pathname || '';
+    if (path.endsWith('/onboarding.html') || path.endsWith('/onboarding')) return false;
+    return true;
+}
+
 export function mountPortalNav() {
     const root = document.getElementById('portal-nav-root');
     if (!root) return;
 
     ensureSidebarDelegation();
     const client = createLogtoClient();
-    if (client) {
+    if (client && shouldPrefetchLegalForNav()) {
         loadLegalContent(client).catch(() => {});
     }
 

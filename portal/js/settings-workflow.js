@@ -50,6 +50,18 @@ const FLOW_PAUSE_COPY =
 const DRAFT_KEY = 'mintraiq_settings_workflow_draft_v1';
 const MODE_KEY = 'mintraiq_settings_workflow_mode_v1';
 
+function patchSessionBootstrap(partial) {
+    try {
+        const raw = sessionStorage.getItem('mintraiq_bootstrap');
+        const b = raw ? JSON.parse(raw) : {};
+        if (!b || typeof b !== 'object') return;
+        Object.assign(b, partial);
+        sessionStorage.setItem('mintraiq_bootstrap', JSON.stringify({ ...b, at: Date.now() }));
+    } catch {
+        /* ignore */
+    }
+}
+
 function parseJsonSafe(raw) {
     if (!raw) return null;
     try {
@@ -128,8 +140,9 @@ function isWorkflowMode(stepId) {
     const bootstrap = readBootstrap();
     const setupParam = new URLSearchParams(window.location.search).get('setup') === '1';
     const fromSession = sessionStorage.getItem(MODE_KEY) === '1';
-    const inFlow = bootstrap?.onboarding_complete === false || bootstrap?.is_new_user === true || setupParam || fromSession;
-    if (inFlow && getStepIndex(stepId) >= 0) {
+    const incomplete = bootstrap?.onboarding_complete !== true;
+    const inFlow = (incomplete || setupParam || fromSession) && getStepIndex(stepId) >= 0;
+    if (inFlow) {
         sessionStorage.setItem(MODE_KEY, '1');
         return true;
     }
@@ -544,6 +557,9 @@ async function mountSettingsWorkflow() {
         const flowSteps = activeFlowSteps();
         const isLast = stepId === flowSteps[flowSteps.length - 1].id;
         if (saveRes.next_step === 'complete' || isLast) {
+            if (saveRes.onboarding_complete === true) {
+                patchSessionBootstrap({ onboarding_complete: true });
+            }
             const finalRes = await completeOnboarding(client);
             if (!finalRes?.ok) {
                 setStatus(
@@ -552,6 +568,8 @@ async function mountSettingsWorkflow() {
                 );
                 return;
             }
+            patchSessionBootstrap({ onboarding_complete: true });
+            sessionStorage.removeItem(MODE_KEY);
             visitWithTurbo(resolveFinalRedirect(finalRes));
             return;
         }

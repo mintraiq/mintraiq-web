@@ -1,5 +1,5 @@
 import { createLogtoClient } from './logto-client.js';
-import { loadLegalContent, userStatusFromBootstrapPayload } from './legal-store.js';
+import { getLegalContent, loadLegalContent, userStatusFromBootstrapPayload } from './legal-store.js';
 import { bootstrapSession } from './bootstrap.js';
 
 function readBootstrap() {
@@ -22,6 +22,12 @@ function isOnboardingAllowedPath() {
     return false;
 }
 
+function hasLegalAgreementSignal(bootstrap) {
+    if (userStatusFromBootstrapPayload(bootstrap)?.has_agreed === true) return true;
+    if (getLegalContent()?.user_status?.has_agreed === true) return true;
+    return false;
+}
+
 /** Terms must be accepted before any setup / data steps (chapter flow). Legal page is allowed without it. */
 function mustRedirectToOnboardingForLegal(bootstrap) {
     if (!bootstrap || bootstrap.onboarding_complete === true) return false;
@@ -29,7 +35,7 @@ function mustRedirectToOnboardingForLegal(bootstrap) {
     if (path.endsWith('/onboarding.html') || path.endsWith('/onboarding')) return false;
     if (path.includes('settings-legal.html')) return false;
     if (!/\/settings-[^.]+\.html$/.test(path)) return false;
-    return userStatusFromBootstrapPayload(bootstrap)?.has_agreed !== true;
+    return !hasLegalAgreementSignal(bootstrap);
 }
 
 async function ensureBootstrap(client) {

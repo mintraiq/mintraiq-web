@@ -133,7 +133,18 @@ async function main() {
     if (agreed) {
         const merged = {
             ...sessionBootstrap,
-            user_status: legalState.user_status || userStatusFromBootstrapPayload(sessionBootstrap)
+            user_status: {
+                ...(typeof sessionBootstrap.user_status === 'object' && sessionBootstrap.user_status
+                    ? sessionBootstrap.user_status
+                    : {}),
+                ...(typeof legalState.user_status === 'object' && legalState.user_status ? legalState.user_status : {}),
+                has_agreed: true,
+                has_agreed_to_tos: true
+            },
+            profile: {
+                ...(typeof sessionBootstrap.profile === 'object' && sessionBootstrap.profile ? sessionBootstrap.profile : {}),
+                has_agreed_to_tos: true
+            }
         };
         sessionStorage.setItem('mintraiq_bootstrap', JSON.stringify({ ...merged, at: Date.now() }));
         goToNextSetupStep(merged);

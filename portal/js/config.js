@@ -56,7 +56,9 @@ export function getPortalBase() {
 export function resolveDashboardEntry(bootstrap) {
     if (!bootstrap || typeof bootstrap !== 'object') return './dashboard.html';
 
-    if (bootstrap.onboarding_complete === false || bootstrap.is_new_user === true) {
+    // Only incomplete onboarding routes here. `is_new_user` often stays true forever and caused
+    // callback → onboarding → dashboard → onboarding loops after the user had already finished setup.
+    if (bootstrap.onboarding_complete !== true) {
         return './onboarding.html';
     }
 

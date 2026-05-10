@@ -14,6 +14,19 @@ function readBootstrap() {
     }
 }
 
+const STATEMENT_ALLOWED_EXT = new Set(['csv', 'ofx', 'pdf']);
+
+function statementFileExt(name) {
+    const n = String(name || '');
+    const dot = n.lastIndexOf('.');
+    if (dot < 0) return '';
+    return n.slice(dot + 1).toLowerCase();
+}
+
+function isAllowedStatementFile(file) {
+    return Boolean(file && STATEMENT_ALLOWED_EXT.has(statementFileExt(file.name)));
+}
+
 function formatApiError(data, status) {
     const d = data?.detail;
     if (typeof d === 'string') return d;
@@ -93,6 +106,15 @@ export async function bootUploadStatementPage(opts = {}) {
 
     function syncFileUi() {
         const f = fileInput.files && fileInput.files[0];
+        if (f && !isAllowedStatementFile(f)) {
+            showError('Only .csv, .ofx, and .pdf files are supported.');
+            fileInput.value = '';
+            preview.hidden = true;
+            submitBtn.hidden = true;
+            dropZone.classList.remove('statement-upload-dropzone--has-file');
+            resultWrap.hidden = true;
+            return;
+        }
         if (f) {
             fileNameEl.textContent = f.name;
             preview.hidden = false;
@@ -133,8 +155,19 @@ export async function bootUploadStatementPage(opts = {}) {
     });
     dropZone.addEventListener('drop', (e) => {
         const dt = e.dataTransfer;
-        if (!dt?.files?.length) return;
-        fileInput.files = dt.files;
+        const file = dt?.files?.[0];
+        if (!file) return;
+        if (!isAllowedStatementFile(file)) {
+            showError('Only .csv, .ofx, and .pdf files are supported.');
+            return;
+        }
+        try {
+            const buffer = new DataTransfer();
+            buffer.items.add(file);
+            fileInput.files = buffer.files;
+        } catch {
+            return;
+        }
         fileInput.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
@@ -147,6 +180,10 @@ export async function bootUploadStatementPage(opts = {}) {
         const file = fileInput.files && fileInput.files[0];
         if (!file) {
             showError('Please choose a statement file.');
+            return;
+        }
+        if (!isAllowedStatementFile(file)) {
+            showError('Only .csv, .ofx, and .pdf files are supported.');
             return;
         }
         if (!bankSelect.value) {

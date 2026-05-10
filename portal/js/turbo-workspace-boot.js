@@ -30,6 +30,9 @@ async function runWorkspacePage() {
         } else if (nav === 'upload-statement') {
             const m = await import('./upload-statement-page.js');
             await m.bootUploadStatementPage({ signal });
+        } else if (nav === 'receipt-scanner') {
+            const m = await import('./receipt-scanner-page.js');
+            await m.bootReceiptScannerPage({ signal });
         }
     } catch (e) {
         if (e?.name === 'AbortError') return;

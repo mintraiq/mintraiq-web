@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="turbo-cache-control" content="no-cache">
+    <title>MintrAIQ — Receipt scanner</title>
+    <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="./css/portal-app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="../config/runtime-env.js"></script>
+    <script src="./env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js"></script>
+    <meta name="view-transition" content="same-origin">
+</head>
+<body data-portal-nav="receipt-scanner">
+    <div class="dashboard-container">
+        <div id="portal-sidebar-region" data-turbo-permanent>
+        <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+        </div>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <div class="main-wrap">
+            <div class="mobile-bar">
+                <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+                <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
+            </div>
+            <main class="main-content receipt-scanner-main">
+                <header class="top-header">
+                    <div class="header-left">
+                        <h2 style="margin:0;font-size:1.75rem">Receipt scanner</h2>
+                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">
+                            Capture a receipt with your camera or upload an image, then run AI extraction.
+                        </p>
+                    </div>
+                </header>
+
+                <div class="card receipt-scanner-card">
+                    <div class="receipt-scanner-card-head">
+                        <span class="card-title receipt-scanner-card-title"><i class="fas fa-camera"></i> Receipt Scanner</span>
+                        <span id="rsLiveBadge" class="receipt-scanner-live-badge" hidden>Live feed</span>
+                    </div>
+                    <div class="receipt-scanner-viewport">
+                        <video id="rsVideo" class="receipt-scanner-video" playsinline muted autoplay></video>
+                        <canvas id="rsCanvas" class="receipt-scanner-canvas" width="1280" height="720" hidden></canvas>
+                        <p id="rsVideoPlaceholder" class="receipt-scanner-placeholder">Starting camera…</p>
+                    </div>
+                    <p id="rsStatus" class="receipt-scanner-status" aria-live="polite"></p>
+                    <p id="rsError" class="receipt-scanner-error" role="alert" hidden></p>
+                    <div class="receipt-scanner-actions">
+                        <button type="button" class="receipt-scanner-btn receipt-scanner-btn--capture" id="rsCapture" disabled>
+                            <i class="fas fa-camera" aria-hidden="true"></i> Capture
+                        </button>
+                        <button type="button" class="receipt-scanner-btn receipt-scanner-btn--process" id="rsProcess" disabled>
+                            <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> Process AI
+                        </button>
+                    </div>
+                    <div class="receipt-scanner-fallback">
+                        <label class="receipt-scanner-file-label">
+                            <i class="fas fa-image" aria-hidden="true"></i> Choose image
+                            <input type="file" id="rsFileFallback" class="receipt-scanner-file-input" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" />
+                        </label>
+                        <button type="button" class="receipt-scanner-linkish" id="rsRetryCamera">Retry camera</button>
+                    </div>
+                </div>
+
+                <div id="rsResult" class="card receipt-scanner-result" hidden>
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-file-lines"></i> Scan result</span>
+                    </div>
+                    <p id="rsResultMeta" class="receipt-scanner-result-meta"></p>
+                    <pre id="rsResultJson" class="receipt-scanner-result-pre" tabindex="0"></pre>
+                    <p class="receipt-scanner-result-hint">This is AI-extracted data for your records only; it is not financial advice under NZ law.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script type="module" src="./js/turbo-workspace-boot.js"></script>
+</body>
+</html>

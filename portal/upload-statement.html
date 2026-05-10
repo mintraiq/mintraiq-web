@@ -44,12 +44,12 @@
                             </select>
                         </div>
 
-                        <div class="statement-upload-dropzone" id="statementDropZone" role="button" tabindex="0" aria-label="Upload area: drag and drop a CSV, OFX, QFX, or PDF file, or press Enter to browse">
+                        <label id="statementDropZone" class="statement-upload-dropzone" tabindex="0" aria-label="Upload area: drag and drop a CSV, OFX, QFX, or PDF file, or activate to browse">
                             <i class="fas fa-cloud-upload-alt statement-upload-dropzone__icon" aria-hidden="true"></i>
                             <p class="statement-upload-dropzone__title">Drag &amp; drop your statement here</p>
                             <p class="statement-upload-dropzone__hint">CSV, OFX, QFX, or PDF — or click to browse</p>
                             <input type="file" id="statementFileInput" class="statement-upload-file-input" accept=".csv,.ofx,.qfx,.pdf,text/csv,application/pdf,application/x-ofx,application/vnd.ofx,application/ofx,application/vnd.intu.qfx" required>
-                        </div>
+                        </label>
 
                         <div id="statementFilePreview" class="statement-upload-file-preview" hidden>
                             <span class="statement-upload-file-preview__meta">

@@ -91,7 +91,7 @@ export async function bootUploadStatementPage(opts = {}) {
             greetEl &&
             form instanceof HTMLFormElement &&
             bankSelect instanceof HTMLSelectElement &&
-            dropZone &&
+            dropZone instanceof HTMLLabelElement &&
             fileInput instanceof HTMLInputElement &&
             preview &&
             fileNameEl &&
@@ -167,26 +167,21 @@ export async function bootUploadStatementPage(opts = {}) {
         resultWrap.hidden = true;
     }
 
+    /**
+     * Do not call fileInput.click() from a bubbling parent handler: the file input covers the
+     * dropzone (absolute inset 0), so the click already targets the input — a second click() loops
+     * the picker and can prevent change/name UI from settling.
+     */
     fileInput.addEventListener('change', syncFileUi, { signal });
 
     fileRemoveBtn.addEventListener(
         'click',
-        () => {
+        (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             fileInput.value = '';
             showError('');
             syncFileUi();
-        },
-        { signal }
-    );
-
-    dropZone.addEventListener('click', () => fileInput.click(), { signal });
-    dropZone.addEventListener(
-        'keydown',
-        (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                fileInput.click();
-            }
         },
         { signal }
     );
@@ -231,7 +226,7 @@ export async function bootUploadStatementPage(opts = {}) {
             } catch {
                 return;
             }
-            fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+            syncFileUi();
         },
         { signal }
     );

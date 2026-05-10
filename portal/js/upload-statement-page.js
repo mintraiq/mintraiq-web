@@ -54,6 +54,19 @@ function formatApiError(data, status) {
     return `Request failed (${status})`;
 }
 
+/** Matches finance_api `generate_quick_insight` payload (camelCase JSON; tolerate snake_case). */
+function normalizeQuickInsight(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const target = raw.insightTarget ?? raw.insight_target;
+    const value = raw.insightValue ?? raw.insight_value;
+    const action = raw.insightAction ?? raw.insight_action;
+    const t = target != null && String(target).trim() ? String(target).trim() : '';
+    const v = value != null && String(value).trim() ? String(value).trim() : '';
+    const a = action != null && String(action).trim() ? String(action).trim() : '';
+    if (!t && !v && !a) return null;
+    return { target: t, value: v, action: a };
+}
+
 /**
  * @param {{ signal?: AbortSignal }} [opts]
  */
@@ -81,10 +94,12 @@ export async function bootUploadStatementPage(opts = {}) {
     const resFormat = document.getElementById('statementResFormat');
     const resCount = document.getElementById('statementResCount');
     const resId = document.getElementById('statementResId');
-    const insightBox = document.getElementById('statementQuickInsight');
-    const insTarget = document.getElementById('statementInsightTarget');
-    const insValue = document.getElementById('statementInsightValue');
-    const insAction = document.getElementById('statementInsightAction');
+    const insightBalloon = document.getElementById('statementInsightBalloon');
+    const insightTitleEl = document.getElementById('statementInsightBalloonTitle');
+    const insightValueEl = document.getElementById('statementInsightBalloonValue');
+    const insightActionEl = document.getElementById('statementInsightBalloonAction');
+    const insightCloseBtn = document.getElementById('statementInsightBalloonClose');
+    const insightDismissBtn = document.getElementById('statementInsightBalloonDismiss');
 
     if (
         !(
@@ -104,10 +119,12 @@ export async function bootUploadStatementPage(opts = {}) {
             resFormat &&
             resCount &&
             resId &&
-            insightBox &&
-            insTarget &&
-            insValue &&
-            insAction
+            insightBalloon &&
+            insightTitleEl &&
+            insightValueEl &&
+            insightActionEl &&
+            insightCloseBtn instanceof HTMLButtonElement &&
+            insightDismissBtn instanceof HTMLButtonElement
         )
     ) {
         return;
@@ -135,6 +152,39 @@ export async function bootUploadStatementPage(opts = {}) {
     greetEl.textContent = name ? `Welcome back! ${name}.` : 'Welcome back!';
 
     resetStaleFileRow();
+
+    function hideInsightBalloon() {
+        insightBalloon.hidden = true;
+        insightBalloon.classList.remove('statement-insight-balloon--visible');
+    }
+
+    function showInsightBalloon(qi) {
+        const n = normalizeQuickInsight(qi);
+        if (!n) {
+            hideInsightBalloon();
+            return;
+        }
+        insightTitleEl.textContent = n.target || 'Insight';
+        if (n.value) {
+            insightValueEl.textContent = n.value;
+            insightValueEl.hidden = false;
+        } else {
+            insightValueEl.textContent = '';
+            insightValueEl.hidden = true;
+        }
+        if (n.action) {
+            insightActionEl.textContent = n.action;
+            insightActionEl.hidden = false;
+        } else {
+            insightActionEl.textContent = '';
+            insightActionEl.hidden = true;
+        }
+        insightBalloon.hidden = false;
+        requestAnimationFrame(() => {
+            insightBalloon.classList.add('statement-insight-balloon--visible');
+        });
+        insightDismissBtn.focus();
+    }
 
     function showError(msg) {
         errEl.textContent = msg;
@@ -231,6 +281,17 @@ export async function bootUploadStatementPage(opts = {}) {
         { signal }
     );
 
+    const onInsightBalloonKeydown = (e) => {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            hideInsightBalloon();
+        }
+    };
+
+    insightCloseBtn.addEventListener('click', hideInsightBalloon, { signal });
+    insightDismissBtn.addEventListener('click', hideInsightBalloon, { signal });
+    document.addEventListener('keydown', onInsightBalloonKeydown, { signal });
+
     /** Avoid caching a half-state row (empty file input + visible strip) when leaving via Turbo. */
     document.addEventListener(
         'turbo:before-cache',
@@ -238,7 +299,7 @@ export async function bootUploadStatementPage(opts = {}) {
             if (document.body?.getAttribute('data-portal-nav') !== 'upload-statement') return;
             resetStaleFileRow();
             resultWrap.hidden = true;
-            insightBox.hidden = true;
+            hideInsightBalloon();
         },
         { signal }
     );
@@ -247,7 +308,7 @@ export async function bootUploadStatementPage(opts = {}) {
         e.preventDefault();
         showError('');
         resultWrap.hidden = true;
-        insightBox.hidden = true;
+        hideInsightBalloon();
 
         const file = fileInput.files && fileInput.files[0];
         if (!file) {
@@ -298,12 +359,11 @@ export async function bootUploadStatementPage(opts = {}) {
             resCount.textContent = data.count != null ? String(data.count) : '—';
             resId.textContent = data.statement_id ?? '—';
 
-            const qi = data.quick_insight;
-            if (qi && typeof qi === 'object' && (qi.insightTarget || qi.insightAction)) {
-                insTarget.textContent = qi.insightTarget ? String(qi.insightTarget) : '';
-                insValue.textContent = qi.insightValue ? ` ${String(qi.insightValue)}` : '';
-                insAction.textContent = qi.insightAction ? String(qi.insightAction) : '';
-                insightBox.hidden = false;
+            const qi = normalizeQuickInsight(data.quick_insight);
+            if (qi) {
+                showInsightBalloon(data.quick_insight);
+            } else {
+                hideInsightBalloon();
             }
 
             resultWrap.hidden = false;

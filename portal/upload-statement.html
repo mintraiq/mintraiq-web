@@ -77,16 +77,29 @@
                             <div><dt>Transactions processed</dt><dd id="statementResCount">—</dd></div>
                             <div><dt>Statement ID</dt><dd id="statementResId" class="statement-upload-result__mono">—</dd></div>
                         </dl>
-                        <div id="statementQuickInsight" class="statement-upload-insight" hidden>
-                            <p class="statement-upload-insight__line">
-                                <strong id="statementInsightTarget"></strong>
-                                <span id="statementInsightValue"></span>
-                            </p>
-                            <p id="statementInsightAction" class="statement-upload-insight__action"></p>
-                            <p class="statement-upload-insight__disclaimer">
-                                This is AI-generated analysis and does not constitute financial advice under NZ law.
-                            </p>
-                        </div>
+                    </div>
+                </div>
+
+                <div
+                    id="statementInsightBalloon"
+                    class="statement-insight-balloon"
+                    hidden
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="statementInsightBalloonTitle"
+                >
+                    <div class="statement-insight-balloon__inner">
+                        <button type="button" class="statement-insight-balloon__x" id="statementInsightBalloonClose" aria-label="Dismiss quick insight">
+                            <i class="fas fa-times" aria-hidden="true"></i>
+                        </button>
+                        <p class="statement-insight-balloon__badge"><i class="fas fa-lightbulb" aria-hidden="true"></i> Quick insight</p>
+                        <h3 id="statementInsightBalloonTitle" class="statement-insight-balloon__title"></h3>
+                        <p id="statementInsightBalloonValue" class="statement-insight-balloon__value"></p>
+                        <p id="statementInsightBalloonAction" class="statement-insight-balloon__action"></p>
+                        <p class="statement-insight-balloon__disclaimer">
+                            This is AI-generated analysis and does not constitute financial advice under NZ law.
+                        </p>
+                        <button type="button" class="statement-insight-balloon__dismiss" id="statementInsightBalloonDismiss">Got it</button>
                     </div>
                 </div>
             </main>

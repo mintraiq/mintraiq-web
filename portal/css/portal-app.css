@@ -1990,35 +1990,147 @@ body[data-portal-nav="transactions"] .tx-action-btn--sync:hover {
     word-break: break-all;
 }
 
-.statement-upload-insight {
-    margin-top: 18px;
-    padding: 14px 14px 12px;
-    border-radius: 10px;
-    background: rgba(0, 255, 157, 0.06);
-    border: 1px solid rgba(0, 255, 157, 0.25);
+/* Floating quick insight (upload-statement success) */
+.statement-insight-balloon {
+    position: fixed;
+    z-index: 400;
+    right: max(20px, env(safe-area-inset-right));
+    bottom: max(24px, env(safe-area-inset-bottom));
+    left: auto;
+    max-width: min(380px, calc(100vw - 32px));
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+    transition: opacity 220ms ease, transform 220ms ease;
 }
 
-.statement-upload-insight__line {
-    margin: 0 0 8px;
-    color: #fff;
+.statement-insight-balloon--visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.statement-insight-balloon__inner {
+    position: relative;
+    padding: 18px 18px 16px;
+    border-radius: 16px;
+    background: linear-gradient(165deg, rgba(30, 32, 40, 0.98), rgba(22, 24, 32, 0.99));
+    border: 1px solid rgba(0, 255, 157, 0.35);
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.45),
+        0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+}
+
+/* Speech-bubble tail */
+.statement-insight-balloon__inner::after {
+    content: '';
+    position: absolute;
+    right: 28px;
+    bottom: -8px;
+    width: 16px;
+    height: 16px;
+    background: rgba(22, 24, 32, 0.99);
+    border-right: 1px solid rgba(0, 255, 157, 0.28);
+    border-bottom: 1px solid rgba(0, 255, 157, 0.28);
+    transform: rotate(45deg);
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.statement-insight-balloon__x {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
     font-size: 0.95rem;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.06);
+    transition: background 0.15s ease, color 0.15s ease;
 }
 
-.statement-upload-insight__action {
+.statement-insight-balloon__x:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.statement-insight-balloon__badge {
+    margin: 0 36px 10px 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent-green, #00ff9d);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.statement-insight-balloon__title {
+    margin: 0 36px 8px 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+}
+
+.statement-insight-balloon__value {
     margin: 0 0 10px;
-    color: var(--text-secondary);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--accent-green, #00ff9d);
+    line-height: 1.2;
+}
+
+.statement-insight-balloon__action {
+    margin: 0 0 12px;
     font-size: 0.9rem;
+    color: var(--text-secondary);
     line-height: 1.45;
 }
 
-.statement-upload-insight__disclaimer {
-    margin: 0;
-    font-size: 0.78rem;
+.statement-insight-balloon__disclaimer {
+    margin: 0 0 14px;
+    font-size: 0.72rem;
     color: var(--text-secondary);
     line-height: 1.4;
 }
 
+.statement-insight-balloon__dismiss {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    font-family: inherit;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: rgba(0, 255, 157, 0.15);
+    color: var(--accent-green, #00ff9d);
+    border: 1px solid rgba(0, 255, 157, 0.35);
+}
+
+.statement-insight-balloon__dismiss:hover {
+    background: rgba(0, 255, 157, 0.22);
+}
+
 @media (max-width: 520px) {
+    .statement-insight-balloon {
+        right: 16px;
+        left: 16px;
+        max-width: none;
+    }
+
+    .statement-insight-balloon__inner::after {
+        right: 24px;
+    }
+
     .statement-upload-result__grid {
         grid-template-columns: 1fr;
     }

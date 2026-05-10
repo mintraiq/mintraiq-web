@@ -4,6 +4,7 @@ import { createLogtoClient } from './logto-client.js';
 import { fetchFinanceDashboardJson, monthRangeStrings } from './finance-dashboard.js';
 import * as render from './dashboard-render.js';
 import { getLegalContent } from './legal-store.js';
+import { resolveDisplayName, resolveEmail } from './user-display.js';
 
 function readBootstrap() {
     const raw = sessionStorage.getItem('mintraiq_bootstrap');
@@ -15,16 +16,23 @@ function readBootstrap() {
     }
 }
 
-function applyBootstrapHeader(bootstrap) {
+/**
+ * Match profile.html: prefer bootstrap profile, then OIDC claims (avoids "there" + wrong "T" avatar when API name lags).
+ * @param {unknown} bootstrap
+ * @param {unknown} claims — Logto `getIdTokenClaims()`
+ */
+function applyBootstrapHeader(bootstrap, claims) {
     const profile = bootstrap && bootstrap.profile;
     const routing = bootstrap && bootstrap.routing;
-    const name = (profile && profile.name) || 'there';
+    const name = resolveDisplayName(profile, claims);
     const tier = (profile && profile.tier) || '—';
     const dash = (routing && routing.dashboard_type) || 'full';
 
     const welcome = document.getElementById('welcomeLine');
     if (welcome) {
-        welcome.textContent = `Signed in as ${name} · ${dash} workspace`;
+        welcome.textContent = name
+            ? `Signed in as ${name} · ${dash} workspace`
+            : `Signed in · ${dash} workspace`;
     }
     const pill = document.getElementById('tierPill');
     if (pill) {
@@ -32,8 +40,13 @@ function applyBootstrapHeader(bootstrap) {
         pill.style.display = 'inline-block';
     }
     const av = document.getElementById('userAvatar');
-    if (av && name && name.length) {
-        av.textContent = String(name).trim().charAt(0).toUpperCase();
+    if (av) {
+        if (name && name.length) {
+            av.textContent = String(name).trim().charAt(0).toUpperCase();
+        } else {
+            const em = resolveEmail(profile, claims);
+            av.textContent = em && em.length ? em.trim().charAt(0).toUpperCase() : '?';
+        }
     }
 }
 
@@ -81,14 +94,15 @@ export async function bootDashboardPage(opts = {}) {
         return;
     }
 
-    applyBootstrapHeader(bootstrap);
-
     const statusEl = document.getElementById('apiStatus');
 
     if (!(await client.isAuthenticated())) {
         window.location.replace('./index.html');
         return;
     }
+
+    const claims = await client.getIdTokenClaims();
+    applyBootstrapHeader(bootstrap, claims);
 
     if (signal?.aborted) return;
 

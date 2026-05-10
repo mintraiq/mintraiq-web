@@ -32,6 +32,26 @@ function closeSidebar() {
     if (overlay) overlay.classList.remove('visible');
 }
 
+/**
+ * Mobile menu uses a full-screen overlay (z-index 150). If it stays .visible across a Turbo Drive
+ * visit (e.g. user follows a link in main content while the menu was open), clicks hit the overlay
+ * instead of buttons — feels "dead" until a full reload. Reset on every navigation + bfcache.
+ */
+function installMobileShellTurboHygiene() {
+    if (window.__mintMobileShellTurboHygiene) return;
+    window.__mintMobileShellTurboHygiene = true;
+    const reset = () => closeSidebar();
+    document.addEventListener('turbo:visit', reset);
+    document.addEventListener('turbo:load', reset);
+    document.addEventListener('turbo:before-cache', () => {
+        reset();
+        document.querySelectorAll('.settings-stripe-modal').forEach((el) => el.remove());
+    });
+    window.addEventListener('pageshow', (ev) => {
+        if (ev.persisted) reset();
+    });
+}
+
 function syncActiveNav() {
     const root = document.getElementById('portal-nav-root');
     if (!root) return;
@@ -97,6 +117,7 @@ export function mountPortalNav() {
     const root = document.getElementById('portal-nav-root');
     if (!root) return;
 
+    closeSidebar();
     ensureSidebarDelegation();
     const client = createLogtoClient();
     if (client && shouldPrefetchLegalForNav()) {
@@ -124,6 +145,7 @@ export function mountPortalNav() {
     syncActiveNav();
 }
 
+installMobileShellTurboHygiene();
 mountPortalNav();
 if (!window.__mintPortalNavTurboLoad) {
     window.__mintPortalNavTurboLoad = true;

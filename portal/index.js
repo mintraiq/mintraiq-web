@@ -6,7 +6,7 @@ import {
     redirectToSignIn,
     resetLogtoClient
 } from './js/logto-client.js';
-import { getSignInRedirectUri, resolveDashboardEntry } from './js/config.js';
+import { getSignInRedirectUri, isBootstrapOnboardingComplete, resolveDashboardEntry } from './js/config.js';
 import { bootstrapSession } from './js/bootstrap.js';
 import { visitWithTurbo } from './js/turbo-visit.js';
 import { claimPageScript } from './js/page-script-guard.js';
@@ -35,7 +35,8 @@ function isBootstrapOk(b) {
 async function openWorkspace(client) {
     if (statusEl) statusEl.textContent = 'Opening your workspace…';
     let data = readBootstrap();
-    if (!isBootstrapOk(data)) {
+    const needFresh = !isBootstrapOk(data) || (isBootstrapOk(data) && !isBootstrapOnboardingComplete(data));
+    if (needFresh) {
         if (statusEl) statusEl.textContent = 'Connecting to finance API…';
         data = await bootstrapSession(client);
         sessionStorage.setItem('mintraiq_bootstrap', JSON.stringify({ ...data, at: Date.now() }));

@@ -1,3 +1,4 @@
+import { isBootstrapOnboardingComplete } from './config.js';
 import { createLogtoClient } from './logto-client.js';
 import { financeApiFetch } from './api.js';
 import { visitWithTurbo } from './turbo-visit.js';
@@ -57,6 +58,11 @@ function patchSessionBootstrap(partial) {
         if (!b || typeof b !== 'object') return;
         Object.assign(b, partial);
         sessionStorage.setItem('mintraiq_bootstrap', JSON.stringify({ ...b, at: Date.now() }));
+        queueMicrotask(() => {
+            if (typeof window !== 'undefined' && document.getElementById('settings-nav-root')) {
+                window.dispatchEvent(new CustomEvent('mint:bootstrap-ready'));
+            }
+        });
     } catch {
         /* ignore */
     }
@@ -145,13 +151,13 @@ function getStepById(stepId) {
 function isWorkflowMode(stepId) {
     const bootstrap = readBootstrap();
     /** After full onboarding, chapters are free navigation — never force the guided strip (?setup=1 ignored). */
-    if (bootstrap?.onboarding_complete === true) {
+    if (isBootstrapOnboardingComplete(bootstrap)) {
         sessionStorage.removeItem(scopedStorageKey(MODE_KEY_BASE));
         return false;
     }
     const setupParam = new URLSearchParams(window.location.search).get('setup') === '1';
     const fromSession = sessionStorage.getItem(scopedStorageKey(MODE_KEY_BASE)) === '1';
-    const incomplete = bootstrap?.onboarding_complete !== true;
+    const incomplete = !isBootstrapOnboardingComplete(bootstrap);
     const inFlow = (incomplete || setupParam || fromSession) && getStepIndex(stepId) >= 0;
     if (inFlow) {
         sessionStorage.setItem(scopedStorageKey(MODE_KEY_BASE), '1');
@@ -461,7 +467,12 @@ function buildFlowBanner(stepId, isWorkflow) {
     const flowSteps = activeFlowSteps();
     const total = flowSteps.length;
     const step = getStepById(stepId);
-    const stepLabel = idx >= 0 ? `${idx + 1}/${total} · ${flowSteps[idx].label}` : '';
+    const stepLabel =
+        idx >= 0
+            ? isWorkflow
+                ? `${idx + 1}/${total} · ${flowSteps[idx].label}`
+                : String(flowSteps[idx].label || '')
+            : '';
     const percent = getWorkflowCompletion(stepId);
     banner.innerHTML =
         '<div class="settings-flow-head">' +
@@ -539,7 +550,7 @@ async function mountSettingsWorkflow() {
     const client = createLogtoClient();
     if (!(await client.isAuthenticated())) return;
     const workflowState = await loadWorkflowState(client);
-    if (workflowState?.onboarding_complete === true) {
+    if (workflowState?.onboarding_complete === true || isBootstrapOnboardingComplete(readBootstrap())) {
         patchSessionBootstrap({ onboarding_complete: true });
     }
     const isWorkflow = isWorkflowMode(stepId);

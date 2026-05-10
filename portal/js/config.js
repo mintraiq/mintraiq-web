@@ -46,6 +46,28 @@ function mergePublicEnv(base, env) {
 export const CONFIG = mergePublicEnv(defaults, window.__MINTRAIQ_ENV__);
 
 /**
+ * True when the user may use the main workspace (dashboard first).
+ * Backend can expose `onboarding.current_step === "complete"` while `onboarding_complete` is still false
+ * if the DB flag lagged; treat both as finished so we never send them to profile with ?setup=1 again.
+ * @param {unknown} bootstrap
+ * @returns {boolean}
+ */
+export function isBootstrapOnboardingComplete(bootstrap) {
+    if (!bootstrap || typeof bootstrap !== 'object') return false;
+    if (bootstrap.onboarding_complete === true) return true;
+    const on = bootstrap.onboarding;
+    if (!on || typeof on !== 'object') return false;
+    if (on.current_step === 'complete') return true;
+    const required = on.required_steps;
+    const completed = on.completed_steps;
+    if (Array.isArray(required) && required.length && Array.isArray(completed)) {
+        const done = new Set(completed.map((s) => String(s)));
+        if (required.every((s) => done.has(String(s)))) return true;
+    }
+    return false;
+}
+
+/**
  * Builds a hosted `/register?app_id=…` URL (e.g. for docs or emails).
  * The portal join page uses `LogtoClient.signIn({ interactionMode: 'signUp' })` instead of navigating here directly, so OIDC state exists and Logto does not show `/unknown-session`.
  * @returns {string} HTTPS URL or empty if configuration is incomplete
@@ -113,7 +135,7 @@ export function resolveDashboardEntry(bootstrap) {
 
     // Only incomplete onboarding routes here. `is_new_user` often stays true forever and caused
     // callback → onboarding → dashboard → onboarding loops after the user had already finished setup.
-    if (bootstrap.onboarding_complete !== true) {
+    if (!isBootstrapOnboardingComplete(bootstrap)) {
         return './onboarding.html';
     }
 

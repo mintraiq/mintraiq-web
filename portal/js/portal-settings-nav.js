@@ -1,3 +1,4 @@
+import { isBootstrapOnboardingComplete } from './config.js';
 import './settings-workflow.js';
 
 /**
@@ -73,7 +74,8 @@ export function mountSettingsNav() {
     const active = document.body.getAttribute('data-settings-nav') || 'profile';
     const loc = findChapterForStep(active);
     const bootstrap = readBootstrap();
-    const isCompleted = bootstrap?.onboarding_complete === true;
+    /** Finished users (`onboarding_complete` or all steps done): show every settings tab, not one chapter at a time. */
+    const isCompleted = isBootstrapOnboardingComplete(bootstrap);
 
     const trackParts = CHAPTERS.map((ch, i) => {
         const isCurrent = loc?.chapter?.id === ch.id;
@@ -135,4 +137,10 @@ mountSettingsNav();
 if (!window.__mintSettingsNavTurboLoad) {
     window.__mintSettingsNavTurboLoad = true;
     document.addEventListener('turbo:load', mountSettingsNav);
+}
+if (!window.__mintSettingsNavBootstrapReady) {
+    window.__mintSettingsNavBootstrapReady = true;
+    document.addEventListener('mint:bootstrap-ready', () => {
+        if (document.getElementById('settings-nav-root')) mountSettingsNav();
+    });
 }

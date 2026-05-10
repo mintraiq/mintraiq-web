@@ -1,3 +1,5 @@
+import { bootstrapSession } from './bootstrap.js';
+import { isBootstrapOnboardingComplete } from './config.js';
 import { createLogtoClient } from './logto-client.js';
 import { fetchFinanceDashboardJson, monthRangeStrings } from './finance-dashboard.js';
 import * as render from './dashboard-render.js';
@@ -52,7 +54,7 @@ export async function bootDashboardPage(opts = {}) {
     const { signal } = opts;
     if (signal?.aborted) return;
 
-    const bootstrap = readBootstrap();
+    let bootstrap = readBootstrap();
     if (!bootstrap || typeof bootstrap !== 'object') {
         window.location.replace('./index.html');
         return;
@@ -61,7 +63,20 @@ export async function bootDashboardPage(opts = {}) {
         window.location.replace('./index.html');
         return;
     }
-    if (bootstrap.onboarding_complete !== true) {
+
+    const client = createLogtoClient();
+    if (!isBootstrapOnboardingComplete(bootstrap)) {
+        try {
+            if (await client.isAuthenticated()) {
+                const fresh = await bootstrapSession(client);
+                sessionStorage.setItem('mintraiq_bootstrap', JSON.stringify({ ...fresh, at: Date.now() }));
+                bootstrap = fresh;
+            }
+        } catch {
+            /* fall through to onboarding redirect */
+        }
+    }
+    if (!isBootstrapOnboardingComplete(bootstrap)) {
         window.location.replace('./onboarding.html');
         return;
     }
@@ -69,7 +84,6 @@ export async function bootDashboardPage(opts = {}) {
     applyBootstrapHeader(bootstrap);
 
     const statusEl = document.getElementById('apiStatus');
-    const client = createLogtoClient();
 
     if (!(await client.isAuthenticated())) {
         window.location.replace('./index.html');

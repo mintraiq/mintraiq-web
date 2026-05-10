@@ -1,5 +1,6 @@
 import { createLogtoClient } from './logto-client.js';
 import { bootstrapSession } from './bootstrap.js';
+import { isBootstrapOnboardingComplete } from './config.js';
 import { visitWithTurbo } from './turbo-visit.js';
 import { claimPageScript } from './page-script-guard.js';
 import {
@@ -36,21 +37,22 @@ function readStoredBootstrap() {
 }
 
 /**
- * Reuse POST /bootstrap result from callback (or prior visit) to avoid a duplicate request.
- * Fetch fresh if missing, incomplete, or stale for onboarding routing.
+ * Reuse POST /bootstrap when user is already complete (short TTL).
+ * While onboarding is still in progress, always refetch — a 120s cache of an *incomplete* snapshot
+ * caused dashboard → onboarding → profile loops after the user finished steps on the server.
  */
 async function loadBootstrapForOnboarding(client) {
     const stored = readStoredBootstrap();
-    const freshEnough =
-        stored &&
-        stored.status === 'success' &&
-        typeof stored.onboarding === 'object' &&
-        stored.onboarding != null &&
-        typeof stored.at === 'number' &&
-        Date.now() - stored.at < 120_000;
-    if (freshEnough) {
-        const { at: _a, ...rest } = stored;
-        return rest;
+    if (isBootstrapOnboardingComplete(stored)) {
+        const freshEnough =
+            stored &&
+            stored.status === 'success' &&
+            typeof stored.at === 'number' &&
+            Date.now() - stored.at < 120_000;
+        if (freshEnough) {
+            const { at: _a, ...rest } = stored;
+            return rest;
+        }
     }
     return bootstrapSession(client);
 }
@@ -93,6 +95,11 @@ function mergeBootstrapUserStatus(bootstrap, version) {
 
 function goToNextSetupStep(bootstrap) {
     const step = bootstrap?.onboarding?.current_step || 'profile';
+    if (step === 'complete' || isBootstrapOnboardingComplete(bootstrap)) {
+        status('Opening your workspace…');
+        visitWithTurbo('./dashboard.html', { replace: true });
+        return;
+    }
     const target = STEP_TO_PAGE[step] || STEP_TO_PAGE.profile;
     status('Taking you to the next gentle step…');
     visitWithTurbo(target, { replace: true });
@@ -113,7 +120,7 @@ async function main() {
     let sessionBootstrap = { ...bootstrap, at: Date.now() };
     sessionStorage.setItem('mintraiq_bootstrap', JSON.stringify(sessionBootstrap));
 
-    if (bootstrap?.onboarding_complete) {
+    if (isBootstrapOnboardingComplete(bootstrap)) {
         visitWithTurbo('./dashboard.html', { replace: true });
         return;
     }

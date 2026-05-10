@@ -27,6 +27,9 @@ async function runWorkspacePage() {
         } else if (nav === 'transactions') {
             const m = await import('./transactions-page.js');
             await m.bootTransactionsPage({ signal });
+        } else if (nav === 'upload-statement') {
+            const m = await import('./upload-statement-page.js');
+            await m.bootUploadStatementPage({ signal });
         }
     } catch (e) {
         if (e?.name === 'AbortError') return;

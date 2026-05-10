@@ -1710,3 +1710,205 @@ html.is-turbo-transitioning .main-wrap {
     background: rgba(0, 255, 157, 0.08);
     border-radius: 8px;
 }
+
+/* --- Upload bank statement (portal) --- */
+.statement-upload-main {
+    max-width: 640px;
+    margin-inline: auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.statement-upload-greet {
+    margin: 0 0 18px;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.statement-upload-card {
+    max-width: 600px;
+    margin-inline: auto;
+}
+
+.statement-upload-form .form-group {
+    margin-bottom: 20px;
+}
+
+.statement-upload-dropzone {
+    position: relative;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 48px 20px 44px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.statement-upload-dropzone:hover,
+.statement-upload-dropzone:focus-visible {
+    outline: none;
+    border-color: var(--accent-blue, #2f80ed);
+    background: rgba(47, 128, 237, 0.06);
+}
+
+.statement-upload-dropzone--dragover {
+    border-color: var(--accent-blue, #2f80ed);
+    background: rgba(47, 128, 237, 0.08);
+}
+
+.statement-upload-dropzone--has-file {
+    border-color: rgba(0, 255, 157, 0.45);
+}
+
+.statement-upload-dropzone__icon {
+    display: block;
+    font-size: 3.25rem;
+    color: var(--accent-blue, #2f80ed);
+    margin: 0 auto 16px;
+    line-height: 1;
+}
+
+.statement-upload-dropzone__title {
+    margin: 0 0 8px;
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.statement-upload-dropzone__hint {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+}
+
+.statement-upload-file-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.statement-upload-file-preview {
+    margin-top: 14px;
+    text-align: center;
+    color: var(--accent-blue, #2f80ed);
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.statement-upload-error {
+    margin: 14px 0 0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(255, 80, 80, 0.12);
+    border: 1px solid rgba(255, 100, 100, 0.35);
+    color: #ffb4b4;
+    font-size: 0.9rem;
+}
+
+.statement-upload-submit {
+    width: 100%;
+    margin-top: 22px;
+    padding: 14px 16px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    background: var(--accent-blue, #2f80ed);
+    color: #fff;
+}
+
+.statement-upload-submit:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.statement-upload-result {
+    margin-top: 22px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.statement-upload-result__title {
+    margin: 0 0 8px;
+    color: var(--accent-green, #00ff9d);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.statement-upload-result__message {
+    margin: 0 0 14px;
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+}
+
+.statement-upload-result__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 16px;
+    margin: 0;
+}
+
+.statement-upload-result__grid dt {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+.statement-upload-result__grid dd {
+    margin: 4px 0 0;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.statement-upload-result__mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.88rem;
+    font-weight: 500;
+    word-break: break-all;
+}
+
+.statement-upload-insight {
+    margin-top: 18px;
+    padding: 14px 14px 12px;
+    border-radius: 10px;
+    background: rgba(0, 255, 157, 0.06);
+    border: 1px solid rgba(0, 255, 157, 0.25);
+}
+
+.statement-upload-insight__line {
+    margin: 0 0 8px;
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+.statement-upload-insight__action {
+    margin: 0 0 10px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+.statement-upload-insight__disclaimer {
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+@media (max-width: 520px) {
+    .statement-upload-result__grid {
+        grid-template-columns: 1fr;
+    }
+}

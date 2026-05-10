@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="turbo-cache-control" content="no-cache">
+    <title>MintrAIQ — Upload bank statement</title>
+    <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="./css/portal-app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="../config/runtime-env.js"></script>
+    <script src="./env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js"></script>
+    <meta name="view-transition" content="same-origin">
+</head>
+<body data-portal-nav="upload-statement">
+    <div class="dashboard-container">
+        <div id="portal-sidebar-region" data-turbo-permanent>
+        <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+        </div>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <div class="main-wrap">
+            <div class="mobile-bar">
+                <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+                <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
+            </div>
+            <main class="main-content statement-upload-main">
+                <p class="statement-upload-greet" id="statementUploadGreet" aria-live="polite"></p>
+                <div class="statement-upload-card card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-file-import"></i> Upload Bank Statement</span>
+                    </div>
+                    <form id="statementUploadForm" class="statement-upload-form">
+                        <div class="form-group">
+                            <label for="statementBankSelect">Select Bank</label>
+                            <select id="statementBankSelect" class="form-control" required>
+                                <option value="" disabled selected>Choose the statement source</option>
+                                <option value="ASB">ASB</option>
+                                <option value="ANZ">ANZ</option>
+                                <option value="BNZ">BNZ</option>
+                                <option value="Westpac">Westpac</option>
+                                <option value="Kiwibank">Kiwibank</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="statement-upload-dropzone" id="statementDropZone" role="button" tabindex="0" aria-label="Upload area: drag and drop a file or press Enter to browse">
+                            <i class="fas fa-cloud-upload-alt statement-upload-dropzone__icon" aria-hidden="true"></i>
+                            <p class="statement-upload-dropzone__title">Drag &amp; Drop your CSV here</p>
+                            <p class="statement-upload-dropzone__hint">or click to browse files</p>
+                            <input type="file" id="statementFileInput" class="statement-upload-file-input" accept=".csv,.pdf,.xls,.xlsx" required>
+                        </div>
+
+                        <div id="statementFilePreview" class="statement-upload-file-preview" hidden>
+                            <i class="fas fa-file-alt" aria-hidden="true"></i>
+                            <span id="statementFileName"></span>
+                        </div>
+
+                        <p id="statementUploadError" class="statement-upload-error" role="alert" hidden></p>
+
+                        <button type="submit" id="statementUploadSubmit" class="statement-upload-submit" hidden>
+                            Process Statement
+                        </button>
+                    </form>
+
+                    <div id="statementUploadResult" class="statement-upload-result" hidden>
+                        <h3 class="statement-upload-result__title"><i class="fas fa-check-circle"></i> Upload successful</h3>
+                        <p id="statementResultMessage" class="statement-upload-result__message"></p>
+                        <dl class="statement-upload-result__grid">
+                            <div><dt>Bank</dt><dd id="statementResBank">—</dd></div>
+                            <div><dt>Format</dt><dd id="statementResFormat">—</dd></div>
+                            <div><dt>Transactions processed</dt><dd id="statementResCount">—</dd></div>
+                            <div><dt>Statement ID</dt><dd id="statementResId" class="statement-upload-result__mono">—</dd></div>
+                        </dl>
+                        <div id="statementQuickInsight" class="statement-upload-insight" hidden>
+                            <p class="statement-upload-insight__line">
+                                <strong id="statementInsightTarget"></strong>
+                                <span id="statementInsightValue"></span>
+                            </p>
+                            <p id="statementInsightAction" class="statement-upload-insight__action"></p>
+                            <p class="statement-upload-insight__disclaimer">
+                                This is AI-generated analysis and does not constitute financial advice under NZ law.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script type="module" src="./js/turbo-workspace-boot.js"></script>
+</body>
+</html>

@@ -11,6 +11,7 @@ import { loadLegalContent } from './legal-store.js';
 const WORKSPACE = [
     { id: 'dashboard', href: './dashboard.html', icon: 'fa-chart-line', label: 'Dashboard' },
     { id: 'transactions', href: './transactions.html', icon: 'fa-wallet', label: 'Transactions' },
+    { id: 'upload-statement', href: './upload-statement.html', icon: 'fa-file-import', label: 'Upload statement' },
     { id: 'budget-planner', href: './budget-planner.html', icon: 'fa-calendar-check', label: 'Monthly planner' },
     { id: 'weekly-planner', href: './weekly-planner.html', icon: 'fa-calendar-week', label: 'Weekly planner' },
     { id: 'goals', href: './goals.html', icon: 'fa-bullseye', label: 'Goals' },

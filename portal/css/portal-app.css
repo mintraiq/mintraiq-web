@@ -730,13 +730,26 @@ html.is-turbo-transitioning .main-wrap {
 .tx-date-group {
     min-width: 170px;
 }
+/* Secondary control — do not combine with .btn-primary (competing padding / theme on first paint). */
+.tx-toolbar-card .tx-clear-filters,
 .tx-clear-filters {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     padding: 10px 14px;
     font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.25;
+    font-family: inherit;
+    border-radius: 10px;
+    cursor: pointer;
+    box-sizing: border-box;
     background: rgba(255, 255, 255, 0.08);
     color: #fff;
     border: 1px solid rgba(255, 255, 255, 0.14);
 }
+.tx-toolbar-card .tx-clear-filters:hover,
 .tx-clear-filters:hover {
     background: rgba(255, 255, 255, 0.14);
 }
@@ -983,6 +996,7 @@ html.is-turbo-transitioning .main-wrap {
         margin-left: 0;
         width: 100%;
     }
+    .tx-toolbar-card .tx-clear-filters,
     .tx-clear-filters {
         width: 100%;
         justify-content: center;

@@ -5,9 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="turbo-cache-control" content="no-cache">
     <title>MintrAIQ — Transactions</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
     <link rel="stylesheet" href="./css/portal-app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* First-paint guard: Font Awesome CDN can block later CSS; keep layout stable before icons load. */
+        body[data-portal-nav="transactions"] .main-content:not(.main-content--settings) {
+            max-width: 1320px;
+            width: 100%;
+            margin-inline: auto;
+            box-sizing: border-box;
+        }
+        body[data-portal-nav="transactions"] .transactions-toolbar-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        body[data-portal-nav="transactions"] .transactions-toolbar-grid.tx-filter-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+        }
+        body[data-portal-nav="transactions"] .tx-toolbar-card {
+            background: linear-gradient(180deg, rgba(30, 30, 36, 0.95), rgba(25, 28, 39, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        body[data-portal-nav="transactions"] #txClearFilters {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 14px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            line-height: 1.25;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+        }
+        body[data-portal-nav="transactions"] #txClearFilters:hover {
+            background: rgba(255, 255, 255, 0.14);
+        }
+    </style>
     <script src="../config/runtime-env.js"></script>
     <script src="./env.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js"></script>
@@ -79,7 +126,7 @@
                             <input type="checkbox" id="txReviewOnly" />
                             <span>Needs review only</span>
                         </label>
-                        <button type="button" id="txClearFilters" class="btn-primary tx-clear-filters">
+                        <button type="button" id="txClearFilters" class="tx-clear-filters">
                             <i class="fas fa-filter-circle-xmark"></i> Clear filters
                         </button>
                     </div>

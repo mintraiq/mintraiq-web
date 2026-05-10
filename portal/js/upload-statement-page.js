@@ -1,7 +1,6 @@
 import { guardSession } from './guard-session.js';
 import { createLogtoClient } from './logto-client.js';
 import { financeApiFetch } from './api.js';
-import { claimPageScript } from './page-script-guard.js';
 import { resolveDisplayName } from './user-display.js';
 
 function readBootstrap() {
@@ -64,7 +63,7 @@ export async function bootUploadStatementPage(opts = {}) {
 
     const sessionOk = await guardSession();
     if (!sessionOk) return;
-    if (!claimPageScript('upload-statement-page')) return;
+    if (signal?.aborted) return;
 
     const greetEl = document.getElementById('statementUploadGreet');
     const form = document.getElementById('statementUploadForm');
@@ -114,12 +113,28 @@ export async function bootUploadStatementPage(opts = {}) {
         return;
     }
 
+    /**
+     * Turbo keeps the same `document.body` across visits; `claimPageScript` would skip re-boot and
+     * leave new markup unwired. Bfcache/Turbo snapshots can also show a file row with an empty input.
+     */
+    function resetStaleFileRow() {
+        const hasFile = Boolean(fileInput.files && fileInput.files[0]);
+        if (hasFile) return;
+        fileInput.value = '';
+        fileNameEl.textContent = '';
+        preview.hidden = true;
+        submitBtn.hidden = true;
+        dropZone.classList.remove('statement-upload-dropzone--has-file');
+    }
+
     const client = createLogtoClient();
     const bootstrap = readBootstrap();
     const claims = await client.getIdTokenClaims();
     const profile = bootstrap && bootstrap.profile;
     const name = resolveDisplayName(profile, claims);
     greetEl.textContent = name ? `Welcome back! ${name}.` : 'Welcome back!';
+
+    resetStaleFileRow();
 
     function showError(msg) {
         errEl.textContent = msg;
@@ -138,7 +153,8 @@ export async function bootUploadStatementPage(opts = {}) {
             return;
         }
         if (f) {
-            fileNameEl.textContent = f.name;
+            const label = f.name && String(f.name).trim() ? f.name : '(selected file)';
+            fileNameEl.textContent = label;
             preview.hidden = false;
             submitBtn.hidden = false;
             dropZone.classList.add('statement-upload-dropzone--has-file');
@@ -151,53 +167,86 @@ export async function bootUploadStatementPage(opts = {}) {
         resultWrap.hidden = true;
     }
 
-    fileInput.addEventListener('change', syncFileUi);
+    fileInput.addEventListener('change', syncFileUi, { signal });
 
-    fileRemoveBtn.addEventListener('click', () => {
-        fileInput.value = '';
-        showError('');
-        syncFileUi();
-    });
+    fileRemoveBtn.addEventListener(
+        'click',
+        () => {
+            fileInput.value = '';
+            showError('');
+            syncFileUi();
+        },
+        { signal }
+    );
 
-    dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            fileInput.click();
-        }
-    });
+    dropZone.addEventListener('click', () => fileInput.click(), { signal });
+    dropZone.addEventListener(
+        'keydown',
+        (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                fileInput.click();
+            }
+        },
+        { signal }
+    );
 
     ['dragenter', 'dragover'].forEach((ev) => {
-        dropZone.addEventListener(ev, (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dropZone.classList.add('statement-upload-dropzone--dragover');
-        });
+        dropZone.addEventListener(
+            ev,
+            (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('statement-upload-dropzone--dragover');
+            },
+            { signal }
+        );
     });
-    ['dragleave', 'drop'].forEach((ev) => {
-        dropZone.addEventListener(ev, (e) => {
+    dropZone.addEventListener(
+        'dragleave',
+        (e) => {
             e.preventDefault();
             e.stopPropagation();
             dropZone.classList.remove('statement-upload-dropzone--dragover');
-        });
-    });
-    dropZone.addEventListener('drop', (e) => {
-        const dt = e.dataTransfer;
-        const file = dt?.files?.[0];
-        if (!file) return;
-        if (!isAllowedStatementFile(file)) {
-            showError(allowedTypesHint());
-            return;
-        }
-        try {
-            const buffer = new DataTransfer();
-            buffer.items.add(file);
-            fileInput.files = buffer.files;
-        } catch {
-            return;
-        }
-        fileInput.dispatchEvent(new Event('change', { bubbles: true }));
-    });
+        },
+        { signal }
+    );
+    dropZone.addEventListener(
+        'drop',
+        (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('statement-upload-dropzone--dragover');
+            const dt = e.dataTransfer;
+            const file = dt?.files?.[0];
+            if (!file) return;
+            if (!isAllowedStatementFile(file)) {
+                showError(allowedTypesHint());
+                return;
+            }
+            try {
+                const buffer = new DataTransfer();
+                buffer.items.add(file);
+                fileInput.files = buffer.files;
+            } catch {
+                return;
+            }
+            fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+        },
+        { signal }
+    );
+
+    /** Avoid caching a half-state row (empty file input + visible strip) when leaving via Turbo. */
+    document.addEventListener(
+        'turbo:before-cache',
+        () => {
+            if (document.body?.getAttribute('data-portal-nav') !== 'upload-statement') return;
+            resetStaleFileRow();
+            resultWrap.hidden = true;
+            insightBox.hidden = true;
+        },
+        { signal }
+    );
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -272,7 +321,7 @@ export async function bootUploadStatementPage(opts = {}) {
             submitBtn.disabled = false;
             submitBtn.textContent = prevLabel;
         }
-    });
+    }, { signal });
 
     syncFileUi();
 }

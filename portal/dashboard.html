@@ -22,6 +22,25 @@
             max-width: 100%;
             box-sizing: border-box;
         }
+        /* First-paint: keep dashboard header row stable (same wrap/Turbo issue as transactions). */
+        body[data-portal-nav="dashboard"] .top-header .header-right {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        @media (min-width: 640px) {
+            body[data-portal-nav="dashboard"] .top-header {
+                flex-wrap: nowrap;
+                align-items: center;
+            }
+            body[data-portal-nav="dashboard"] .top-header .header-left {
+                min-width: 0;
+                flex: 1 1 auto;
+            }
+        }
         .empty-state-card {
             background-color: var(--bg-card);
             border: 1px dashed rgba(255, 255, 255, 0.2);

@@ -24,12 +24,13 @@ a.user-avatar {
 
 /* Subtle transition cue for Turbo visits. */
 .main-wrap {
-    transition: opacity 160ms ease, transform 180ms ease;
-    will-change: opacity, transform;
+    transition: opacity 160ms ease;
+    will-change: opacity;
 }
+/* Opacity-only: translateY caused flex headers (transactions/dashboard) to wrap mid-visit. */
 html.is-turbo-transitioning .main-wrap {
-    opacity: 0.94;
-    transform: translateY(4px);
+    opacity: 0.92;
+    transform: none;
 }
 
 /* Workspace pages: shared content column (settings use .main-content--settings + .portal-settings-shell) */
@@ -685,6 +686,67 @@ html.is-turbo-transitioning .main-wrap {
     }
     .settings-subtab {
         flex-shrink: 0;
+    }
+}
+
+/* Transactions header — row layout + action buttons (do not use .btn-primary; avoids FOUC + wrap). */
+body[data-portal-nav="transactions"] .top-header .header-right {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+}
+body[data-portal-nav="transactions"] .tx-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.2;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+body[data-portal-nav="transactions"] .tx-action-btn--reload {
+    background: var(--accent-green, #00ff9d);
+    color: #0a0a0a;
+}
+body[data-portal-nav="transactions"] .tx-action-btn--sync {
+    background: linear-gradient(135deg, var(--accent-purple, #bb6bd9), var(--accent-blue, #2f80ed));
+    color: #fff;
+}
+body[data-portal-nav="transactions"] .tx-action-btn--reload:hover,
+body[data-portal-nav="transactions"] .tx-action-btn--sync:hover {
+    filter: brightness(1.06);
+}
+@media (min-width: 640px) {
+    body[data-portal-nav="transactions"] .top-header {
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+    body[data-portal-nav="transactions"] .top-header .header-left {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+    body[data-portal-nav="transactions"] .top-header .header-right {
+        flex: 0 0 auto;
+    }
+    body[data-portal-nav="dashboard"] .top-header {
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+    body[data-portal-nav="dashboard"] .top-header .header-left {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+    body[data-portal-nav="dashboard"] .top-header .header-right {
+        flex: 0 0 auto;
     }
 }
 

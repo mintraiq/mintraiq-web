@@ -54,6 +54,51 @@
         body[data-portal-nav="transactions"] #txClearFilters:hover {
             background: rgba(255, 255, 255, 0.14);
         }
+        /* First-paint: keep title + actions on one row; stable button chrome (avoid btn-primary / wrap FOUC). */
+        body[data-portal-nav="transactions"] .top-header .header-right {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 10px;
+        }
+        body[data-portal-nav="transactions"] .tx-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            line-height: 1.2;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            box-sizing: border-box;
+        }
+        body[data-portal-nav="transactions"] .tx-action-btn--reload {
+            background: var(--accent-green, #00ff9d);
+            color: #0a0a0a;
+        }
+        body[data-portal-nav="transactions"] .tx-action-btn--sync {
+            background: linear-gradient(135deg, var(--accent-purple, #bb6bd9), var(--accent-blue, #2f80ed));
+            color: #fff;
+        }
+        @media (min-width: 640px) {
+            body[data-portal-nav="transactions"] .top-header {
+                flex-wrap: nowrap;
+                align-items: center;
+            }
+            body[data-portal-nav="transactions"] .top-header .header-left {
+                min-width: 0;
+                flex: 1 1 auto;
+            }
+            body[data-portal-nav="transactions"] .top-header .header-right {
+                flex: 0 0 auto;
+            }
+        }
     </style>
     <script src="../config/runtime-env.js"></script>
     <script src="./env.js"></script>
@@ -77,9 +122,11 @@
                         <h2 style="margin:0;font-size:1.75rem">Transactions</h2>
                         <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">Review your latest activity, sync your bank, and tag categories.</p>
                     </div>
-                    <div class="header-right" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-                        <button type="button" class="btn-primary" id="txReload" title="Reload"><i class="fas fa-rotate"></i> Reload</button>
-                        <button type="button" class="btn-primary" id="txSyncAkahu" style="background:linear-gradient(135deg,#bb6bd9,#2f80ed);color:#fff">
+                    <div class="header-right">
+                        <button type="button" class="tx-action-btn tx-action-btn--reload" id="txReload" title="Reload">
+                            <i class="fas fa-rotate"></i> Reload
+                        </button>
+                        <button type="button" class="tx-action-btn tx-action-btn--sync" id="txSyncAkahu">
                             <i class="fas fa-cloud-download-alt"></i> Sync Akahu
                         </button>
                     </div>

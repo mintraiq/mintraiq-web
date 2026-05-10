@@ -72,7 +72,12 @@ async function main() {
         return;
     }
 
-    document.getElementById('signIn').addEventListener('click', () => {
+    const signInBtn = document.getElementById('signIn');
+    let oauthNavLock = false;
+    signInBtn.addEventListener('click', () => {
+        if (oauthNavLock) return;
+        oauthNavLock = true;
+        signInBtn.disabled = true;
         if (statusEl) statusEl.textContent = 'Redirecting to Logto…';
         clearPendingLogtoOAuthSession();
         resetLogtoClient();

@@ -13,8 +13,39 @@ function escapeHtml(s) {
         .replace(/'/g, '&#39;');
 }
 
+function wirePurgeRetryButton() {
+    document.getElementById('mintClearStuckOAuth')?.addEventListener('click', () => {
+        purgeAuthForRelogin();
+        window.location.replace('./index.html');
+    });
+}
+
+/**
+ * Logto sometimes redirects here with ?error=invalid_grant (no `code`) when the grant/PKCE step fails on their side
+ * or the browser reuses an old callback URL. Do not call handleSignInCallback — it cannot recover from this.
+ */
+function showOAuthRedirectError(params) {
+    const err = params.get('error') || 'unknown_error';
+    const rawDesc = params.get('error_description') || '';
+    const errSafe = escapeHtml(err);
+    const descSafe = escapeHtml(rawDesc.replace(/\+/g, ' '));
+    const grantHint =
+        err === 'invalid_grant' || rawDesc.toLowerCase().includes('grant')
+            ? '<p style="color:#9ca3af;font-size:0.9rem;line-height:1.55;margin-top:14px;text-align:left">This usually means the sign-in flow was interrupted or reused: do not refresh this page, do not use the browser Back button after Logto, avoid two sign-in tabs at once, and click Sign in only once. If it keeps happening, clear saved site data for mintraiq.com or use the button below, then try again in one tab.</p>'
+            : '';
+    const recoverBtn =
+        '<p style="margin-top:16px"><button type="button" id="mintClearStuckOAuth" style="padding:10px 16px;border-radius:10px;border:1px solid rgba(126,232,255,0.4);background:#111827;color:#7ee8ff;font-weight:700;cursor:pointer">Clear saved login &amp; try again</button></p>';
+    statusEl.innerHTML = `<strong>Sign-in could not complete</strong><p style="margin-top:10px"><code>${errSafe}</code></p><p style="margin-top:8px">${descSafe}</p>${grantHint}${recoverBtn}<p style="margin-top:12px"><a href="./index.html" style="color:#7ee8ff">Back to sign-in</a> · <a href="./join.html" style="color:#7ee8ff">Join</a></p>`;
+    wirePurgeRetryButton();
+}
+
 async function main() {
     if (!claimPageScript('portal-callback-main')) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('error')) {
+        showOAuthRedirectError(params);
+        return;
+    }
     const client = createLogtoClient();
     try {
         await client.handleSignInCallback(window.location.href);
@@ -43,10 +74,7 @@ async function main() {
         const recoverBtn =
             '<p style="margin-top:14px"><button type="button" id="mintClearStuckOAuth" style="padding:10px 16px;border-radius:10px;border:1px solid rgba(126,232,255,0.4);background:#111827;color:#7ee8ff;font-weight:700;cursor:pointer">Clear saved login &amp; try again</button></p>';
         statusEl.innerHTML = `<strong>Something went wrong</strong><pre>${msg}${extraSafe}</pre>${hint}${recoverBtn}<p><a href="./index.html" style="color:#7ee8ff">Back to sign-in</a></p>`;
-        document.getElementById('mintClearStuckOAuth')?.addEventListener('click', () => {
-            purgeAuthForRelogin();
-            window.location.replace('./index.html');
-        });
+        wirePurgeRetryButton();
     }
 }
 

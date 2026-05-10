@@ -74,12 +74,15 @@ async function main() {
     const joinBtn = document.getElementById('joinMintraiq');
     if (!joinBtn) return;
 
+    let oauthNavLock = false;
     joinBtn.addEventListener('click', () => {
+        if (oauthNavLock) return;
+        oauthNavLock = true;
+        joinBtn.disabled = true;
         const redirectUri = getSignInRedirectUri();
         if (statusEl) statusEl.textContent = 'Opening secure registration…';
         clearPendingLogtoOAuthSession();
         resetLogtoClient();
-        // Fresh client after reset so in-memory state cannot disagree with storage (normal-browser edge cases).
         void createLogtoClient().signIn({
             redirectUri,
             interactionMode: 'signUp'

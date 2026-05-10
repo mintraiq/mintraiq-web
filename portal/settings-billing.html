@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="turbo-cache-control" content="no-cache">
-    <title>MintrAIQ — The &quot;Money Talk&quot;</title>
+    <title>MintrAIQ — Plan &amp; billing</title>
     <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
     <link rel="stylesheet" href="./css/portal-app.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -31,25 +31,55 @@
                     </div>
                     <div class="portal-settings-body">
                         <div class="page-header page-header--money-talk">
-                            <h1>The &ldquo;Money Talk&rdquo; <span style="font-weight:500;color:var(--text-secondary);font-size:1.05rem;display:block;margin-top:6px">(don&rsquo;t worry, it&rsquo;s not awkward)</span></h1>
-                            <p class="money-talk-prose">Choose your own adventure. <strong>Free</strong> is a perfectly valid adventure. MintrAIQ works hard so you don&rsquo;t have to, but we&rsquo;re not high-maintenance. Stay on Free for as long as you like. We&rsquo;re just happy to be here.</p>
+                            <h1>Plan &amp; billing</h1>
+                            <p class="money-talk-prose">Choose your path — compare what each license includes. You can change later; Free stays on the table.</p>
                         </div>
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-credit-card"></i>
-                                <h3>Plan &amp; payment</h3>
-                            </div>
+
+                        <div class="card plan-billing-card">
                             <form data-settings-step="billing">
-                                <p class="money-talk-prose" style="color:var(--text-secondary);margin:0 0 16px;line-height:1.55">Think of this as a no-strings-attached relationship. We only ask for card details if you&rsquo;re ready to make it official with a paid plan. Otherwise, the coffee is on us (metaphorically).</p>
-                                <div class="form-grid-2">
-                                    <div class="form-group">
-                                        <label for="billingTier">Plan</label>
-                                        <select id="billingTier" name="billing_tier" class="form-control">
-                                            <option value="free">Free — get oriented, no payment</option>
-                                            <option value="pro">Pro — more automation (optional)</option>
-                                            <option value="business">Business — teams (optional)</option>
+                                <div class="plan-chooser-hero">
+                                    <h2 class="plan-chooser-title">Choose Your Path</h2>
+                                    <p class="plan-chooser-sub">Upgrade to unlock AI forecasting and the CPI Guru.</p>
+                                </div>
+
+                                <div class="plan-chooser-layout">
+                                    <div class="plan-chooser-controls">
+                                        <label for="billingTier">Compare plans</label>
+                                        <select id="billingTier" name="billing_tier" class="form-control plan-tier-select">
+                                            <option value="free">Ninja Initiate (Free)</option>
+                                            <option value="basic">Ninja Warrior — Basic · $4.99/mo</option>
+                                            <option value="premium">Shadow Master — Pro · $9.99/mo</option>
                                         </select>
                                     </div>
+                                    <div id="planCompareHost" class="plan-compare-host" aria-live="polite"></div>
+                                    <aside class="plan-compare-mascot" aria-label="Plan tip">
+                                        <div id="planBulb" class="plan-bulb">
+                                            <svg class="plan-bulb__svg" viewBox="0 0 120 140" aria-hidden="true" focusable="false">
+                                                <defs>
+                                                    <linearGradient id="planBulbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                        <stop offset="0%" style="stop-color:#f1c40f;stop-opacity:0.95" />
+                                                        <stop offset="100%" style="stop-color:#f39c12;stop-opacity:0.85" />
+                                                    </linearGradient>
+                                                </defs>
+                                                <path class="plan-bulb__glass" fill="url(#planBulbGrad)" stroke="rgba(255,255,255,0.35)" stroke-width="2"
+                                                    d="M60 8 C32 8 12 32 12 58 C12 78 22 92 34 100 L34 118 C34 126 42 132 60 132 C78 132 86 126 86 118 L86 100 C98 92 108 78 108 58 C108 32 88 8 60 8 Z" />
+                                                <rect class="plan-bulb__base" x="44" y="118" width="32" height="14" rx="4" fill="#3d3d45" stroke="rgba(255,255,255,0.2)" />
+                                                <ellipse class="plan-bulb__shine" cx="42" cy="44" rx="14" ry="18" fill="rgba(255,255,255,0.22)" />
+                                            </svg>
+                                            <span class="plan-bulb__ninja" aria-hidden="true">🥷</span>
+                                        </div>
+                                        <p id="planBulbInsight" class="plan-bulb__insight"></p>
+                                    </aside>
+                                </div>
+
+                                <hr class="plan-billing-divider" />
+
+                                <div class="card-header plan-billing-payment-head">
+                                    <i class="fas fa-credit-card"></i>
+                                    <h3>Payment details</h3>
+                                </div>
+                                <p class="money-talk-prose plan-billing-payment-lead">We only need card details when you move to a paid plan. Free stays free.</p>
+                                <div class="form-grid-2">
                                     <div class="form-group">
                                         <label for="billingCycle">Billing cycle</label>
                                         <select id="billingCycle" name="billing_cycle" class="form-control">
@@ -58,15 +88,15 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="cardholderName">Cardholder name</label>
-                                        <input id="cardholderName" name="cardholder_name" class="form-control" autocomplete="cc-name" />
-                                    </div>
-                                    <div class="form-group">
                                         <label for="paymentStatus">Payment status</label>
                                         <input id="paymentStatus" name="stripe_payment_status" class="form-control" value="pending" readonly />
                                     </div>
+                                    <div class="form-group">
+                                        <label for="cardholderName">Cardholder name</label>
+                                        <input id="cardholderName" name="cardholder_name" class="form-control" autocomplete="cc-name" />
+                                    </div>
                                 </div>
-                                <p class="money-talk-prose" style="color:var(--text-secondary);margin:8px 0 0;line-height:1.45">When checkout is connected, paid upgrades use secure Stripe-hosted billing. Until then, your choices save here — still no charge, still no drama.</p>
+                                <p class="money-talk-prose plan-billing-footnote">Paid upgrades use Stripe when checkout is connected. Until then, your tier choice saves here — no charge.</p>
                             </form>
                         </div>
                     </div>

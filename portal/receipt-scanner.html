@@ -25,6 +25,22 @@
                 <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
             </div>
             <main class="main-content receipt-scanner-main">
+                <div id="rsDisabledPanel" class="card receipt-scanner-disabled" hidden>
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-receipt"></i> Receipt scanner</span>
+                    </div>
+                    <p class="receipt-scanner-disabled__text">
+                        Receipt scanning is temporarily turned off while we finish the backend. You can still use
+                        <strong>Upload statement</strong> for CSV, OFX, QFX, or PDF files.
+                    </p>
+                    <p class="receipt-scanner-disabled__hint">
+                        Your team can enable this later via <code class="receipt-scanner-disabled__code">PUBLIC_FEATURE_RECEIPT_SCANNER=1</code>
+                        (build) or <code class="receipt-scanner-disabled__code">featureReceiptScanner</code> in <code class="receipt-scanner-disabled__code">window.__MINTRAIQ_ENV__</code>.
+                    </p>
+                    <a href="./dashboard.html" class="btn-primary receipt-scanner-disabled__cta">Back to dashboard</a>
+                </div>
+
+                <div id="rsActivePanel">
                 <header class="top-header">
                     <div class="header-left">
                         <h2 style="margin:0;font-size:1.75rem">Receipt scanner</h2>
@@ -70,6 +86,7 @@
                     <p id="rsResultMeta" class="receipt-scanner-result-meta"></p>
                     <pre id="rsResultJson" class="receipt-scanner-result-pre" tabindex="0"></pre>
                     <p class="receipt-scanner-result-hint">This is AI-extracted data for your records only; it is not financial advice under NZ law.</p>
+                </div>
                 </div>
             </main>
         </div>

@@ -1,6 +1,7 @@
 import { isBootstrapOnboardingComplete } from './config.js';
 import { createLogtoClient } from './logto-client.js';
 import { financeApiFetch } from './api.js';
+import { mountBillingPlanCompare, normalizeBillingTierValue } from './billing-plan-compare.js';
 import { visitWithTurbo } from './turbo-visit.js';
 
 /**
@@ -250,6 +251,13 @@ function hydrateLowFrictionWidgets(stepId, form, data) {
     }
     if (stepId === 'banks') {
         syncBanksStatementPanels(form);
+    }
+    if (stepId === 'billing') {
+        const tierEl = form.querySelector('#billingTier');
+        if (tierEl instanceof HTMLSelectElement && data && typeof data === 'object' && 'billing_tier' in data) {
+            tierEl.value = normalizeBillingTierValue(data.billing_tier);
+        }
+        mountBillingPlanCompare(form);
     }
 }
 
@@ -629,6 +637,7 @@ async function mountSettingsWorkflow() {
             isDirty: dirty,
             onCancel: () => {
                 applyToForm(form, JSON.parse(initialSnapshot));
+                if (stepId === 'billing') mountBillingPlanCompare(form);
                 dirty = false;
                 setStatus('Reverted unsaved changes.');
                 syncActions();
@@ -689,6 +698,7 @@ async function mountSettingsWorkflow() {
         syncActions();
     });
     form?.addEventListener('change', () => {
+        if (stepId === 'billing') mountBillingPlanCompare(form);
         dirty = JSON.stringify(serializeForm(form)) !== initialSnapshot;
         syncActions();
     });

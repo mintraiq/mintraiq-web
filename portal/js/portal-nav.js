@@ -4,6 +4,7 @@
  * With Turbo Drive + data-turbo-permanent on #portal-sidebar-region, the shell builds once and only
  * syncs the active nav item on each visit (avoids sidebar flicker).
  */
+import { isFeatureReceiptScannerEnabled } from './config.js';
 import { clearClientSessionArtifacts, createLogtoClient, purgeAuthForRelogin } from './logto-client.js';
 import { installPortalTransitions } from './turbo-transitions.js';
 import { loadLegalContent } from './legal-store.js';
@@ -25,6 +26,15 @@ const WORKSPACE = [
 
 function escapeAttr(s) {
     return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
+function workspaceNavItems() {
+    return WORKSPACE.filter((item) => item.id !== 'receipt-scanner' || isFeatureReceiptScannerEnabled());
+}
+
+/** Rebuild sidebar when feature toggles (e.g. receipt scanner) change between Turbo visits. */
+function portalNavSignature() {
+    return `v1|rs:${isFeatureReceiptScannerEnabled() ? '1' : '0'}`;
 }
 
 function closeSidebar() {
@@ -126,10 +136,14 @@ export function mountPortalNav() {
         loadLegalContent(client).catch(() => {});
     }
 
-    if (!root.dataset.portalNavBuilt) {
-        const links = WORKSPACE.map((item) => {
-            return `<a href="${escapeAttr(item.href)}" class="menu-item" data-nav-id="${escapeAttr(item.id)}"><i class="fas ${item.icon}"></i> ${item.label}</a>`;
-        }).join('');
+    const sig = portalNavSignature();
+    if (root.dataset.portalNavSig !== sig) {
+        root.dataset.portalNavSig = sig;
+        const links = workspaceNavItems()
+            .map((item) => {
+                return `<a href="${escapeAttr(item.href)}" class="menu-item" data-nav-id="${escapeAttr(item.id)}"><i class="fas ${item.icon}"></i> ${item.label}</a>`;
+            })
+            .join('');
 
         root.innerHTML =
             '<div class="brand"><i class="fas fa-brain"></i> MintrAIQ</div>' +
@@ -140,8 +154,6 @@ export function mountPortalNav() {
             '<a href="../intro.html" class="menu-item" data-turbo="false"><i class="fas fa-arrow-left"></i> Marketing site</a>' +
             '<button type="button" class="menu-item" id="portalSignOut" data-turbo="false" style="border:none;width:100%;cursor:pointer;background:transparent;font:inherit;color:inherit;text-align:left">' +
             '<i class="fas fa-sign-out-alt"></i> Sign out</button>';
-
-        root.dataset.portalNavBuilt = '1';
     }
 
     syncActiveNav();

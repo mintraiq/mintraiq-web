@@ -31,7 +31,9 @@ const DEFAULT_PUBLIC_ENV = {
     financeApiResource: '',
     signInRedirectUri: '',
     legacyFlaskBase: 'http://127.0.0.1:5000',
-    fastApiDocsUrl: 'http://127.0.0.1:5000/api/docs'
+    fastApiDocsUrl: 'http://127.0.0.1:5000/api/docs',
+    /** "0" / "false" until receipt OCR backend is ready; set "1" or "true" to enable. */
+    featureReceiptScanner: false
 };
 
 const PUBLIC_TO_ENV = {
@@ -42,7 +44,8 @@ const PUBLIC_TO_ENV = {
     PUBLIC_FINANCE_API_RESOURCE: 'financeApiResource',
     PUBLIC_SIGN_IN_REDIRECT_URI: 'signInRedirectUri',
     PUBLIC_LEGACY_FLASK_BASE: 'legacyFlaskBase',
-    PUBLIC_FASTAPI_DOCS_URL: 'fastApiDocsUrl'
+    PUBLIC_FASTAPI_DOCS_URL: 'fastApiDocsUrl',
+    PUBLIC_FEATURE_RECEIPT_SCANNER: 'featureReceiptScanner'
 };
 
 const ENV_KEYS = Object.keys(PUBLIC_TO_ENV);

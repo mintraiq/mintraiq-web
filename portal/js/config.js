@@ -8,7 +8,8 @@
  *   <script>window.__MINTRAIQ_ENV__ = {
  *     financeApiBase: "http://127.0.0.1:5000/api",
  *     financeApiResource: "https://your-api-resource-id-in-logto",
- *     logtoRegisterUrl: "https://your-tenant.logto.app/register?app_id=..." // optional; else PUBLIC_LOGTO_REGISTER_URL at build
+ *     logtoRegisterUrl: "https://your-tenant.logto.app/register?app_id=...", // optional
+ *     featureReceiptScanner: true // optional; receipt scanner + sidebar link (default false)
  *   };</script>
  */
 const defaults = {
@@ -28,7 +29,12 @@ const defaults = {
      * Optional. If set, signIn() uses this exact URL — it must match a Redirect URI in Logto Console.
      * If unset, uses `${getPortalBase()}/callback.html` (e.g. https://mintraiq.com/portal/callback.html).
      */
-    signInRedirectUri: ''
+    signInRedirectUri: '',
+    /**
+     * Receipt scanner (camera → POST /receipt-scanner). Off until backend OCR path is production-ready.
+     * Enable with window.__MINTRAIQ_ENV__.featureReceiptScanner = true or PUBLIC_FEATURE_RECEIPT_SCANNER=1 at build.
+     */
+    featureReceiptScanner: false
 };
 
 /** Skip empty strings from generated runtime-env so local defaults still work when build omits tenant IDs. */
@@ -44,6 +50,23 @@ function mergePublicEnv(base, env) {
 }
 
 export const CONFIG = mergePublicEnv(defaults, window.__MINTRAIQ_ENV__);
+
+/**
+ * Receipt scanner UI + sidebar entry (requires working /receipt-scanner).
+ * Accepts boolean or string from runtime env ("1", "true", "0", "false").
+ * @returns {boolean}
+ */
+export function isFeatureReceiptScannerEnabled() {
+    const v = CONFIG.featureReceiptScanner;
+    if (v === true) return true;
+    if (v === false || v == null) return false;
+    if (typeof v === 'string') {
+        const s = v.trim().toLowerCase();
+        if (s === '' || s === '0' || s === 'false' || s === 'no' || s === 'off') return false;
+        return s === '1' || s === 'true' || s === 'yes' || s === 'on';
+    }
+    return Boolean(v);
+}
 
 /**
  * True when the user may use the main workspace (dashboard first).

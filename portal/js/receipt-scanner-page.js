@@ -1,3 +1,4 @@
+import { isFeatureReceiptScannerEnabled } from './config.js';
 import { guardSession } from './guard-session.js';
 import { createLogtoClient } from './logto-client.js';
 import { financeApiFetch } from './api.js';
@@ -35,6 +36,16 @@ export async function bootReceiptScannerPage(opts = {}) {
     const sessionOk = await guardSession();
     if (!sessionOk) return;
     if (signal?.aborted) return;
+
+    const disabledPanel = document.getElementById('rsDisabledPanel');
+    const activePanel = document.getElementById('rsActivePanel');
+    if (!isFeatureReceiptScannerEnabled()) {
+        if (disabledPanel) disabledPanel.hidden = false;
+        if (activePanel) activePanel.hidden = true;
+        return;
+    }
+    if (disabledPanel) disabledPanel.hidden = true;
+    if (activePanel) activePanel.hidden = false;
 
     const video = document.getElementById('rsVideo');
     const canvas = document.getElementById('rsCanvas');

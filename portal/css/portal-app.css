@@ -2566,32 +2566,28 @@ body[data-portal-nav="transactions"] .tx-action-btn--sync:hover {
     padding: 0.5rem 0.25rem;
 }
 
-.plan-bulb {
+/* High-res PNG (448 intrinsic), displayed small; multiply drops flat white bg on dark UI. */
+.plan-billing-mascot-frame {
     position: relative;
     width: 112px;
-    height: 132px;
+    height: 112px;
     flex-shrink: 0;
-    filter: drop-shadow(0 6px 16px rgba(241, 196, 15, 0.25));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 6px 18px rgba(34, 197, 94, 0.22));
 }
 
-.plan-bulb__svg {
+.plan-billing-mascot__img {
+    width: 112px;
+    height: 112px;
+    object-fit: contain;
     display: block;
-    width: 100%;
-    height: 100%;
+    mix-blend-mode: multiply;
+    image-rendering: auto;
 }
 
-.plan-bulb__ninja {
-    position: absolute;
-    left: 50%;
-    top: 42%;
-    transform: translate(-50%, -50%);
-    font-size: 1.85rem;
-    line-height: 1;
-    pointer-events: none;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-}
-
-.plan-bulb__insight {
+.plan-billing-mascot__insight {
     margin: 0;
     font-size: 0.82rem;
     line-height: 1.5;
@@ -2599,23 +2595,23 @@ body[data-portal-nav="transactions"] .tx-action-btn--sync:hover {
     max-width: 260px;
 }
 
-@keyframes plan-bulb-pop {
+@keyframes plan-mascot-pop {
     0% {
         transform: scale(1);
-        filter: drop-shadow(0 6px 16px rgba(241, 196, 15, 0.25));
+        filter: drop-shadow(0 6px 18px rgba(34, 197, 94, 0.22));
     }
     35% {
-        transform: scale(1.08);
-        filter: drop-shadow(0 10px 28px rgba(241, 196, 15, 0.55));
+        transform: scale(1.06);
+        filter: drop-shadow(0 10px 28px rgba(34, 197, 94, 0.42));
     }
     100% {
         transform: scale(1);
-        filter: drop-shadow(0 6px 16px rgba(241, 196, 15, 0.25));
+        filter: drop-shadow(0 6px 18px rgba(34, 197, 94, 0.22));
     }
 }
 
-.plan-bulb.plan-bulb--anim {
-    animation: plan-bulb-pop 0.55s ease-out;
+.plan-billing-mascot-frame.plan-billing-mascot-frame--anim {
+    animation: plan-mascot-pop 0.55s ease-out;
 }
 
 .plan-billing-divider {

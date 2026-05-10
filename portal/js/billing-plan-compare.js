@@ -1,5 +1,6 @@
 /**
  * Plan comparison UI for Settings → Billing (tier dropdown + detail card + mascot insight).
+ * Mascot: raster icon (high-res source, CSS-sized) in #planBillingMascot.
  */
 
 function escapeHtml(s) {
@@ -103,11 +104,11 @@ function renderPlanCard(key) {
     );
 }
 
-function triggerBulbAnimation(bulbEl) {
-    if (!bulbEl) return;
-    bulbEl.classList.remove('plan-bulb--anim');
-    void bulbEl.offsetWidth;
-    bulbEl.classList.add('plan-bulb--anim');
+function triggerPlanMascotAnimation(frameEl) {
+    if (!frameEl) return;
+    frameEl.classList.remove('plan-billing-mascot-frame--anim');
+    void frameEl.offsetWidth;
+    frameEl.classList.add('plan-billing-mascot-frame--anim');
 }
 
 /**
@@ -118,8 +119,8 @@ export function mountBillingPlanCompare(form) {
 
     const select = form.querySelector('#billingTier');
     const host = document.getElementById('planCompareHost');
-    const insightEl = document.getElementById('planBulbInsight');
-    const bulbEl = document.getElementById('planBulb');
+    const insightEl = document.getElementById('planMascotInsight');
+    const mascotFrameEl = document.getElementById('planBillingMascot');
 
     if (!(select instanceof HTMLSelectElement) || !host || !insightEl) return;
 
@@ -130,5 +131,5 @@ export function mountBillingPlanCompare(form) {
     const p = PLANS[key] || PLANS.free;
     insightEl.textContent = p.insight;
 
-    triggerBulbAnimation(bulbEl);
+    triggerPlanMascotAnimation(mascotFrameEl);
 }

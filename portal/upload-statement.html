@@ -44,16 +44,21 @@
                             </select>
                         </div>
 
-                        <div class="statement-upload-dropzone" id="statementDropZone" role="button" tabindex="0" aria-label="Upload area: drag and drop a CSV, OFX, or PDF file, or press Enter to browse">
+                        <div class="statement-upload-dropzone" id="statementDropZone" role="button" tabindex="0" aria-label="Upload area: drag and drop a CSV, OFX, QFX, or PDF file, or press Enter to browse">
                             <i class="fas fa-cloud-upload-alt statement-upload-dropzone__icon" aria-hidden="true"></i>
                             <p class="statement-upload-dropzone__title">Drag &amp; drop your statement here</p>
-                            <p class="statement-upload-dropzone__hint">CSV, OFX, or PDF — or click to browse</p>
-                            <input type="file" id="statementFileInput" class="statement-upload-file-input" accept=".csv,.ofx,.pdf" required>
+                            <p class="statement-upload-dropzone__hint">CSV, OFX, QFX, or PDF — or click to browse</p>
+                            <input type="file" id="statementFileInput" class="statement-upload-file-input" accept=".csv,.ofx,.qfx,.pdf,text/csv,application/pdf,application/x-ofx,application/vnd.ofx,application/ofx,application/vnd.intu.qfx" required>
                         </div>
 
                         <div id="statementFilePreview" class="statement-upload-file-preview" hidden>
-                            <i class="fas fa-file-alt" aria-hidden="true"></i>
-                            <span id="statementFileName"></span>
+                            <span class="statement-upload-file-preview__meta">
+                                <i class="fas fa-file-alt" aria-hidden="true"></i>
+                                <span id="statementFileName" class="statement-upload-file-preview__name"></span>
+                            </span>
+                            <button type="button" class="statement-upload-file-remove" id="statementFileRemove" aria-label="Remove selected file">
+                                <i class="fas fa-times" aria-hidden="true"></i>
+                            </button>
                         </div>
 
                         <p id="statementUploadError" class="statement-upload-error" role="alert" hidden></p>

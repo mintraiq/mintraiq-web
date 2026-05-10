@@ -14,7 +14,14 @@ function readBootstrap() {
     }
 }
 
-const STATEMENT_ALLOWED_EXT = new Set(['csv', 'ofx', 'pdf']);
+const STATEMENT_ALLOWED_EXT = new Set(['csv', 'ofx', 'qfx', 'pdf']);
+const STATEMENT_OFX_MIMES = new Set([
+    'application/x-ofx',
+    'application/vnd.ofx',
+    'application/ofx',
+    'text/x-ofx',
+    'application/vnd.intu.qfx'
+]);
 
 function statementFileExt(name) {
     const n = String(name || '');
@@ -24,7 +31,20 @@ function statementFileExt(name) {
 }
 
 function isAllowedStatementFile(file) {
-    return Boolean(file && STATEMENT_ALLOWED_EXT.has(statementFileExt(file.name)));
+    if (!file) return false;
+    const ext = statementFileExt(file.name);
+    if (STATEMENT_ALLOWED_EXT.has(ext)) return true;
+    const t = String(file.type || '').toLowerCase();
+    if (!ext) {
+        if (t === 'application/pdf') return true;
+        if (t === 'text/csv' || t === 'application/csv') return true;
+        if (STATEMENT_OFX_MIMES.has(t)) return true;
+    }
+    return false;
+}
+
+function allowedTypesHint() {
+    return 'Only .csv, .ofx, .qfx, and .pdf files are supported.';
 }
 
 function formatApiError(data, status) {
@@ -53,6 +73,7 @@ export async function bootUploadStatementPage(opts = {}) {
     const fileInput = document.getElementById('statementFileInput');
     const preview = document.getElementById('statementFilePreview');
     const fileNameEl = document.getElementById('statementFileName');
+    const fileRemoveBtn = document.getElementById('statementFileRemove');
     const errEl = document.getElementById('statementUploadError');
     const submitBtn = document.getElementById('statementUploadSubmit');
     const resultWrap = document.getElementById('statementUploadResult');
@@ -75,6 +96,7 @@ export async function bootUploadStatementPage(opts = {}) {
             fileInput instanceof HTMLInputElement &&
             preview &&
             fileNameEl &&
+            fileRemoveBtn instanceof HTMLButtonElement &&
             errEl &&
             submitBtn instanceof HTMLButtonElement &&
             resultWrap &&
@@ -107,7 +129,7 @@ export async function bootUploadStatementPage(opts = {}) {
     function syncFileUi() {
         const f = fileInput.files && fileInput.files[0];
         if (f && !isAllowedStatementFile(f)) {
-            showError('Only .csv, .ofx, and .pdf files are supported.');
+            showError(allowedTypesHint());
             fileInput.value = '';
             preview.hidden = true;
             submitBtn.hidden = true;
@@ -130,6 +152,12 @@ export async function bootUploadStatementPage(opts = {}) {
     }
 
     fileInput.addEventListener('change', syncFileUi);
+
+    fileRemoveBtn.addEventListener('click', () => {
+        fileInput.value = '';
+        showError('');
+        syncFileUi();
+    });
 
     dropZone.addEventListener('click', () => fileInput.click());
     dropZone.addEventListener('keydown', (e) => {
@@ -158,7 +186,7 @@ export async function bootUploadStatementPage(opts = {}) {
         const file = dt?.files?.[0];
         if (!file) return;
         if (!isAllowedStatementFile(file)) {
-            showError('Only .csv, .ofx, and .pdf files are supported.');
+            showError(allowedTypesHint());
             return;
         }
         try {
@@ -183,7 +211,7 @@ export async function bootUploadStatementPage(opts = {}) {
             return;
         }
         if (!isAllowedStatementFile(file)) {
-            showError('Only .csv, .ofx, and .pdf files are supported.');
+            showError(allowedTypesHint());
             return;
         }
         if (!bankSelect.value) {

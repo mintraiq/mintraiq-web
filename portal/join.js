@@ -1,4 +1,11 @@
-import { createLogtoClient, isInvalidGrantError, purgeAuthForRelogin, redirectToSignIn } from './js/logto-client.js';
+import {
+    clearPendingLogtoOAuthSession,
+    createLogtoClient,
+    isInvalidGrantError,
+    purgeAuthForRelogin,
+    redirectToSignIn,
+    resetLogtoClient
+} from './js/logto-client.js';
 import { getSignInRedirectUri, resolveDashboardEntry } from './js/config.js';
 import { bootstrapSession } from './js/bootstrap.js';
 import { visitWithTurbo } from './js/turbo-visit.js';
@@ -70,9 +77,10 @@ async function main() {
     joinBtn.addEventListener('click', () => {
         const redirectUri = getSignInRedirectUri();
         if (statusEl) statusEl.textContent = 'Opening secure registration…';
-        // Same as returning-user flow: do not await — signIn navigates away; awaiting can race unload.
-        // interactionMode 'signUp' shows register first; redirect_uri must match callback exactly (getSignInRedirectUri).
-        void client.signIn({
+        clearPendingLogtoOAuthSession();
+        resetLogtoClient();
+        // Fresh client after reset so in-memory state cannot disagree with storage (normal-browser edge cases).
+        void createLogtoClient().signIn({
             redirectUri,
             interactionMode: 'signUp'
         });

@@ -1,4 +1,11 @@
-import { createLogtoClient, isInvalidGrantError, purgeAuthForRelogin, redirectToSignIn } from './js/logto-client.js';
+import {
+    clearPendingLogtoOAuthSession,
+    createLogtoClient,
+    isInvalidGrantError,
+    purgeAuthForRelogin,
+    redirectToSignIn,
+    resetLogtoClient
+} from './js/logto-client.js';
 import { getSignInRedirectUri, resolveDashboardEntry } from './js/config.js';
 import { bootstrapSession } from './js/bootstrap.js';
 import { visitWithTurbo } from './js/turbo-visit.js';
@@ -67,7 +74,9 @@ async function main() {
 
     document.getElementById('signIn').addEventListener('click', () => {
         if (statusEl) statusEl.textContent = 'Redirecting to Logto…';
-        client.signIn(getSignInRedirectUri());
+        clearPendingLogtoOAuthSession();
+        resetLogtoClient();
+        createLogtoClient().signIn(getSignInRedirectUri());
     });
 }
 

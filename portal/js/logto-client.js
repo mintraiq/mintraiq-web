@@ -31,6 +31,26 @@ export function clearLogtoBrowserStorage() {
     }
 }
 
+/**
+ * Clears only the in-flight OIDC sign-in session (sessionStorage).
+ * Stale values here cause "Error found in the callback URI" in normal browsers after interrupted flows; incognito works because storage is empty.
+ * @see @logto/browser BrowserStorage — keys `logto:${appId}:signInSession` and legacy `logto:${appId}`
+ */
+export function clearPendingLogtoOAuthSession() {
+    if (typeof sessionStorage === 'undefined') return;
+    const id = CONFIG.logtoAppId && String(CONFIG.logtoAppId).trim();
+    if (id) {
+        sessionStorage.removeItem(`logto:${id}:signInSession`);
+        sessionStorage.removeItem(`logto:${id}`);
+        return;
+    }
+    /** Config app id missing (e.g. empty build env): drop any Logto pending keys in sessionStorage only. */
+    for (let i = sessionStorage.length - 1; i >= 0; i -= 1) {
+        const k = sessionStorage.key(i);
+        if (k && k.startsWith('logto:')) sessionStorage.removeItem(k);
+    }
+}
+
 /** Full client-side auth wipe for re-login / recovery (Logto keys + MintrAIQ session + singleton). */
 export function purgeAuthForRelogin() {
     clearLogtoBrowserStorage();

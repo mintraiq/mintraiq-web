@@ -5,6 +5,15 @@
   "outputDirectory": ".",
   "headers": [
     {
+      "source": "/portal/callback.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, private"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {

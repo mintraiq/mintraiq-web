@@ -1,4 +1,4 @@
-import { createLogtoClient } from './js/logto-client.js';
+import { createLogtoClient, purgeAuthForRelogin } from './js/logto-client.js';
 import { bootstrapSession } from './js/bootstrap.js';
 import { claimPageScript } from './js/page-script-guard.js';
 
@@ -38,7 +38,15 @@ async function main() {
         const extra = e.body ? `\n\n${JSON.stringify(e.body, null, 2)}` : '';
         const msg = escapeHtml(String(e.message || e));
         const extraSafe = escapeHtml(extra);
-        statusEl.innerHTML = `<strong>Something went wrong</strong><pre>${msg}${extraSafe}</pre><p><a href="./index.html" style="color:#7ee8ff">Back to sign-in</a></p>`;
+        const hint =
+            '<p style="font-size:0.88rem;margin-top:12px;color:#9ca3af">If this keeps happening in your normal browser but works in a private window, saved login data is likely out of sync. Clear it and try again.</p>';
+        const recoverBtn =
+            '<p style="margin-top:14px"><button type="button" id="mintClearStuckOAuth" style="padding:10px 16px;border-radius:10px;border:1px solid rgba(126,232,255,0.4);background:#111827;color:#7ee8ff;font-weight:700;cursor:pointer">Clear saved login &amp; try again</button></p>';
+        statusEl.innerHTML = `<strong>Something went wrong</strong><pre>${msg}${extraSafe}</pre>${hint}${recoverBtn}<p><a href="./index.html" style="color:#7ee8ff">Back to sign-in</a></p>`;
+        document.getElementById('mintClearStuckOAuth')?.addEventListener('click', () => {
+            purgeAuthForRelogin();
+            window.location.replace('./index.html');
+        });
     }
 }
 

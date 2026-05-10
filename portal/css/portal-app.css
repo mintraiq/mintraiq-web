@@ -773,6 +773,18 @@ html.is-turbo-transitioning .main-wrap {
     padding-bottom: 4px;
     user-select: none;
 }
+.tx-similar-badge {
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.92);
+    background: rgba(127, 140, 180, 0.38);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    white-space: nowrap;
+    vertical-align: middle;
+}
 #txTable tbody tr.tx-row-selected {
     background: rgba(0, 255, 157, 0.08);
     outline: 1px solid rgba(0, 255, 157, 0.25);

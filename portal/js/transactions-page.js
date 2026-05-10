@@ -10,6 +10,11 @@ let currentClient = null;
 let sortKey = 'date';
 let sortDir = 'desc';
 
+/** When "Needs review only" is on: map every row id → canonical (first-in-sort) id for that similarity group. */
+let reviewIdToCanonicalId = new Map();
+/** Canonical id → number of rows in group (≥1). */
+let reviewGroupSizeByCanonicalId = new Map();
+
 function toIsoDate(d) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
@@ -83,15 +88,62 @@ function updateSortIndicators() {
     });
 }
 
+function normalizeDescriptionForGrouping(s) {
+    return String(s || '')
+        .trim()
+        .replace(/\s+/g, ' ')
+        .toLowerCase();
+}
+
+/** Same visible line ⇒ one row in "Needs review" triage (matches bulk update by description on the API). */
+function reviewSimilarFingerprint(r) {
+    const amt = Number(r.amount);
+    const amtKey = Number.isFinite(amt) ? amt.toFixed(2) : String(r.amount ?? '');
+    return `${String(r.date || '')}|${amtKey}|${normalizeDescriptionForGrouping(r.description)}|${String(r.category || '')}|${String(r.type || '')}`;
+}
+
+function dedupeReviewRows(sortedFiltered) {
+    reviewIdToCanonicalId = new Map();
+    reviewGroupSizeByCanonicalId = new Map();
+    const fpToCanonicalId = new Map();
+    const fpCount = new Map();
+    for (const r of sortedFiltered) {
+        const fp = reviewSimilarFingerprint(r);
+        fpCount.set(fp, (fpCount.get(fp) || 0) + 1);
+        if (!fpToCanonicalId.has(fp)) fpToCanonicalId.set(fp, r.id);
+        reviewIdToCanonicalId.set(r.id, fpToCanonicalId.get(fp));
+    }
+    for (const [fp, canonId] of fpToCanonicalId) {
+        reviewGroupSizeByCanonicalId.set(canonId, fpCount.get(fp) || 1);
+    }
+    const seenFp = new Set();
+    const out = [];
+    for (const r of sortedFiltered) {
+        const fp = reviewSimilarFingerprint(r);
+        if (seenFp.has(fp)) continue;
+        seenFp.add(fp);
+        out.push(r);
+    }
+    return out;
+}
+
+function canonicalReviewRowId(id) {
+    if (!id) return id;
+    return reviewIdToCanonicalId.get(id) || id;
+}
+
+/** Filled by {@link filteredRows} for table header counts (one filter pass). */
+let lastTxFilterStats = { rawMatch: 0, uniqueBeforePage: 0, reviewOnly: false };
+
 function filteredRows() {
     const q = (document.getElementById('txSearch')?.value || '').trim().toLowerCase();
     const descQ = (document.getElementById('txDescription')?.value || '').trim().toLowerCase();
     const cat = document.getElementById('txCategory')?.value || '';
-    const reviewOnly = document.getElementById('txReviewOnly')?.checked;
+    const reviewOnly = Boolean(document.getElementById('txReviewOnly')?.checked);
     const { from, to } = normalizeDateRange(false);
     const pageSize = Number(document.getElementById('txPageSize')?.value || 50);
 
-    const rows = allRows
+    const sortedFiltered = allRows
         .slice()
         .sort((a, b) => {
             const r = compareRows(a, b, sortKey);
@@ -108,8 +160,20 @@ function filteredRows() {
             return blob.includes(q);
         });
 
-    if (!Number.isFinite(pageSize) || pageSize <= 0) return rows;
-    return rows.slice(0, pageSize);
+    lastTxFilterStats.reviewOnly = reviewOnly;
+    lastTxFilterStats.rawMatch = sortedFiltered.length;
+
+    let pool = sortedFiltered;
+    if (reviewOnly) {
+        pool = dedupeReviewRows(sortedFiltered);
+    } else {
+        reviewIdToCanonicalId = new Map();
+        reviewGroupSizeByCanonicalId = new Map();
+    }
+    lastTxFilterStats.uniqueBeforePage = pool.length;
+
+    if (!Number.isFinite(pageSize) || pageSize <= 0) return pool;
+    return pool.slice(0, pageSize);
 }
 
 function selectedInlinePanelId() {
@@ -133,6 +197,11 @@ function renderExpandedRow(r) {
         '<dl class="tx-detail-dl">' +
         `<dt>Description</dt><dd>${escapeHtml(r.description || '—')}</dd>` +
         `<dt>Category</dt><dd>${escapeHtml(r.category || '—')}</dd>` +
+        (() => {
+            const n = reviewGroupSizeByCanonicalId.get(r.id) || 0;
+            if (n <= 1) return '';
+            return `<dt>Similar in list</dt><dd>${n} rows match this line (Review updates all with the same description on the server).</dd>`;
+        })() +
         `<dt>Needs review</dt><dd>${r.needs_review ? 'Yes' : 'No'}</dd>` +
         `<dt>Confidence</dt><dd>${(score * 100).toFixed(0)}%</dd>` +
         `<dt>Id</dt><dd><code style="font-size:0.85rem">${escapeHtml(r.id)}</code></dd>` +
@@ -148,9 +217,25 @@ function renderTable() {
     const tbody = document.querySelector('#txTable tbody');
     if (!tbody) return;
     const rows = filteredRows();
+    const { rawMatch, uniqueBeforePage, reviewOnly } = lastTxFilterStats;
     tbody.textContent = '';
     const countEl = document.getElementById('txCount');
-    if (countEl) countEl.textContent = `${rows.length} shown · ${allRows.length} total`;
+    const subEl = document.getElementById('txCountSub');
+    if (countEl) {
+        if (reviewOnly && rawMatch > uniqueBeforePage) {
+            countEl.textContent = `${rows.length} shown · ${uniqueBeforePage} unique · ${rawMatch} need review · ${allRows.length} total`;
+        } else if (reviewOnly) {
+            countEl.textContent = `${rows.length} shown · ${rawMatch} need review · ${allRows.length} total`;
+        } else {
+            countEl.textContent = `${rows.length} shown · ${allRows.length} total`;
+        }
+    }
+    if (subEl) {
+        subEl.textContent =
+            reviewOnly && rawMatch > uniqueBeforePage
+                ? 'Similar rows are grouped. Open a row and use Review — updates still apply to every matching transaction (same as before).'
+                : '';
+    }
 
     if (!rows.length) {
         const tr = document.createElement('tr');
@@ -166,7 +251,7 @@ function renderTable() {
     for (const r of rows) {
         const tr = document.createElement('tr');
         tr.style.cursor = 'pointer';
-        if (selected && selected.id === r.id) tr.classList.add('tx-row-selected');
+        if (selected && canonicalReviewRowId(selected.id) === r.id) tr.classList.add('tx-row-selected');
         tr.dataset.id = r.id;
         const cells = [
             r.date,
@@ -179,13 +264,28 @@ function renderTable() {
         ];
         cells.forEach((c, i) => {
             const td = document.createElement('td');
-            td.textContent = c;
+            if (i === 2 && reviewOnly) {
+                const grp = reviewGroupSizeByCanonicalId.get(r.id) || 1;
+                td.textContent = '';
+                const main = document.createElement('span');
+                main.textContent = c;
+                td.appendChild(main);
+                if (grp > 1) {
+                    const badge = document.createElement('span');
+                    badge.className = 'tx-similar-badge';
+                    badge.textContent = `×${grp} similar`;
+                    badge.title = `${grp} transactions share this line; one review updates the group.`;
+                    td.appendChild(badge);
+                }
+            } else {
+                td.textContent = c;
+            }
             if (i === 1) td.className = 'align-right';
             tr.appendChild(td);
         });
         tbody.appendChild(tr);
 
-        if (selected && selected.id === r.id) {
+        if (selected && canonicalReviewRowId(selected.id) === r.id) {
             const wrap = document.createElement('tbody');
             wrap.innerHTML = renderExpandedRow(r);
             tbody.appendChild(wrap.firstElementChild);
@@ -271,22 +371,6 @@ function renderEnquireResult(data, fromSample) {
     );
 }
 
-function markReviewed(txId, nextCategory) {
-    const idx = allRows.findIndex((r) => r.id === txId);
-    if (idx === -1) return;
-    allRows[idx].category = nextCategory;
-    allRows[idx].needs_review = false;
-    allRows[idx].flag = '✅';
-    selected = allRows[idx];
-    fillCategoryOptions();
-    renderTable();
-    const rowEl = document.querySelector(`#txTable tbody tr[data-id="${CSS.escape(txId)}"]`);
-    if (rowEl) {
-        rowEl.classList.add('tx-row-reviewed');
-        window.setTimeout(() => rowEl.classList.remove('tx-row-reviewed'), 1800);
-    }
-}
-
 function collapseSelectedRow() {
     if (!selected) return;
     const wrap = document.querySelector('.tx-expand-wrap');
@@ -360,9 +444,7 @@ async function saveReviewFromPanel() {
             const text = await res.text();
             throw new Error(text || `Review update failed (${res.status})`);
         }
-        markReviewed(selected.id, category);
-        const nextMsg = document.getElementById('txReviewMsg');
-        if (nextMsg) nextMsg.textContent = 'Updated and marked reviewed.';
+        await loadTransactions(currentClient, { reviewSaved: true });
     } catch (e) {
         if (msg) msg.textContent = String(e.message || e);
     }
@@ -407,12 +489,13 @@ function clearFiltersToDefault() {
     updateSortIndicators();
     normalizeDateRange(true);
     renderTable();
-    if (selected && !filteredRows().some((r) => r.id === selected.id)) {
+    if (selected && !filteredRows().some((r) => r.id === canonicalReviewRowId(selected.id))) {
         selected = null;
     }
 }
 
-async function loadTransactions(client) {
+/** @param {{ reviewSaved?: boolean }} [opts] */
+async function loadTransactions(client, opts = {}) {
     const status = document.getElementById('txStatus');
     const errBox = document.getElementById('txError');
     if (errBox) {
@@ -452,7 +535,9 @@ async function loadTransactions(client) {
     renderTable();
     if (status) {
         const count = allRows.length;
-        status.textContent = count ? `${count} transaction${count === 1 ? '' : 's'} loaded` : '';
+        let t = count ? `${count} transaction${count === 1 ? '' : 's'} loaded` : '';
+        if (opts.reviewSaved) t = t ? `${t} · Review saved` : 'Review saved';
+        status.textContent = t;
     }
 }
 
@@ -498,7 +583,7 @@ function wireFilters(signal) {
         normalizeDateRange(true);
         renderTable();
         updateSortIndicators();
-        if (selected && !filteredRows().some((r) => r.id === selected.id)) {
+        if (selected && !filteredRows().some((r) => r.id === canonicalReviewRowId(selected.id))) {
             selected = null;
         }
     };
@@ -570,7 +655,7 @@ function wireTableInteractions(signal) {
         if (!tr) return;
         const id = tr.getAttribute('data-id');
         if (!id) return;
-        if (selected && selected.id === id) {
+        if (selected && canonicalReviewRowId(selected.id) === id) {
             collapseSelectedRow();
             return;
         }

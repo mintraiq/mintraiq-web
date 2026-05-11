@@ -124,6 +124,8 @@ export async function bootReceiptScannerPage(opts = {}) {
         if (scanningSub) scanningSub.textContent = '';
     }
 
+    stopScanningUI();
+
     if (
         !(
             video instanceof HTMLVideoElement &&
@@ -202,12 +204,16 @@ export async function bootReceiptScannerPage(opts = {}) {
         }
     }
 
-    signal?.addEventListener('abort', () => stopCamera(video));
+    signal?.addEventListener('abort', () => {
+        stopScanningUI();
+        stopCamera(video);
+    });
 
     document.addEventListener(
         'turbo:before-cache',
         () => {
             if (document.body?.getAttribute('data-portal-nav') !== 'receipt-scanner') return;
+            stopScanningUI();
             stopCamera(video);
         },
         { signal }

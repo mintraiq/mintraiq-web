@@ -2193,6 +2193,11 @@ body[data-portal-nav="transactions"] .tx-action-btn--sync:hover {
     box-sizing: border-box;
 }
 
+/* Author `display:flex` must not beat the HTML `hidden` attribute (otherwise overlay blocks the page on load / Turbo restore). */
+.receipt-scanner-scanning[hidden] {
+    display: none !important;
+}
+
 .receipt-scanner-scanning__backdrop {
     position: absolute;
     inset: 0;

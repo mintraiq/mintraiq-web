@@ -1,7 +1,10 @@
 /**
  * Global workspace top banner: page title + subtitle, settings / notifications / logout / avatar.
  * Injects once per header; keeps dashboard #welcomeLine / #tierPill markup intact.
+ * Tier tint (free / basic / premium) from session `mintraiq_bootstrap` profile tier — see applyTierSkinToAllBanners.
  */
+
+const TIER_SKIN_CLASSES = ['portal-banner--tier-free', 'portal-banner--tier-medium', 'portal-banner--tier-advanced'];
 
 const PORTAL_PAGE_COPY = {
     dashboard: { title: 'Dashboard', subtitle: null },
@@ -53,6 +56,82 @@ const SETTINGS_PAGE_COPY = {
 function escapeAttr(s) {
     return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
+
+function readRawTierFromBootstrap() {
+    try {
+        const raw = sessionStorage.getItem('mintraiq_bootstrap');
+        if (!raw) return 'free';
+        const b = JSON.parse(raw);
+        const t =
+            (b.profile && b.profile.tier) ||
+            (b.profile && b.profile.billing_tier) ||
+            b.billing_tier ||
+            b.tier;
+        return String(t || 'free')
+            .toLowerCase()
+            .trim();
+    } catch {
+        return 'free';
+    }
+}
+
+/**
+ * Maps product tiers to three banner treatments: lite (free), medium (basic / pro), lite-dark (premium+).
+ */
+function resolveTierSkinClass() {
+    const t = readRawTierFromBootstrap();
+    if (
+        t === 'premium' ||
+        t === 'pro' ||
+        t === 'pro_trial' ||
+        t === 'business' ||
+        t === 'advanced' ||
+        t === 'shadow' ||
+        t === 'vip' ||
+        t === 'enterprise'
+    ) {
+        return 'portal-banner--tier-advanced';
+    }
+    if (t === 'basic' || t === 'warrior' || t === 'standard' || t === 'lite_plus') {
+        return 'portal-banner--tier-medium';
+    }
+    return 'portal-banner--tier-free';
+}
+
+function applyTierSkinToAllBanners() {
+    if (typeof document === 'undefined') return;
+    const tierClass = resolveTierSkinClass();
+    const headers = new Set();
+
+    const byId = document.getElementById('portal-workspace-banner');
+    if (byId) headers.add(byId);
+
+    const mainStd = document.querySelector('main.main-content:not(.main-content--settings)');
+    if (mainStd) {
+        const first = mainStd.querySelector(':scope > header.top-header');
+        if (first) headers.add(first);
+    }
+
+    const mainSettings = document.querySelector('main.main-content--settings');
+    if (mainSettings) {
+        const sb = mainSettings.querySelector('#portal-workspace-banner');
+        if (sb) headers.add(sb);
+    }
+
+    headers.forEach((header) => {
+        header.classList.add('portal-workspace-banner');
+        TIER_SKIN_CLASSES.forEach((c) => header.classList.remove(c));
+        header.classList.add(tierClass);
+        header.dataset.portalTierSkin = tierClass.replace('portal-banner--tier-', '');
+    });
+}
+
+function wireTierSkinReactivity() {
+    if (typeof window === 'undefined' || window.__mintWorkspaceBannerTierListener) return;
+    window.__mintWorkspaceBannerTierListener = true;
+    document.addEventListener('mint:bootstrap-ready', () => applyTierSkinToAllBanners());
+}
+wireTierSkinReactivity();
 
 function injectHeaderRightGlobalActions(header) {
     let right = header.querySelector('.header-right');
@@ -173,23 +252,27 @@ function ensureOnboardingWorkspaceBanner() {
 export function syncWorkspaceBanner() {
     if (typeof document === 'undefined') return;
 
-    if (document.body?.getAttribute('data-onboarding-page') === '1') {
-        ensureOnboardingWorkspaceBanner();
-        return;
+    try {
+        if (document.body?.getAttribute('data-onboarding-page') === '1') {
+            ensureOnboardingWorkspaceBanner();
+            return;
+        }
+
+        if (document.querySelector('main.main-content--settings')) {
+            ensureSettingsWorkspaceBanner();
+            return;
+        }
+
+        const main = document.querySelector('main.main-content');
+        if (!main) return;
+
+        const nav = document.body?.getAttribute('data-portal-nav') || 'dashboard';
+        const settingsNav = document.body?.getAttribute('data-settings-nav') || '';
+
+        const header = getOrCreatePrimaryWorkspaceHeader(main);
+        injectHeaderRightGlobalActions(header);
+        applyTitleSubtitle(header, nav, settingsNav);
+    } finally {
+        applyTierSkinToAllBanners();
     }
-
-    if (document.querySelector('main.main-content--settings')) {
-        ensureSettingsWorkspaceBanner();
-        return;
-    }
-
-    const main = document.querySelector('main.main-content');
-    if (!main) return;
-
-    const nav = document.body?.getAttribute('data-portal-nav') || 'dashboard';
-    const settingsNav = document.body?.getAttribute('data-settings-nav') || '';
-
-    const header = getOrCreatePrimaryWorkspaceHeader(main);
-    injectHeaderRightGlobalActions(header);
-    applyTitleSubtitle(header, nav, settingsNav);
 }

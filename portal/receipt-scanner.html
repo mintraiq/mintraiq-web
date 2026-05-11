@@ -113,7 +113,10 @@
                         <span class="card-title"><i class="fas fa-file-lines"></i> Scan result</span>
                     </div>
                     <p id="rsResultMeta" class="receipt-scanner-result-meta"></p>
-                    <pre id="rsResultJson" class="receipt-scanner-result-pre" tabindex="0"></pre>
+                    <div id="rsResultBody" class="receipt-scanner-result-body">
+                        <div id="rsResultTableHost" class="receipt-scanner-result-tablehost" hidden tabindex="-1"></div>
+                        <pre id="rsResultJson" class="receipt-scanner-result-pre receipt-scanner-result-pre--fallback" hidden tabindex="0"></pre>
+                    </div>
                     <p class="receipt-scanner-result-hint">This is AI-extracted data for your records only; it is not financial advice under NZ law.</p>
                 </div>
                 </div>

@@ -42,6 +42,123 @@ function formatApiError(data, status) {
     return `Request failed (${status})`;
 }
 
+function firstDefined(obj, keys) {
+    if (!obj || typeof obj !== 'object') return '';
+    for (const k of keys) {
+        const v = obj[k];
+        if (v !== undefined && v !== null && v !== '') return v;
+    }
+    return '';
+}
+
+function formatCurrencyNzd(value) {
+    if (value === '' || value == null) return '—';
+    const n = Number(value);
+    if (Number.isNaN(n)) return String(value);
+    return n.toLocaleString('en-NZ', { style: 'currency', currency: 'NZD' });
+}
+
+/**
+ * Renders summary + line-items tables into `host` (textContent only). Returns false if nothing to show.
+ * @param {HTMLElement | null} host
+ * @param {unknown} scanned
+ * @returns {boolean}
+ */
+function renderReceiptScanTables(host, scanned) {
+    if (!host || typeof scanned !== 'object' || scanned === null || Array.isArray(scanned)) return false;
+
+    const merchant = firstDefined(scanned, ['merchant_name', 'merchantName']);
+    const address = firstDefined(scanned, ['merchant_address', 'merchantAddress']);
+    const date = firstDefined(scanned, ['transaction_date', 'transactionDate']);
+    const time = firstDefined(scanned, ['transaction_time', 'transactionTime']);
+    const totalRaw = scanned.total_amount ?? scanned.totalAmount;
+    const lines = scanned.line_items ?? scanned.lineItems;
+
+    const hasSummary = [merchant, address, date, time, totalRaw].some((v) => v !== '' && v != null);
+    const hasLines = Array.isArray(lines) && lines.length > 0;
+    if (!hasSummary && !hasLines) return false;
+
+    host.replaceChildren();
+
+    function appendSummaryTable() {
+        const title = document.createElement('h3');
+        title.className = 'rs-result-section-title';
+        title.textContent = 'Receipt summary';
+        host.appendChild(title);
+
+        const table = document.createElement('table');
+        table.className = 'rs-result-table rs-result-table--summary';
+        const tbody = document.createElement('tbody');
+
+        function row(label, value, formatMoney) {
+            const tr = document.createElement('tr');
+            const th = document.createElement('th');
+            th.textContent = label;
+            const td = document.createElement('td');
+            if (value === '' || value == null) td.textContent = '—';
+            else td.textContent = formatMoney ? formatCurrencyNzd(value) : String(value);
+            tr.append(th, td);
+            tbody.appendChild(tr);
+        }
+
+        row('Merchant', merchant, false);
+        row('Address', address, false);
+        row('Date', date, false);
+        row('Time', time, false);
+        row('Total', totalRaw, true);
+
+        table.appendChild(tbody);
+        host.appendChild(table);
+    }
+
+    function appendLineItemsTable() {
+        const title = document.createElement('h3');
+        title.className = 'rs-result-section-title';
+        title.textContent = 'Line items';
+        host.appendChild(title);
+
+        const table = document.createElement('table');
+        table.className = 'rs-result-table rs-result-table--lines';
+        const thead = document.createElement('thead');
+        const trh = document.createElement('tr');
+        for (const h of ['Item', 'Qty', 'Price']) {
+            const th = document.createElement('th');
+            th.textContent = h;
+            trh.appendChild(th);
+        }
+        thead.appendChild(trh);
+        const tbody = document.createElement('tbody');
+
+        for (const item of lines) {
+            if (!item || typeof item !== 'object') continue;
+            const tr = document.createElement('tr');
+            const name = firstDefined(item, ['item_name', 'itemName', 'description', 'name']);
+            const qty = item.item_quantity ?? item.itemQuantity ?? item.quantity;
+            const price = item.item_price ?? item.itemPrice ?? item.price;
+
+            const tdName = document.createElement('td');
+            tdName.textContent = name !== '' && name != null ? String(name) : '—';
+
+            const tdQty = document.createElement('td');
+            tdQty.textContent = qty === '' || qty == null ? '—' : String(qty);
+
+            const tdPrice = document.createElement('td');
+            tdPrice.textContent = formatCurrencyNzd(price);
+
+            tr.append(tdName, tdQty, tdPrice);
+            tbody.appendChild(tr);
+        }
+
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        host.appendChild(table);
+    }
+
+    if (hasSummary) appendSummaryTable();
+    if (hasLines) appendLineItemsTable();
+    return true;
+}
+
 function stopCamera(video) {
     if (mediaStream) {
         mediaStream.getTracks().forEach((t) => t.stop());
@@ -84,6 +201,7 @@ export async function bootReceiptScannerPage(opts = {}) {
     const statusEl = document.getElementById('rsStatus');
     const errEl = document.getElementById('rsError');
     const resultWrap = document.getElementById('rsResult');
+    const resultTableHost = document.getElementById('rsResultTableHost');
     const resultPre = document.getElementById('rsResultJson');
     const resultMeta = document.getElementById('rsResultMeta');
     const scanningOverlay = document.getElementById('rsScanningOverlay');
@@ -139,6 +257,7 @@ export async function bootReceiptScannerPage(opts = {}) {
             statusEl &&
             errEl &&
             resultWrap &&
+            resultTableHost &&
             resultPre &&
             resultMeta
         )
@@ -320,19 +439,33 @@ export async function bootReceiptScannerPage(opts = {}) {
                           : data.data != null
                             ? data.data
                             : data;
-                let pretty;
+
+                const ins = data.inserted_id != null ? String(data.inserted_id) : '';
+                resultMeta.textContent = ins
+                    ? `Stored with id ${ins}. AI-extracted fields below.`
+                    : 'AI-extracted receipt details below.';
+
+                const tableShown = renderReceiptScanTables(resultTableHost, scanned);
+                let pretty = '';
                 try {
                     pretty = JSON.stringify(scanned, null, 2);
                 } catch {
                     pretty = String(scanned);
                 }
-                resultPre.textContent = pretty;
-                const ins = data.inserted_id != null ? String(data.inserted_id) : '';
-                resultMeta.textContent = ins
-                    ? `Stored with id ${ins}. Raw OCR payload below.`
-                    : 'OCR response below (direct from scanner service).';
+
+                if (tableShown) {
+                    resultTableHost.hidden = false;
+                    resultPre.hidden = true;
+                    resultPre.textContent = '';
+                    resultTableHost.focus();
+                } else {
+                    resultTableHost.hidden = true;
+                    resultTableHost.replaceChildren();
+                    resultPre.hidden = false;
+                    resultPre.textContent = pretty;
+                    resultPre.focus();
+                }
                 resultWrap.hidden = false;
-                resultPre.focus();
                 if (statusEl) statusEl.textContent = 'Scan complete.';
             } catch (err) {
                 if (err?.name === 'AbortError') {
@@ -353,6 +486,9 @@ export async function bootReceiptScannerPage(opts = {}) {
     pendingImage = null;
     btnProcess.disabled = true;
     resultWrap.hidden = true;
+    resultTableHost.replaceChildren();
+    resultTableHost.hidden = true;
+    resultPre.hidden = true;
     resultPre.textContent = '';
     resultMeta.textContent = '';
     showError('');

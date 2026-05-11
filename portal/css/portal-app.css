@@ -2505,6 +2505,110 @@ body[data-portal-nav="transactions"] .tx-action-btn--sync:hover {
     color: var(--text-secondary);
 }
 
+.receipt-scanner-result-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.receipt-scanner-result-tablehost {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    outline: none;
+}
+
+.receipt-scanner-result-tablehost[hidden] {
+    display: none !important;
+}
+
+.rs-result-section-title {
+    margin: 0 0 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent-green, #00ff9d);
+}
+
+.rs-result-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.28);
+}
+
+.rs-result-table--summary th {
+    width: 38%;
+    max-width: 140px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-secondary, #a1a1aa);
+    padding: 10px 12px;
+    vertical-align: top;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.rs-result-table--summary td {
+    text-align: left;
+    color: #e8e8e8;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    word-break: break-word;
+}
+
+.rs-result-table--summary tr:last-child th,
+.rs-result-table--summary tr:last-child td {
+    border-bottom: none;
+}
+
+.rs-result-table--lines thead th {
+    text-align: left;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary, #a1a1aa);
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.35);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rs-result-table--lines thead th:nth-child(2) {
+    text-align: center;
+}
+
+.rs-result-table--lines thead th:nth-child(3) {
+    text-align: right;
+}
+
+.rs-result-table--lines tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: #e8e8e8;
+    vertical-align: top;
+}
+
+.rs-result-table--lines tbody td:nth-child(2) {
+    text-align: center;
+    white-space: nowrap;
+    width: 4rem;
+    color: var(--text-secondary, #c4c4c4);
+}
+
+.rs-result-table--lines tbody td:nth-child(3) {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.rs-result-table--lines tbody tr:last-child td {
+    border-bottom: none;
+}
+
 .receipt-scanner-result-pre {
     margin: 0;
     padding: 14px;
@@ -2518,6 +2622,10 @@ body[data-portal-nav="transactions"] .tx-action-btn--sync:hover {
     color: #e8e8e8;
     white-space: pre-wrap;
     word-break: break-word;
+}
+
+.receipt-scanner-result-pre--fallback[hidden] {
+    display: none !important;
 }
 
 .receipt-scanner-result-hint {

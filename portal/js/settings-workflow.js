@@ -435,6 +435,26 @@ async function completeOnboarding(client) {
     }
 }
 
+async function startBillingCheckoutOrTrial(client, tier) {
+    const res = await financeApiFetch(client, '/payments/web/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier })
+    });
+    const text = await res.text();
+    let data = {};
+    try {
+        data = text ? JSON.parse(text) : {};
+    } catch {
+        throw new Error(`Unexpected payment response (${res.status}).`);
+    }
+    if (!res.ok) {
+        const detail = data?.detail || data?.message || `Checkout failed (${res.status})`;
+        throw new Error(String(detail));
+    }
+    return data;
+}
+
 function resolveFinalRedirect(result) {
     const target = String(result?.redirect_target || '').trim();
     if (target === '/transactions') return './transactions.html';
@@ -673,12 +693,32 @@ async function mountSettingsWorkflow() {
                     }
                     const saveRes = await saveStepData(client, stepId, payload, true);
                     if (saveRes?.ok) {
-                        setStatus(
-                            tier === 'free'
-                                ? 'You are on the free plan. Upgrade only if you want to, anytime in Settings.'
-                                : 'Plan preference saved. You can complete payment whenever you are ready under Settings → Billing.',
-                            'positive'
-                        );
+                        if (tier === 'free') {
+                            setStatus('You are on the free plan. Upgrade only if you want to, anytime in Settings.', 'positive');
+                        } else {
+                            try {
+                                const pay = await startBillingCheckoutOrTrial(client, tier);
+                                if (pay?.checkout_enabled && pay?.url) {
+                                    setStatus('Redirecting to secure checkout…', 'positive');
+                                    window.location.assign(String(pay.url));
+                                    return;
+                                }
+                                if (pay?.status === 'trial_started') {
+                                    const days = Number(pay?.trial_days || 0);
+                                    const msg = days > 0 ? `${days}-day trial started.` : 'Trial started.';
+                                    setStatus(`${msg} You can continue setup now.`, 'positive');
+                                } else if (pay?.status === 'trial_active') {
+                                    const left = Number(pay?.trial_days_left || 0);
+                                    const msg = left > 0 ? `Trial active (${left} day${left === 1 ? '' : 's'} left).` : 'Trial active.';
+                                    setStatus(`${msg} Checkout will unlock when trial ends.`, 'positive');
+                                } else {
+                                    setStatus('Plan preference saved. You can complete payment whenever you are ready under Settings → Billing.', 'positive');
+                                }
+                            } catch (err) {
+                                const msg = err instanceof Error ? err.message : 'Could not start trial / checkout.';
+                                setStatus(msg, 'warning');
+                            }
+                        }
                     }
                     await navigateNext(saveRes);
                     return;

@@ -14,7 +14,7 @@ function escapeHtml(s) {
 export function normalizeBillingTierValue(raw) {
     const t = String(raw || 'free').toLowerCase().trim();
     if (t === 'basic') return 'basic';
-    if (t === 'premium' || t === 'pro' || t === 'pro_trial' || t === 'business') return 'premium';
+    if (t === 'premium' || t === 'advanced' || t === 'pro' || t === 'pro_trial' || t === 'business') return 'premium';
     return 'free';
 }
 
@@ -42,6 +42,7 @@ const PLANS = {
         badge: null,
         featured: false,
         included: [
+            '7-Day Free Trial',
             '6 Months Transaction Storage',
             '10 Receipt Scans / mo',
             'Limited AI Forecasting',
@@ -49,18 +50,19 @@ const PLANS = {
         ],
         excluded: ['CPI Guru Inflation Tracker'],
         insight:
-            'Balanced upgrade: more history, receipt scans, and lighter AI — great when you want help without the full Pro toolkit.',
-        ctaHint: 'Choose Basic when you are ready for more automation.'
+            'Balanced upgrade with a 7-day trial: more history, receipt scans, and lighter AI — great when you want help without the full Advanced toolkit.',
+        ctaHint: 'Start Basic trial, then continue if it fits.'
     },
     premium: {
         key: 'premium',
         title: 'Shadow Master',
-        tagline: 'Pro',
+        tagline: 'Advanced',
         price: '$9.99',
         period: '/mo',
         badge: 'NINJA PRO',
         featured: true,
         included: [
+            '14-Day Free Trial',
             'Unlimited Everything',
             'CPI Guru Inflation Tracker',
             'Advanced AI Forecasting',
@@ -69,8 +71,8 @@ const PLANS = {
         ],
         excluded: [],
         insight:
-            'Full dojo: CPI Guru, advanced forecasts, alerts, and planners — for when you want the complete MintrAIQ experience.',
-        ctaHint: 'Upgrade to Pro when you want everything unlocked.'
+            'Full dojo with a 14-day trial: CPI Guru, advanced forecasts, alerts, and planners — for when you want the complete MintrAIQ experience.',
+        ctaHint: 'Start Advanced trial and keep everything unlocked.'
     }
 };
 

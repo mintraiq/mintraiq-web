@@ -279,14 +279,18 @@ export async function bootReceiptScannerPage(opts = {}) {
             showError('');
             btnProcess.disabled = true;
             btnCapture.disabled = true;
-            if (statusEl) statusEl.textContent = '';
-            startScanningUI();
+            if (statusEl) statusEl.textContent = 'Connecting…';
 
             try {
                 const res = await ocrScannerFetch(client, {
                     method: 'POST',
                     body: fd,
-                    signal
+                    signal,
+                    /** Full “scan agent” overlay only once the HTTP request is about to run (after token). */
+                    onBeforeFetch: () => {
+                        if (statusEl) statusEl.textContent = '';
+                        startScanningUI();
+                    }
                 });
                 const text = await res.text();
                 let data = {};
@@ -325,7 +329,10 @@ export async function bootReceiptScannerPage(opts = {}) {
                 resultPre.focus();
                 if (statusEl) statusEl.textContent = 'Scan complete.';
             } catch (err) {
-                if (err?.name === 'AbortError') return;
+                if (err?.name === 'AbortError') {
+                    if (statusEl) statusEl.textContent = '';
+                    return;
+                }
                 showError(err instanceof Error ? err.message : 'Scan failed.');
                 if (statusEl) statusEl.textContent = '';
             } finally {

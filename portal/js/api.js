@@ -34,6 +34,8 @@ export async function financeApiFetch(logtoClient, path, options = {}) {
 /**
  * Authenticated POST to the dedicated OCR receipt scanner (multipart field `file`).
  * Uses `ocrScannerApiUrl` (full URL). JWT audience: `ocrScannerApiResource` if set, else `financeApiResource`.
+ *
+ * Optional `onBeforeFetch` runs immediately before `fetch()` (after the access token is ready), for loading UI.
  */
 export async function ocrScannerFetch(logtoClient, options = {}) {
     const url = String(CONFIG.ocrScannerApiUrl || '').trim();
@@ -54,7 +56,11 @@ export async function ocrScannerFetch(logtoClient, options = {}) {
         Authorization: `Bearer ${token}`
     };
 
-    const { cache: cacheOpt, ...rest } = options;
+    const { cache: cacheOpt, onBeforeFetch, ...rest } = options;
+    if (typeof onBeforeFetch === 'function') {
+        onBeforeFetch();
+    }
+
     return fetch(url, {
         cache: cacheOpt ?? 'no-store',
         ...rest,

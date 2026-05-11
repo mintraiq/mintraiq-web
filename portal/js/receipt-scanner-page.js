@@ -8,6 +8,32 @@ let mediaStream = null;
 /** @type {Blob | File | null} */
 let pendingImage = null;
 
+/**
+ * Browser multipart equivalent of Python:
+ *   files = {"file": (file.filename, file.stream, file.mimetype)}
+ * One form field named `file`; filename + Content-Type on the part map to filename + mimetype.
+ * @param {Blob | File} blob
+ * @returns {FormData}
+ */
+function guessMimeFromFilename(filename) {
+    const n = String(filename || '').toLowerCase();
+    if (n.endsWith('.png')) return 'image/png';
+    if (n.endsWith('.webp')) return 'image/webp';
+    if (n.endsWith('.jpg') || n.endsWith('.jpeg')) return 'image/jpeg';
+    return 'image/jpeg';
+}
+
+function buildReceiptScannerFormData(blob) {
+    const fd = new FormData();
+    const isFile = blob instanceof File;
+    const filename = isFile && blob.name ? blob.name : 'receipt.jpg';
+    const mimetype =
+        blob.type && blob.type !== '' ? blob.type : guessMimeFromFilename(filename);
+    const file = new File([blob], filename, { type: mimetype });
+    fd.append('file', file, filename);
+    return fd;
+}
+
 function formatApiError(data, status) {
     const d = data?.detail;
     if (typeof d === 'string') return d;
@@ -211,9 +237,7 @@ export async function bootReceiptScannerPage(opts = {}) {
             }
 
             const client = createLogtoClient();
-            const fd = new FormData();
-            const name = blob instanceof File && blob.name ? blob.name : 'receipt-capture.jpg';
-            fd.append('file', blob, name);
+            const fd = buildReceiptScannerFormData(blob);
 
             showError('');
             btnProcess.disabled = true;

@@ -73,7 +73,14 @@
                     <div class="receipt-scanner-fallback">
                         <label class="receipt-scanner-file-label">
                             <i class="fas fa-image" aria-hidden="true"></i> Choose image
-                            <input type="file" id="rsFileFallback" class="receipt-scanner-file-input" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" />
+                            <!-- Part name `file` matches server/OCR: files = {"file": (filename, stream, mimetype)} -->
+                            <input
+                                type="file"
+                                id="rsFileFallback"
+                                name="file"
+                                class="receipt-scanner-file-input"
+                                accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                            />
                         </label>
                         <button type="button" class="receipt-scanner-linkish" id="rsRetryCamera">Retry camera</button>
                     </div>

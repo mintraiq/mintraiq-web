@@ -84,6 +84,28 @@
                         </label>
                         <button type="button" class="receipt-scanner-linkish" id="rsRetryCamera">Retry camera</button>
                     </div>
+
+                    <div
+                        id="rsScanningOverlay"
+                        class="receipt-scanner-scanning"
+                        hidden
+                        role="status"
+                        aria-live="polite"
+                        aria-busy="false"
+                    >
+                        <div class="receipt-scanner-scanning__backdrop" aria-hidden="true"></div>
+                        <div class="receipt-scanner-scanning__panel">
+                            <div class="receipt-scanner-scanning__glyph" aria-hidden="true">
+                                <span class="receipt-scanner-scanning__ring"></span>
+                                <i class="fas fa-receipt receipt-scanner-scanning__icon"></i>
+                            </div>
+                            <p class="receipt-scanner-scanning__title">Scan agent is on the job</p>
+                            <p id="rsScanningSub" class="receipt-scanner-scanning__sub"></p>
+                            <div class="receipt-scanner-scanning__dots" aria-hidden="true">
+                                <span></span><span></span><span></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="rsResult" class="card receipt-scanner-result" hidden>

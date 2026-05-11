@@ -86,6 +86,43 @@ export async function bootReceiptScannerPage(opts = {}) {
     const resultWrap = document.getElementById('rsResult');
     const resultPre = document.getElementById('rsResultJson');
     const resultMeta = document.getElementById('rsResultMeta');
+    const scanningOverlay = document.getElementById('rsScanningOverlay');
+    const scanningSub = document.getElementById('rsScanningSub');
+
+    /** @type {ReturnType<typeof setInterval> | null} */
+    let scanPhaseTimer = null;
+    const SCAN_PHASES = [
+        'Sending your receipt securely to the scanner…',
+        'Pulling out amounts, dates, and merchant names…',
+        'Sharp photos can take a moment — your scan agent is still on it.',
+        'Almost there — finishing the extract…'
+    ];
+
+    function startScanningUI() {
+        if (scanningSub) scanningSub.textContent = SCAN_PHASES[0];
+        if (scanningOverlay) {
+            scanningOverlay.hidden = false;
+            scanningOverlay.setAttribute('aria-busy', 'true');
+        }
+        if (scanPhaseTimer != null) clearInterval(scanPhaseTimer);
+        let i = 0;
+        scanPhaseTimer = window.setInterval(() => {
+            i = (i + 1) % SCAN_PHASES.length;
+            if (scanningSub) scanningSub.textContent = SCAN_PHASES[i];
+        }, 2800);
+    }
+
+    function stopScanningUI() {
+        if (scanPhaseTimer != null) {
+            clearInterval(scanPhaseTimer);
+            scanPhaseTimer = null;
+        }
+        if (scanningOverlay) {
+            scanningOverlay.hidden = true;
+            scanningOverlay.setAttribute('aria-busy', 'false');
+        }
+        if (scanningSub) scanningSub.textContent = '';
+    }
 
     if (
         !(
@@ -242,7 +279,8 @@ export async function bootReceiptScannerPage(opts = {}) {
             showError('');
             btnProcess.disabled = true;
             btnCapture.disabled = true;
-            if (statusEl) statusEl.textContent = 'Sending to AI…';
+            if (statusEl) statusEl.textContent = '';
+            startScanningUI();
 
             try {
                 const res = await ocrScannerFetch(client, {
@@ -291,6 +329,7 @@ export async function bootReceiptScannerPage(opts = {}) {
                 showError(err instanceof Error ? err.message : 'Scan failed.');
                 if (statusEl) statusEl.textContent = '';
             } finally {
+                stopScanningUI();
                 btnProcess.disabled = !pendingImage;
                 btnCapture.disabled = !mediaStream;
             }

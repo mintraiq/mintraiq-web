@@ -2628,6 +2628,105 @@ body[data-portal-nav="transactions"] .tx-action-btn--sync:hover {
     display: none !important;
 }
 
+/* —— Global workspace banner (top header: title + settings / notifications / logout / avatar) —— */
+.main-content--settings #portal-workspace-banner,
+.onboarding-entry-main #portal-workspace-banner {
+    margin-bottom: 18px;
+}
+
+.portal-workspace-banner .header-right {
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.portal-banner-global-stack {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    flex-wrap: wrap;
+}
+
+.portal-banner-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    color: #a0a0a0;
+    text-decoration: none;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+.portal-banner-icon:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.portal-banner-icon--notify .portal-banner-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    font-size: 0.62rem;
+    font-weight: 800;
+    line-height: 16px;
+    text-align: center;
+    border-radius: 999px;
+    background: #e53935;
+    color: #fff;
+    box-shadow: 0 0 0 2px rgba(12, 14, 20, 0.9);
+}
+
+.portal-banner-logout {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 4px;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #ff6b6b;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+.portal-banner-logout:hover {
+    color: #ff9999;
+    background: rgba(255, 80, 80, 0.08);
+}
+
+.portal-banner-logout-label {
+    letter-spacing: 0.01em;
+}
+
+@media (max-width: 520px) {
+    .portal-banner-logout-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .portal-banner-logout {
+        padding: 8px;
+    }
+}
+
 .receipt-scanner-result-hint {
     margin: 12px 0 0;
     font-size: 0.75rem;

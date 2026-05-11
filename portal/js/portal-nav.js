@@ -8,6 +8,7 @@ import { isFeatureReceiptScannerEnabled } from './config.js';
 import { clearClientSessionArtifacts, createLogtoClient, purgeAuthForRelogin } from './logto-client.js';
 import { installPortalTransitions } from './turbo-transitions.js';
 import { loadLegalContent } from './legal-store.js';
+import { syncWorkspaceBanner } from './workspace-banner.js';
 
 const WORKSPACE = [
     { id: 'dashboard', href: './dashboard.html', icon: 'fa-chart-line', label: 'Dashboard' },
@@ -18,8 +19,6 @@ const WORKSPACE = [
     { id: 'weekly-planner', href: './weekly-planner.html', icon: 'fa-calendar-week', label: 'Weekly planner' },
     { id: 'goals', href: './goals.html', icon: 'fa-bullseye', label: 'Goals' },
     { id: 'forecast', href: './forecast.html', icon: 'fa-chart-area', label: 'Forecast' },
-    { id: 'notifications', href: './notifications.html', icon: 'fa-bell', label: 'Notifications' },
-    { id: 'settings', href: './settings-profile.html', icon: 'fa-sliders', label: 'Settings' },
     { id: 'license', href: './license.html', icon: 'fa-crown', label: 'License & tiers' },
     { id: 'profile', href: './profile.html', icon: 'fa-user', label: 'Profile' }
 ];
@@ -151,12 +150,11 @@ export function mountPortalNav() {
             links +
             '<div style="flex-grow:1"></div>' +
             '<div class="menu-section">Site</div>' +
-            '<a href="../intro.html" class="menu-item" data-turbo="false"><i class="fas fa-arrow-left"></i> Marketing site</a>' +
-            '<button type="button" class="menu-item" id="portalSignOut" data-turbo="false" style="border:none;width:100%;cursor:pointer;background:transparent;font:inherit;color:inherit;text-align:left">' +
-            '<i class="fas fa-sign-out-alt"></i> Sign out</button>';
+            '<a href="../intro.html" class="menu-item" data-turbo="false"><i class="fas fa-arrow-left"></i> Marketing site</a>';
     }
 
     syncActiveNav();
+    syncWorkspaceBanner();
 }
 
 installMobileShellTurboHygiene();

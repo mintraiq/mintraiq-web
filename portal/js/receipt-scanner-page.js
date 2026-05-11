@@ -1,7 +1,7 @@
 import { isFeatureReceiptScannerEnabled } from './config.js';
 import { guardSession } from './guard-session.js';
 import { createLogtoClient } from './logto-client.js';
-import { financeApiFetch } from './api.js';
+import { ocrScannerFetch } from './api.js';
 
 /** @type {MediaStream | null} */
 let mediaStream = null;
@@ -245,7 +245,7 @@ export async function bootReceiptScannerPage(opts = {}) {
             if (statusEl) statusEl.textContent = 'Sending to AI…';
 
             try {
-                const res = await financeApiFetch(client, '/receipt-scanner', {
+                const res = await ocrScannerFetch(client, {
                     method: 'POST',
                     body: fd,
                     signal
@@ -260,11 +260,18 @@ export async function bootReceiptScannerPage(opts = {}) {
                 if (!res.ok) {
                     throw new Error(formatApiError(data, res.status));
                 }
-                if (!data.success) {
-                    throw new Error(data.message || 'Scan did not complete successfully.');
+                if (typeof data.success === 'boolean' && data.success === false) {
+                    throw new Error(data.message || data.detail || 'Scan did not complete successfully.');
                 }
 
-                const scanned = data.scanned != null ? data.scanned : data;
+                const scanned =
+                    data.scanned != null
+                        ? data.scanned
+                        : data.result != null
+                          ? data.result
+                          : data.data != null
+                            ? data.data
+                            : data;
                 let pretty;
                 try {
                     pretty = JSON.stringify(scanned, null, 2);
@@ -275,7 +282,7 @@ export async function bootReceiptScannerPage(opts = {}) {
                 const ins = data.inserted_id != null ? String(data.inserted_id) : '';
                 resultMeta.textContent = ins
                     ? `Stored with id ${ins}. Raw OCR payload below.`
-                    : 'Extracted payload below.';
+                    : 'OCR response below (direct from scanner service).';
                 resultWrap.hidden = false;
                 resultPre.focus();
                 if (statusEl) statusEl.textContent = 'Scan complete.';

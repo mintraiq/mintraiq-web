@@ -9,7 +9,9 @@
  *     financeApiBase: "http://127.0.0.1:5000/api",
  *     financeApiResource: "https://your-api-resource-id-in-logto",
  *     logtoRegisterUrl: "https://your-tenant.logto.app/register?app_id=...", // optional
- *     featureReceiptScanner: true // optional; receipt scanner + sidebar link (default false)
+ *     featureReceiptScanner: true, // optional; receipt scanner + sidebar link (default false)
+ *     ocrScannerApiUrl: "https://ocr-dev.mintraiq.com/ocr/scanner", // optional; POST multipart `file`
+ *     ocrScannerApiResource: "" // optional Logto API resource for OCR JWT; defaults to financeApiResource
  *   };</script>
  */
 const defaults = {
@@ -31,10 +33,14 @@ const defaults = {
      */
     signInRedirectUri: '',
     /**
-     * Receipt scanner (camera → POST /receipt-scanner). Off until backend OCR path is production-ready.
+     * Receipt scanner (camera → POST multipart to ocrScannerApiUrl). Off until ready in your env.
      * Enable with window.__MINTRAIQ_ENV__.featureReceiptScanner = true or PUBLIC_FEATURE_RECEIPT_SCANNER=1 at build.
      */
-    featureReceiptScanner: false
+    featureReceiptScanner: false,
+    /** Full URL for dedicated OCR service (not financeApiBase). */
+    ocrScannerApiUrl: 'https://ocr-dev.mintraiq.com/ocr/scanner',
+    /** If set, Logto access token is requested for this API resource; otherwise financeApiResource is used. */
+    ocrScannerApiResource: ''
 };
 
 /** Skip empty strings from generated runtime-env so local defaults still work when build omits tenant IDs. */

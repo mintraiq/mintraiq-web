@@ -33,7 +33,9 @@ const DEFAULT_PUBLIC_ENV = {
     legacyFlaskBase: 'http://127.0.0.1:5000',
     fastApiDocsUrl: 'http://127.0.0.1:5000/api/docs',
     /** "0" / "false" until receipt OCR backend is ready; set "1" or "true" to enable. */
-    featureReceiptScanner: false
+    featureReceiptScanner: false,
+    ocrScannerApiUrl: 'https://ocr-dev.mintraiq.com/ocr/scanner',
+    ocrScannerApiResource: ''
 };
 
 const PUBLIC_TO_ENV = {
@@ -45,7 +47,9 @@ const PUBLIC_TO_ENV = {
     PUBLIC_SIGN_IN_REDIRECT_URI: 'signInRedirectUri',
     PUBLIC_LEGACY_FLASK_BASE: 'legacyFlaskBase',
     PUBLIC_FASTAPI_DOCS_URL: 'fastApiDocsUrl',
-    PUBLIC_FEATURE_RECEIPT_SCANNER: 'featureReceiptScanner'
+    PUBLIC_FEATURE_RECEIPT_SCANNER: 'featureReceiptScanner',
+    PUBLIC_OCR_SCANNER_API_URL: 'ocrScannerApiUrl',
+    PUBLIC_OCR_SCANNER_API_RESOURCE: 'ocrScannerApiResource'
 };
 
 const ENV_KEYS = Object.keys(PUBLIC_TO_ENV);

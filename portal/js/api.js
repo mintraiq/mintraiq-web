@@ -30,3 +30,34 @@ export async function financeApiFetch(logtoClient, path, options = {}) {
         headers
     });
 }
+
+/**
+ * Authenticated POST to the dedicated OCR receipt scanner (multipart field `file`).
+ * Uses `ocrScannerApiUrl` (full URL). JWT audience: `ocrScannerApiResource` if set, else `financeApiResource`.
+ */
+export async function ocrScannerFetch(logtoClient, options = {}) {
+    const url = String(CONFIG.ocrScannerApiUrl || '').trim();
+    if (!url) {
+        throw new Error('ocrScannerApiUrl is required (e.g. https://ocr-dev.mintraiq.com/ocr/scanner).');
+    }
+    const resource =
+        (CONFIG.ocrScannerApiResource && String(CONFIG.ocrScannerApiResource).trim()) ||
+        CONFIG.financeApiResource;
+    if (!resource) {
+        throw new Error('financeApiResource or ocrScannerApiResource is required for OCR scanner JWT.');
+    }
+    const token = await getAccessTokenOrReauth(logtoClient, resource);
+
+    const headers = {
+        Accept: 'application/json',
+        ...(options.headers || {}),
+        Authorization: `Bearer ${token}`
+    };
+
+    const { cache: cacheOpt, ...rest } = options;
+    return fetch(url, {
+        cache: cacheOpt ?? 'no-store',
+        ...rest,
+        headers
+    });
+}

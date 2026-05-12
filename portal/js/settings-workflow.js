@@ -3,6 +3,7 @@ import { createLogtoClient } from './logto-client.js';
 import { financeApiFetch } from './api.js';
 import { mountBillingPlanCompare, normalizeBillingTierValue } from './billing-plan-compare.js';
 import { visitWithTurbo } from './turbo-visit.js';
+import { resolveDisplayName } from './user-display.js';
 
 /**
  * Order must match finance_api bootstrap REQUIRED / save_workflow next_step:
@@ -28,6 +29,7 @@ const STEP_INTERSTITIAL = {
     categories: 'Saving your category picks…',
     ai: 'Saving how you like to be coached…'
 };
+/** One-line hint when revisiting Settings outside guided onboarding (?setup=1). */
 const STEP_BENEFIT_COPY = {
     profile:
         'A name and currency help us frame numbers in a way that makes sense to you. This is a small step — and it goes a long way toward useful guidance.',
@@ -45,6 +47,53 @@ const STEP_BENEFIT_COPY = {
         'Choose a tone that feels supportive, not stressful. This only changes how we talk — you are always in control.',
     notifications:
         'Optional nudges when something drifts. Defaults are gentle; turn things off if you prefer a quieter experience.'
+};
+
+/**
+ * Mintr voice for guided onboarding only (no API changes).
+ * `dialogue` receives `{ displayName }` — use textContent when rendering; personalize on profile step.
+ */
+const MINTR_COACH_COPY = {
+    profile: {
+        dialogue: ({ displayName }) =>
+            `Nice to meet you, ${displayName}! To build a Game Plan that actually fits your life, I just need a few basic details. I promise to keep the paperwork light.`,
+        tip: 'We personalize everything from here — and we keep the paperwork light.'
+    },
+    billing: {
+        dialogue: () =>
+            'Here is the meaty part. Stay on the Free tier as long as you like! If you want me to do the heavy lifting with premium AI features, pick a plan that fits your comfort level.',
+        tip: 'No pressure to upgrade. Free is real — upgrade only when it feels right.'
+    },
+    security: {
+        dialogue: () =>
+            "Let's lock the vault. Think of this as putting a digital guard dog at your door. He doesn't bark; he just checks IDs to keep the bad guys out.",
+        tip: 'MFA is worth the extra tap — it keeps strangers out of your financial life.'
+    },
+    banks: {
+        dialogue: () =>
+            'Time to connect the dots. Linking your bank gives me the read-only data I need to find your hidden savings and spot trends. It is fast, secure, and fully under your control.',
+        tip: 'This is the highest-friction step — and the one that unlocks the clearest picture of your money.'
+    },
+    goals: {
+        dialogue: () =>
+            'What are we aiming for? A rainy-day fund? A new car? Tell me your target, and I will build the roadmap to get us there.',
+        tip: 'We are shifting from tracking what happened to steering where you want to go.'
+    },
+    categories: {
+        dialogue: () =>
+            "I am pretty smart, but I am not a mind reader! Tell me if that 'Midnight Snack' should be 'Groceries' or 'Regret.' It helps me learn your style.",
+        tip: 'You are training your coach — a few picks now saves corrections later.'
+    },
+    ai: {
+        dialogue: () =>
+            "How should I talk to you? Choose Strict Coach if you need a kick in the pants, or Chill Friend if you just want the facts with zero judgment.",
+        tip: 'You are always in control of tone — nothing bossy unless you ask for it.'
+    },
+    notifications: {
+        dialogue: () =>
+            'How should I nudge you? I can be a silent observer or a helpful chime when you are doing great. I promise never to spam you with nonsense.',
+        tip: 'We respect your attention — opt in to what actually helps.'
+    }
 };
 const FLOW_PAUSE_COPY =
     'Pausing is fine — pick up anytime from Settings. Nothing here locks you in.';
@@ -481,15 +530,28 @@ function setStatus(msg, tone = 'neutral') {
     node.dataset.tone = tone;
 }
 
-function buildFlowBanner(stepId, isWorkflow) {
+function coachPreferredName(profile, claims) {
+    const p = profile && typeof profile === 'object' ? profile : null;
+    const direct =
+        (p?.display_name != null && String(p.display_name).trim()) ||
+        (p?.name != null && String(p.name).trim()) ||
+        '';
+    const resolved = direct || resolveDisplayName(profile, claims).trim();
+    const label = resolved || 'there';
+    return label.length > 56 ? `${label.slice(0, 53)}…` : label;
+}
+
+function buildFlowBanner(stepId, isWorkflow, coachCtx) {
     const body = document.querySelector('.portal-settings-body');
     if (!body) return;
     let banner = document.getElementById('settingsFlowBanner');
     if (!banner) {
         banner = document.createElement('div');
         banner.id = 'settingsFlowBanner';
-        banner.className = 'settings-flow-banner card';
+        banner.className = 'settings-flow-banner card mintr-coach-banner';
         body.prepend(banner);
+    } else {
+        banner.classList.add('mintr-coach-banner');
     }
     const idx = getStepIndex(stepId);
     const flowSteps = activeFlowSteps();
@@ -502,12 +564,47 @@ function buildFlowBanner(stepId, isWorkflow) {
                 : String(flowSteps[idx].label || '')
             : '';
     const percent = getWorkflowCompletion(stepId);
+    const profile = coachCtx?.profile;
+    const claims = coachCtx?.claims;
+    const coach = MINTR_COACH_COPY[stepId];
+    const benefitFallback = STEP_BENEFIT_COPY[stepId] || 'Update your preferences and save changes when needed.';
+
+    if (isWorkflow && coach) {
+        banner.innerHTML =
+            '<div class="mintr-coach-intro" aria-label="Setup guide">' +
+            '<div class="mintr-coach-avatar" aria-hidden="true"><i class="fas fa-robot"></i></div>' +
+            '<div class="mintr-coach-intro-text">' +
+            '<span class="mintr-coach-name">Mintr</span>' +
+            '<span class="mintr-coach-role">Your financial co-pilot</span>' +
+            '</div>' +
+            '</div>' +
+            '<div class="settings-flow-head">' +
+            `<strong>${step?.chapter || 'Setup'}</strong>` +
+            `<span>${stepLabel}</span>` +
+            '</div>' +
+            '<p class="mintr-coach-dialogue" id="mintrCoachDialogue"></p>' +
+            '<details class="mintr-coach-tip">' +
+            '<summary><i class="fas fa-lightbulb" aria-hidden="true"></i> Why this step?</summary>' +
+            `<p class="mintr-coach-tip-body">${coach.tip}</p>` +
+            '</details>' +
+            `<p class="settings-flow-pause mintr-coach-pause">${FLOW_PAUSE_COPY}</p>` +
+            `<div class="settings-progress-wrap"><div class="settings-progress-bar"><span style="width:${percent}%"></span></div><small>Step ${idx >= 0 ? idx + 1 : 1} of ${total} — small steps, no rush</small></div>`;
+
+        const dEl = banner.querySelector('#mintrCoachDialogue');
+        if (dEl) {
+            const name = coachPreferredName(profile, claims);
+            dEl.textContent =
+                typeof coach.dialogue === 'function' ? coach.dialogue({ displayName: name }) : benefitFallback;
+        }
+        return;
+    }
+
     banner.innerHTML =
         '<div class="settings-flow-head">' +
         `<strong>${isWorkflow ? `${step?.chapter || 'Setup'}` : 'Settings'}</strong>` +
         `<span>${stepLabel}</span>` +
         '</div>' +
-        `<p class="settings-flow-benefit">${STEP_BENEFIT_COPY[stepId] || 'Update your preferences and save changes when needed.'}</p>` +
+        `<p class="settings-flow-benefit">${benefitFallback}</p>` +
         (isWorkflow
             ? `<p class="settings-flow-pause" style="color:var(--text-secondary);font-size:0.9rem;margin:10px 0 0">${FLOW_PAUSE_COPY}</p>` +
               `<div class="settings-progress-wrap"><div class="settings-progress-bar"><span style="width:${percent}%"></span></div><small>Step ${idx >= 0 ? idx + 1 : 1} of ${total} — small steps, no rush</small></div>`
@@ -582,7 +679,9 @@ async function mountSettingsWorkflow() {
         patchSessionBootstrap({ onboarding_complete: true });
     }
     const isWorkflow = isWorkflowMode(stepId);
-    buildFlowBanner(stepId, isWorkflow);
+    const claims = await client.getIdTokenClaims();
+    const profile = readBootstrap()?.profile;
+    buildFlowBanner(stepId, isWorkflow, { profile, claims });
 
     const fromApi =
         workflowState?.steps && typeof workflowState.steps === 'object' && workflowState.steps[stepId]
@@ -590,6 +689,27 @@ async function mountSettingsWorkflow() {
             : await loadStepData(client, stepId);
     applyToForm(form, fromApi);
     hydrateLowFrictionWidgets(stepId, form, fromApi);
+
+    if (isWorkflow && stepId === 'profile' && form && MINTR_COACH_COPY.profile) {
+        const applyProfileCoachDialogue = () => {
+            const dEl = document.getElementById('mintrCoachDialogue');
+            const nameInput = form.querySelector('input[name="display_name"]');
+            if (!dEl || !nameInput) return;
+            const typed = sanitizeInput(nameInput.value);
+            const name = typed || coachPreferredName(profile, claims);
+            dEl.textContent = MINTR_COACH_COPY.profile.dialogue({
+                displayName: name || 'there'
+            });
+        };
+        applyProfileCoachDialogue();
+        if (!form.dataset.mintrCoachProfileListen) {
+            form.dataset.mintrCoachProfileListen = '1';
+            form.addEventListener('input', (e) => {
+                const t = e.target;
+                if (t && 'name' in t && t.name === 'display_name') applyProfileCoachDialogue();
+            });
+        }
+    }
 
     let initialSnapshot = JSON.stringify(serializeForm(form));
     let dirty = false;

@@ -447,6 +447,125 @@ html.is-turbo-transitioning .main-wrap {
     border-color: rgba(0, 255, 157, 0.2);
     background: linear-gradient(135deg, rgba(0, 255, 157, 0.06), rgba(47, 128, 237, 0.06));
 }
+
+/* Mintr coach: guided onboarding (?setup=1) — brighter panel, tips, trust tone */
+.mintr-coach-banner.settings-flow-banner {
+    border-color: rgba(255, 210, 140, 0.45);
+    background: linear-gradient(
+        125deg,
+        rgba(255, 244, 210, 0.28) 0%,
+        rgba(170, 235, 255, 0.22) 42%,
+        rgba(190, 255, 215, 0.24) 100%
+    );
+    box-shadow: 0 10px 32px rgba(60, 200, 255, 0.08);
+}
+.mintr-coach-intro {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+.mintr-coach-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(145deg, #5ee9ff 0%, #8ff7c4 55%, #c8f090 100%);
+    color: #0a1a24;
+    font-size: 1.35rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+.mintr-coach-intro-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.mintr-coach-name {
+    font-weight: 800;
+    font-size: 1.06rem;
+    color: var(--text-primary, #f2f6ff);
+    letter-spacing: 0.02em;
+}
+.mintr-coach-role {
+    font-size: 0.82rem;
+    color: var(--text-secondary, #a0b0c8);
+}
+.mintr-coach-dialogue {
+    margin: 12px 0 14px !important;
+    font-size: 1.02rem !important;
+    line-height: 1.55 !important;
+    color: #e4ecfa !important;
+}
+.mintr-coach-tip {
+    margin: 0 0 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(12, 22, 34, 0.35);
+    padding: 0 12px;
+}
+.mintr-coach-tip summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: #9ae8ff;
+    padding: 10px 0;
+}
+.mintr-coach-tip summary::-webkit-details-marker {
+    display: none;
+}
+.mintr-coach-tip summary::marker {
+    content: '';
+}
+.mintr-coach-tip-body {
+    margin: 0 0 12px !important;
+    padding-left: 1.45rem;
+    font-size: 0.88rem !important;
+    line-height: 1.45 !important;
+    color: var(--text-secondary, #a8b4c8) !important;
+}
+.mintr-coach-pause {
+    color: var(--text-secondary) !important;
+    font-size: 0.9rem !important;
+    margin: 10px 0 0 !important;
+}
+
+/* Legal gate on onboarding.html */
+.onboarding-mintr-strip {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 210, 140, 0.4);
+    background: linear-gradient(
+        120deg,
+        rgba(255, 244, 210, 0.26) 0%,
+        rgba(170, 235, 255, 0.2) 50%,
+        rgba(200, 255, 215, 0.22) 100%
+    );
+    box-shadow: 0 8px 24px rgba(50, 180, 220, 0.07);
+}
+.onboarding-mintr-strip .mintr-coach-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 1.2rem;
+}
+.onboarding-mintr-strip .mintr-coach-intro-text {
+    gap: 4px;
+}
+.onboarding-mintr-strip .mintr-coach-role {
+    font-size: 0.85rem;
+    line-height: 1.35;
+    color: #c5d4ea;
+}
 .settings-flow-head {
     display: flex;
     align-items: center;

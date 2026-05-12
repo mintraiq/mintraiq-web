@@ -12,6 +12,7 @@ export function resolveDisplayName(profile, claims) {
     const p = profile && typeof profile === 'object' ? profile : null;
     const c = claims && typeof claims === 'object' ? claims : {};
     const from =
+        (p && p.display_name != null && String(p.display_name).trim()) ||
         (p && p.name != null && String(p.name).trim()) ||
         (c.name != null && String(c.name).trim()) ||
         (c.username != null && String(c.username).trim()) ||

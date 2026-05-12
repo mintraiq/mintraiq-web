@@ -96,12 +96,12 @@ function mergeBootstrapUserStatus(bootstrap, version) {
 function goToNextSetupStep(bootstrap) {
     const step = bootstrap?.onboarding?.current_step || 'profile';
     if (step === 'complete' || isBootstrapOnboardingComplete(bootstrap)) {
-        status('Opening your workspace…');
+        status('You are all set — opening your workspace…');
         visitWithTurbo('./dashboard.html', { replace: true });
         return;
     }
     const target = STEP_TO_PAGE[step] || STEP_TO_PAGE.profile;
-    status('Taking you to the next gentle step…');
+    status('Onward — your next setup step is ready.');
     visitWithTurbo(target, { replace: true });
 }
 
@@ -114,7 +114,7 @@ async function main() {
     }
 
     showTermsPhase(false);
-    status('Just a moment — finding where you left off…');
+    status('Just a moment — I am finding where you left off…');
 
     const bootstrap = await loadBootstrapForOnboarding(client);
     let sessionBootstrap = { ...bootstrap, at: Date.now() };

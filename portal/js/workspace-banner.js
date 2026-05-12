@@ -14,7 +14,7 @@ const PORTAL_PAGE_COPY = {
     },
     'upload-statement': {
         title: 'Upload statement',
-        subtitle: 'CSV, OFX, QFX, or PDF — we parse in your browser session.'
+        subtitle: 'Upload your bank statement securely — we parse it in your browser session.'
     },
     'receipt-scanner': {
         title: 'Receipt scanner',

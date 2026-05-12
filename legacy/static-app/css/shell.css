@@ -9,8 +9,8 @@
     --bg-surface-hover: #1e293b;
 
     /* 2) Bright Neon Green Palette */
-    --mintr-neon: #00ff7f;
-    --mintr-neon-glow: rgba(0, 255, 127, 0.15);
+    --mintr-neon: #34d399;
+    --mintr-neon-glow: rgba(52, 211, 153, 0.1);
 
     /* 3) Typography Constraints */
     --text-main: #ffffff;

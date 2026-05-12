@@ -40,17 +40,17 @@ const PORTAL_PAGE_COPY = {
 
 const SETTINGS_PAGE_COPY = {
     profile: {
-        title: 'Personal profile',
-        subtitle: 'Identity, currency, and display preferences.'
+        title: '',
+        subtitle: ''
     },
-    billing: { title: 'Plan & billing', subtitle: 'Choose your path and payment details.' },
-    security: { title: 'Security', subtitle: 'Password and sign-in safety.' },
-    goals: { title: 'Savings goals', subtitle: 'Targets that drive your dashboard.' },
-    banks: { title: 'Banks & income', subtitle: 'Link accounts or upload statements.' },
-    categories: { title: 'Custom categories', subtitle: 'Tune how spending is grouped.' },
-    ai: { title: 'AI tuning', subtitle: 'Tone and guardrails for money nudges.' },
-    notifications: { title: 'Notifications', subtitle: 'Email and in-app nudge preferences.' },
-    legal: { title: 'Legal & Terms', subtitle: 'Fine print, privacy, and how we handle your data.' }
+    billing: { title: '', subtitle: '' },
+    security: { title: '', subtitle: '' },
+    goals: { title: '', subtitle: '' },
+    banks: { title: '', subtitle: '' },
+    categories: { title: '', subtitle: '' },
+    ai: { title: '', subtitle: '' },
+    notifications: { title: '', subtitle: '' },
+    legal: { title: '', subtitle: '' }
 };
 
 function escapeAttr(s) {
@@ -209,22 +209,15 @@ function ensureSettingsWorkspaceBanner() {
     if (!banner) {
         banner = document.createElement('header');
         banner.id = 'portal-workspace-banner';
-        banner.className = 'top-header portal-workspace-banner';
+        banner.className = 'top-header portal-workspace-banner portal-workspace-banner--settings';
         banner.innerHTML =
-            '<div class="header-left">' +
-            '<h2 id="portalWorkspaceTitle" style="margin:0;font-size:1.75rem"></h2>' +
-            '<p id="portalWorkspaceSubtitle" style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem"></p>' +
-            '</div><div class="header-right"></div>';
+            '<div class="header-left portal-workspace-banner__settings-spacer" aria-hidden="true"></div>' +
+            '<div class="header-right"></div>';
         const shell = main.querySelector('.portal-settings-shell');
         if (shell) main.insertBefore(banner, shell);
         else main.insertBefore(banner, main.firstChild);
     }
-    const settingsNav = document.body.getAttribute('data-settings-nav') || 'profile';
-    const copy = resolveWorkspaceCopy('settings', settingsNav);
-    const h2 = banner.querySelector('#portalWorkspaceTitle');
-    const p = banner.querySelector('#portalWorkspaceSubtitle');
-    if (h2) h2.textContent = copy.title;
-    if (p) p.textContent = copy.subtitle || '';
+    banner.classList.add('portal-workspace-banner--settings');
     injectHeaderRightGlobalActions(banner);
 }
 

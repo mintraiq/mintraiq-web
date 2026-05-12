@@ -2,7 +2,7 @@ import { isBootstrapOnboardingComplete } from './config.js';
 import './settings-workflow.js';
 
 /**
- * Settings nav — grouped chapter stepper + section sub-tabs + Legal in footer.
+ * Settings nav — grouped chapter stepper + section sub-tabs (Legal lives in app sidebar).
  * body[data-settings-nav] = profile | billing | security | goals | banks | categories | notifications | ai | legal
  */
 function escapeAttr(s) {
@@ -117,20 +117,16 @@ export function mountSettingsNav() {
             '</p>';
     }
 
-    const legalActive = active === 'legal';
-
     root.innerHTML =
         '<div class="settings-nav-head">' +
         '<a class="settings-back-link" href="./dashboard.html"><i class="fas fa-arrow-left" aria-hidden="true"></i> Dashboard</a>' +
+        '<span class="settings-context-sep" aria-hidden="true">/</span>' +
         '<span class="settings-context-label">Settings</span>' +
         '</div>' +
         '<ol class="settings-chapter-track" aria-label="High-level areas">' +
         trackParts.join('') +
         '</ol>' +
-        subnavHtml +
-        '<div class="settings-nav-footer">' +
-        `<a class="settings-legal-foot${legalActive ? ' active' : ''}" href="./settings-legal.html" data-settings-nav-id="legal">Legal &amp; Terms</a>` +
-        '</div>';
+        subnavHtml;
 }
 
 mountSettingsNav();

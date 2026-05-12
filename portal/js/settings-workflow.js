@@ -98,6 +98,20 @@ const MINTR_COACH_COPY = {
 const FLOW_PAUSE_COPY =
     'Pausing is fine — pick up anytime from Settings. Nothing here locks you in.';
 
+/** Short “Mintr Tip” line per step (shown under page H1; no duplicate long banner copy). */
+const MINTR_TIP_LINE = {
+    profile:
+        'Setting your name and currency here helps me frame your numbers in a way that makes sense to you.',
+    billing:
+        'Stay on Free as long as you like — choose a paid plan only when you want premium AI features.',
+    security: 'Multi-factor sign-in is the digital guard dog: quick for you, hard for strangers.',
+    banks: 'Read-only bank links or uploads are how I spot trends and hidden savings — always your call.',
+    goals: 'A concrete target turns tracking into a roadmap toward what you actually want.',
+    categories: 'A few category hints teach me your vocabulary so corrections drop over time.',
+    ai: 'Pick a tone that feels supportive — strict coach or chill friend, you stay in charge.',
+    notifications: 'Choose nudges that respect your attention — helpful chimes, not spam.'
+};
+
 const DRAFT_KEY_BASE = 'mintraiq_settings_workflow_draft_v1';
 const MODE_KEY_BASE = 'mintraiq_settings_workflow_mode_v1';
 
@@ -520,8 +534,45 @@ function ensureStatusNode() {
     node.id = 'settingsFlowStatus';
     node.className = 'settings-flow-status';
     const body = document.querySelector('.portal-settings-body');
-    if (body) body.prepend(node);
+    if (!body) return node;
+    const banner = document.getElementById('settingsFlowBanner');
+    if (banner) {
+        banner.insertAdjacentElement('afterend', node);
+    } else {
+        const header = body.querySelector('.page-header');
+        if (header) header.insertAdjacentElement('afterend', node);
+        else body.prepend(node);
+    }
     return node;
+}
+
+function positionFlowBannerInBody(banner) {
+    const body = document.querySelector('.portal-settings-body');
+    if (!body || !banner) return;
+    const header = body.querySelector('.page-header');
+    if (header) {
+        if (banner.previousElementSibling !== header) {
+            header.insertAdjacentElement('afterend', banner);
+        }
+        return;
+    }
+    body.prepend(banner);
+}
+
+function formatMintrTipParagraph(stepId, profile, claims, _isWorkflow, displayNameOverride) {
+    const line = MINTR_TIP_LINE[stepId];
+    if (!line) return '';
+    let core = line;
+    if (stepId === 'profile') {
+        const name =
+            displayNameOverride != null && String(displayNameOverride).trim()
+                ? sanitizeInput(displayNameOverride)
+                : coachPreferredName(profile, claims);
+        if (name && name !== 'there') {
+            core = `Nice to meet you, ${name}! ${line}`;
+        }
+    }
+    return `Mintr Tip: ${core}`;
 }
 
 function setStatus(msg, tone = 'neutral') {
@@ -548,67 +599,62 @@ function buildFlowBanner(stepId, isWorkflow, coachCtx) {
     if (!banner) {
         banner = document.createElement('div');
         banner.id = 'settingsFlowBanner';
-        banner.className = 'settings-flow-banner card mintr-coach-banner';
-        body.prepend(banner);
-    } else {
-        banner.classList.add('mintr-coach-banner');
+        body.appendChild(banner);
     }
+    banner.className = 'settings-flow-banner card mintr-tip-card';
+
     const idx = getStepIndex(stepId);
     const flowSteps = activeFlowSteps();
     const total = flowSteps.length;
     const step = getStepById(stepId);
-    const stepLabel =
-        idx >= 0
-            ? isWorkflow
-                ? `${idx + 1}/${total} · ${flowSteps[idx].label}`
-                : String(flowSteps[idx].label || '')
-            : '';
     const percent = getWorkflowCompletion(stepId);
     const profile = coachCtx?.profile;
     const claims = coachCtx?.claims;
     const coach = MINTR_COACH_COPY[stepId];
     const benefitFallback = STEP_BENEFIT_COPY[stepId] || 'Update your preferences and save changes when needed.';
+    const tipParagraph = formatMintrTipParagraph(stepId, profile, claims, isWorkflow, null);
 
-    if (isWorkflow && coach) {
+    const setupMeta =
+        isWorkflow && idx >= 0
+            ? `<p class="mintr-setup-meta">${escapeBannerHtml(step?.chapter || 'Setup')} · Step ${idx + 1} of ${total}</p>`
+            : '';
+
+    const extras =
+        isWorkflow && coach
+            ? '<details class="mintr-coach-tip">' +
+              '<summary><i class="fas fa-lightbulb" aria-hidden="true"></i> Why this step?</summary>' +
+              `<p class="mintr-coach-tip-body">${escapeBannerHtml(coach.tip)}</p>` +
+              '</details>' +
+              `<p class="settings-flow-pause mintr-coach-pause">${escapeBannerHtml(FLOW_PAUSE_COPY)}</p>` +
+              `<div class="settings-progress-wrap"><div class="settings-progress-bar"><span style="width:${percent}%"></span></div><small>Step ${idx >= 0 ? idx + 1 : 1} of ${total} — small steps, no rush</small></div>`
+            : '';
+
+    if (tipParagraph) {
         banner.innerHTML =
-            '<div class="mintr-coach-intro" aria-label="Setup guide">' +
-            '<div class="mintr-coach-avatar" aria-hidden="true"><i class="fas fa-robot"></i></div>' +
-            '<div class="mintr-coach-intro-text">' +
-            '<span class="mintr-coach-name">Mintr</span>' +
-            '<span class="mintr-coach-role">Your financial co-pilot</span>' +
+            setupMeta +
+            '<div class="mintr-tip-banner" role="status">' +
+            '<div class="mintr-avatar" aria-hidden="true"><i class="fas fa-robot"></i></div>' +
+            '<p class="mintr-message" id="mintrCoachTipText"></p>' +
             '</div>' +
-            '</div>' +
-            '<div class="settings-flow-head">' +
-            `<strong>${step?.chapter || 'Setup'}</strong>` +
-            `<span>${stepLabel}</span>` +
-            '</div>' +
-            '<p class="mintr-coach-dialogue" id="mintrCoachDialogue"></p>' +
-            '<details class="mintr-coach-tip">' +
-            '<summary><i class="fas fa-lightbulb" aria-hidden="true"></i> Why this step?</summary>' +
-            `<p class="mintr-coach-tip-body">${coach.tip}</p>` +
-            '</details>' +
-            `<p class="settings-flow-pause mintr-coach-pause">${FLOW_PAUSE_COPY}</p>` +
-            `<div class="settings-progress-wrap"><div class="settings-progress-bar"><span style="width:${percent}%"></span></div><small>Step ${idx >= 0 ? idx + 1 : 1} of ${total} — small steps, no rush</small></div>`;
-
-        const dEl = banner.querySelector('#mintrCoachDialogue');
-        if (dEl) {
-            const name = coachPreferredName(profile, claims);
-            dEl.textContent =
-                typeof coach.dialogue === 'function' ? coach.dialogue({ displayName: name }) : benefitFallback;
-        }
-        return;
+            extras;
+        const tipEl = banner.querySelector('#mintrCoachTipText');
+        if (tipEl) tipEl.textContent = tipParagraph;
+    } else {
+        banner.innerHTML =
+            setupMeta +
+            `<p class="settings-flow-benefit">${escapeBannerHtml(benefitFallback)}</p>` +
+            extras;
     }
 
-    banner.innerHTML =
-        '<div class="settings-flow-head">' +
-        `<strong>${isWorkflow ? `${step?.chapter || 'Setup'}` : 'Settings'}</strong>` +
-        `<span>${stepLabel}</span>` +
-        '</div>' +
-        `<p class="settings-flow-benefit">${benefitFallback}</p>` +
-        (isWorkflow
-            ? `<p class="settings-flow-pause" style="color:var(--text-secondary);font-size:0.9rem;margin:10px 0 0">${FLOW_PAUSE_COPY}</p>` +
-              `<div class="settings-progress-wrap"><div class="settings-progress-bar"><span style="width:${percent}%"></span></div><small>Step ${idx >= 0 ? idx + 1 : 1} of ${total} — small steps, no rush</small></div>`
-            : '');
+    positionFlowBannerInBody(banner);
+}
+
+function escapeBannerHtml(s) {
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
 }
 
 function buildActionBar({ stepId, isWorkflow, onSave, onCancel, onNext, onSkip, isDirty }) {
@@ -690,23 +736,19 @@ async function mountSettingsWorkflow() {
     applyToForm(form, fromApi);
     hydrateLowFrictionWidgets(stepId, form, fromApi);
 
-    if (isWorkflow && stepId === 'profile' && form && MINTR_COACH_COPY.profile) {
-        const applyProfileCoachDialogue = () => {
-            const dEl = document.getElementById('mintrCoachDialogue');
+    if (stepId === 'profile' && form) {
+        const applyProfileMintrTip = () => {
+            const tipEl = document.getElementById('mintrCoachTipText');
             const nameInput = form.querySelector('input[name="display_name"]');
-            if (!dEl || !nameInput) return;
-            const typed = sanitizeInput(nameInput.value);
-            const name = typed || coachPreferredName(profile, claims);
-            dEl.textContent = MINTR_COACH_COPY.profile.dialogue({
-                displayName: name || 'there'
-            });
+            if (!tipEl || !nameInput) return;
+            tipEl.textContent = formatMintrTipParagraph('profile', profile, claims, isWorkflow, nameInput.value);
         };
-        applyProfileCoachDialogue();
+        applyProfileMintrTip();
         if (!form.dataset.mintrCoachProfileListen) {
             form.dataset.mintrCoachProfileListen = '1';
             form.addEventListener('input', (e) => {
                 const t = e.target;
-                if (t && 'name' in t && t.name === 'display_name') applyProfileCoachDialogue();
+                if (t && 'name' in t && t.name === 'display_name') applyProfileMintrTip();
             });
         }
     }

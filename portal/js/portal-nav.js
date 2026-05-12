@@ -67,9 +67,11 @@ function syncActiveNav() {
     const root = document.getElementById('portal-nav-root');
     if (!root) return;
     const active = document.body.getAttribute('data-portal-nav') || 'dashboard';
+    const settingsNav = document.body.getAttribute('data-settings-nav') || '';
     root.querySelectorAll('a.menu-item[data-nav-id]').forEach((a) => {
         const id = a.getAttribute('data-nav-id');
-        a.classList.toggle('active', id === active);
+        const legalOn = id === 'legal-terms' && active === 'settings' && settingsNav === 'legal';
+        a.classList.toggle('active', legalOn || id === active);
     });
 }
 
@@ -149,6 +151,7 @@ export function mountPortalNav() {
             '<div class="menu-section">Workspace</div>' +
             links +
             '<div style="flex-grow:1"></div>' +
+            '<a href="./settings-legal.html" class="menu-item menu-item--legal" data-nav-id="legal-terms"><i class="fas fa-scale-balanced"></i> Legal &amp; Terms</a>' +
             '<div class="menu-section">Site</div>' +
             '<a href="../intro.html" class="menu-item" data-turbo="false"><i class="fas fa-arrow-left"></i> Marketing site</a>';
     }

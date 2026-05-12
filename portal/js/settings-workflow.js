@@ -98,7 +98,23 @@ const MINTR_COACH_COPY = {
 const FLOW_PAUSE_COPY =
     'Pausing is fine — pick up anytime from Settings. Nothing here locks you in.';
 
-/** Short “Mintr Tip” line per step (shown under page H1; no duplicate long banner copy). */
+/** Former page-header intro (now shown inside the Mintr tip card; nav shows the step name). */
+const MINTR_TIP_INTRO = {
+    profile:
+        'A few basics so Mintr can frame your Game Plan in the currency you think in. You can edit this anytime.',
+    billing:
+        'Choose your path — compare what each license includes. You can change later; Free stays on the table.',
+    security: 'A calm checkpoint so your financial space stays yours. Adjust stricter controls whenever you like.',
+    banks: 'This is the heart of clearer insights: with a bit of real context we can highlight behaviour and traps. Connect when it feels right — you can add more later.',
+    goals: 'No perfect answer needed — even a rough aim helps us steer nudges toward what you care about. Skip or come back when you are ready.',
+    categories:
+        'Optional: tap what matters so coaching sounds like your life, not a spreadsheet. Fine to skip — we learn as you go.',
+    ai: 'Choose a tone that feels supportive. This only changes how we talk — you stay in charge. Skip for now if you prefer the defaults.',
+    notifications:
+        'Gentle heads-ups when something drifts — or keep things quiet. You can tune this later; skipping is OK.'
+};
+
+/** Short Mintr Tip line per step (paired with intro above). */
 const MINTR_TIP_LINE = {
     profile:
         'Setting your name and currency here helps me frame your numbers in a way that makes sense to you.',
@@ -559,20 +575,21 @@ function positionFlowBannerInBody(banner) {
     body.prepend(banner);
 }
 
-function formatMintrTipParagraph(stepId, profile, claims, _isWorkflow, displayNameOverride) {
-    const line = MINTR_TIP_LINE[stepId];
-    if (!line) return '';
-    let core = line;
-    if (stepId === 'profile') {
+function getMintrTipParts(stepId, profile, claims, displayNameOverride) {
+    const intro = MINTR_TIP_INTRO[stepId] || '';
+    const line = MINTR_TIP_LINE[stepId] || '';
+    let tipLine = line;
+    if (stepId === 'profile' && tipLine) {
         const name =
             displayNameOverride != null && String(displayNameOverride).trim()
                 ? sanitizeInput(displayNameOverride)
                 : coachPreferredName(profile, claims);
         if (name && name !== 'there') {
-            core = `Nice to meet you, ${name}! ${line}`;
+            tipLine = `Nice to meet you, ${name}! ${tipLine}`;
         }
     }
-    return `Mintr Tip: ${core}`;
+    const tip = tipLine ? `Mintr Tip: ${tipLine}` : '';
+    return { intro, tip };
 }
 
 function setStatus(msg, tone = 'neutral') {
@@ -612,7 +629,8 @@ function buildFlowBanner(stepId, isWorkflow, coachCtx) {
     const claims = coachCtx?.claims;
     const coach = MINTR_COACH_COPY[stepId];
     const benefitFallback = STEP_BENEFIT_COPY[stepId] || 'Update your preferences and save changes when needed.';
-    const tipParagraph = formatMintrTipParagraph(stepId, profile, claims, isWorkflow, null);
+    const tipParts = getMintrTipParts(stepId, profile, claims, null);
+    const hasMintrTipContent = Boolean(tipParts.intro || tipParts.tip);
 
     const setupMeta =
         isWorkflow && idx >= 0
@@ -629,16 +647,27 @@ function buildFlowBanner(stepId, isWorkflow, coachCtx) {
               `<div class="settings-progress-wrap"><div class="settings-progress-bar"><span style="width:${percent}%"></span></div><small>Step ${idx >= 0 ? idx + 1 : 1} of ${total} — small steps, no rush</small></div>`
             : '';
 
-    if (tipParagraph) {
+    if (hasMintrTipContent) {
         banner.innerHTML =
             setupMeta +
             '<div class="mintr-tip-banner" role="status">' +
             '<div class="mintr-avatar" aria-hidden="true"><i class="fas fa-robot"></i></div>' +
-            '<p class="mintr-message" id="mintrCoachTipText"></p>' +
+            '<div class="mintr-message-stack">' +
+            '<p class="mintr-message mintr-message--intro" id="mintrCoachTipIntro"></p>' +
+            '<p class="mintr-message mintr-message--tip" id="mintrCoachTipText"></p>' +
+            '</div>' +
             '</div>' +
             extras;
+        const introEl = banner.querySelector('#mintrCoachTipIntro');
         const tipEl = banner.querySelector('#mintrCoachTipText');
-        if (tipEl) tipEl.textContent = tipParagraph;
+        if (introEl) {
+            introEl.textContent = tipParts.intro;
+            introEl.hidden = !tipParts.intro;
+        }
+        if (tipEl) {
+            tipEl.textContent = tipParts.tip;
+            tipEl.hidden = !tipParts.tip;
+        }
     } else {
         banner.innerHTML =
             setupMeta +
@@ -741,7 +770,14 @@ async function mountSettingsWorkflow() {
             const tipEl = document.getElementById('mintrCoachTipText');
             const nameInput = form.querySelector('input[name="display_name"]');
             if (!tipEl || !nameInput) return;
-            tipEl.textContent = formatMintrTipParagraph('profile', profile, claims, isWorkflow, nameInput.value);
+            const parts = getMintrTipParts('profile', profile, claims, nameInput.value);
+            const introEl = document.getElementById('mintrCoachTipIntro');
+            if (introEl) {
+                introEl.textContent = parts.intro;
+                introEl.hidden = !parts.intro;
+            }
+            tipEl.textContent = parts.tip;
+            tipEl.hidden = !parts.tip;
         };
         applyProfileMintrTip();
         if (!form.dataset.mintrCoachProfileListen) {

@@ -3,11 +3,29 @@
  * Mobile: hamburger opens sidebar overlay.
  */
 :root {
-    --bg-dark: #121212;
-    --bg-card: #1e1e24;
-    --text-primary: #ffffff;
-    --text-secondary: #a0a0a0;
-    --accent-green: #00ff9d;
+    /* 1) Unified Background Palette */
+    --bg-base: #0b1120;
+    --bg-surface: #151f32;
+    --bg-surface-hover: #1e293b;
+
+    /* 2) Bright Neon Green Palette */
+    --mintr-neon: #00ff7f;
+    --mintr-neon-glow: rgba(0, 255, 127, 0.15);
+
+    /* 3) Typography Constraints */
+    --text-main: #ffffff;
+    --text-muted: #94a3b8;
+    --text-accent: var(--mintr-neon);
+
+    /* 4) Structural Lines */
+    --border-soft: #273548;
+
+    /* Backward-compatible aliases used throughout existing CSS */
+    --bg-dark: var(--bg-base);
+    --bg-card: var(--bg-surface);
+    --text-primary: var(--text-main);
+    --text-secondary: var(--text-muted);
+    --accent-green: var(--mintr-neon);
     --accent-red: #ff4757;
     --accent-blue: #2f80ed;
     --accent-purple: #bb6bd9;
@@ -20,11 +38,11 @@ body { background-color: var(--bg-dark); color: var(--text-primary); }
 
 .sidebar {
     width: var(--sidebar-width);
-    background-color: var(--bg-card);
+    background-color: var(--bg-base);
     padding: 20px;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid #333;
+    border-right: 1px solid var(--border-soft);
     flex-shrink: 0;
     transition: transform 0.25s ease;
     z-index: 200;
@@ -50,8 +68,14 @@ body { background-color: var(--bg-dark); color: var(--text-primary); }
     font-size: 0.95rem;
 }
 .menu-item.active, .menu-item:hover {
-    background-color: rgba(0, 255, 157, 0.1);
-    color: var(--accent-green);
+    background-color: var(--mintr-neon-glow);
+    color: var(--mintr-neon);
+}
+.sidebar .menu-item.active,
+.sidebar .nav-item.active {
+    background-color: var(--mintr-neon-glow);
+    color: var(--mintr-neon);
+    border-left: 4px solid var(--mintr-neon);
 }
 .menu-section {
     font-size: 0.7rem;
@@ -92,7 +116,12 @@ body { background-color: var(--bg-dark); color: var(--text-primary); }
     flex: 1;
     overflow-y: auto;
     padding: 28px;
-    background: radial-gradient(circle at top right, #1a1a2e 0%, var(--bg-dark) 100%);
+    background: var(--bg-base);
+}
+h1, h2, h3, .page-title {
+    color: var(--text-accent);
+    text-shadow: 0 0 12px var(--mintr-neon-glow);
+    font-weight: 600;
 }
 .top-header {
     display: flex;
@@ -118,10 +147,22 @@ body { background-color: var(--bg-dark); color: var(--text-primary); }
 .grid-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; align-items: start; }
 .card {
     background-color: var(--bg-card);
+    border: 1px solid var(--border-soft);
     border-radius: 15px;
     padding: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     min-width: 0;
+}
+.upload-box {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+.upload-icon {
+    color: var(--mintr-neon);
+    font-size: 3rem;
+    filter: drop-shadow(0 0 8px var(--mintr-neon-glow));
 }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 .card-title { font-size: 1.1rem; color: var(--text-secondary); }
@@ -175,16 +216,21 @@ body { background-color: var(--bg-dark); color: var(--text-primary); }
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: var(--accent-green);
-    color: #0a0a0a;
+    background: var(--mintr-neon);
+    color: #000000;
     border: none;
     padding: 12px 20px;
-    border-radius: 10px;
-    font-weight: 600;
+    border-radius: 8px;
+    font-weight: 700;
+    box-shadow: 0 0 10px var(--mintr-neon-glow);
+    transition: all 0.2s ease-in-out;
     cursor: pointer;
     text-decoration: none;
 }
-.btn-primary:hover { filter: brightness(1.05); }
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px var(--mintr-neon-glow);
+}
 .btn-ghost {
     background: rgba(255, 255, 255, 0.08);
     color: var(--text-primary);

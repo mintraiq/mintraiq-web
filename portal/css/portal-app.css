@@ -2,43 +2,56 @@
  * Portal workspace + settings (Flask account layout mimic).
  */
 :root {
-    /* Elevational Backgrounds */
-    --bg-sidebar: #0f172a;
-    --bg-canvas: #1e293b;
-    --bg-card: #273548;
-    --bg-pill-active: #334155;
+    /* 1) Unified Background Palette */
+    --bg-base: #0b1120;
+    --bg-surface: #151f32;
+    --bg-surface-hover: #1e293b;
 
-    /* Brand Colors */
-    --mintr-green: #4ade80;
-    --mintr-green-glow: rgba(74, 222, 128, 0.15);
+    /* 2) Bright Neon Green Palette */
+    --mintr-neon: #00ff7f;
+    --mintr-neon-glow: rgba(0, 255, 127, 0.15);
 
-    /* Text & Borders */
-    --text-main: #f8fafc;
+    /* 3) Typography Constraints */
+    --text-main: #ffffff;
     --text-muted: #94a3b8;
-    --border-soft: #334155;
+    --text-accent: var(--mintr-neon);
+
+    /* 4) Structural Lines */
+    --border-soft: #273548;
+
+    /* Existing variable aliases to avoid refactors */
+    --bg-sidebar: var(--bg-base);
+    --bg-canvas: var(--bg-base);
+    --bg-card: var(--bg-surface);
+    --bg-pill-active: #334155;
+    --mintr-green: var(--mintr-neon);
+    --mintr-green-glow: var(--mintr-neon-glow);
+    --accent-green: var(--mintr-neon);
+    --text-primary: var(--text-main);
+    --text-secondary: var(--text-muted);
 }
 
 /* Workspace depth: sidebar (deepest) vs main canvas — slate elevation */
 .dashboard-container .sidebar {
-    background-color: var(--bg-sidebar);
+    background-color: var(--bg-base);
     border-right-color: var(--border-soft);
 }
 .dashboard-container .main-wrap {
-    background-color: var(--bg-canvas);
+    background-color: var(--bg-base);
 }
 .dashboard-container .main-content {
-    background: var(--bg-canvas);
+    background: var(--bg-base);
     background-image: none;
     color: var(--text-main);
 }
 .dashboard-container .mobile-bar {
-    background: var(--bg-canvas);
+    background: var(--bg-base);
     border-bottom-color: var(--border-soft);
 }
 
 /* Requested workspace-canvas utility for explicit section wrappers. */
 .workspace-canvas {
-    background-color: var(--bg-canvas);
+    background-color: var(--bg-base);
     color: var(--text-main);
     padding: 2rem 3rem;
     min-height: 100vh;
@@ -104,17 +117,29 @@ html.is-turbo-transitioning .main-wrap {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: var(--accent-green, #00ff9d);
-    color: #0a0a0a;
+    background: var(--mintr-neon);
+    color: #000000;
     border: none;
     padding: 12px 20px;
-    border-radius: 10px;
-    font-weight: 600;
+    border-radius: 8px;
+    font-weight: 700;
+    box-shadow: 0 0 10px var(--mintr-neon-glow);
+    transition: all 0.2s ease-in-out;
     cursor: pointer;
     text-decoration: none;
 }
 .btn-primary:hover {
-    filter: brightness(1.05);
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px var(--mintr-neon-glow);
+}
+
+h1,
+h2,
+h3,
+.page-title {
+    color: var(--text-accent);
+    text-shadow: 0 0 12px var(--mintr-neon-glow);
+    font-weight: 600;
 }
 
 .form-grid-2 {

@@ -4,9 +4,18 @@
     --bg-card: #171e2d;
     --text-primary: #ffffff;
     --text-secondary: #b8c2d4;
+    --text-muted: #a0a0a0;
     --accent-green: #00ff9d;
     --accent-blue: #2f80ed;
+    --gradient-brand: linear-gradient(105deg, #00d4aa 0%, #00c6ff 45%, #2f80ed 78%, #1e4fd6 100%);
     --border: rgba(255, 255, 255, 0.08);
+}
+
+.gradient-text {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
 * {
@@ -55,17 +64,15 @@ body {
 }
 
 .legal-nav .brand {
-    display: inline-flex;
-    align-items: center;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     text-decoration: none;
-    line-height: 0;
+    color: var(--text-primary);
 }
 
-.legal-nav .brand-logo {
-    display: block;
-    width: auto;
-    max-width: min(160px, 42vw);
-    height: auto;
+.legal-nav .brand span {
+    font-weight: 800;
 }
 
 .legal-nav-links {
@@ -99,7 +106,8 @@ body {
 }
 
 .legal-nav-links a.back-home {
-    color: var(--accent-blue);
+    color: var(--accent-green);
+    font-weight: 700;
 }
 
 .legal-main h1 {
@@ -156,7 +164,7 @@ body {
 .legal-footer a {
     color: var(--accent-green);
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .legal-footer a:hover {

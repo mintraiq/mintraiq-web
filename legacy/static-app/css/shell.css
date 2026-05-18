@@ -48,13 +48,31 @@ body { background-color: var(--bg-dark); color: var(--text-primary); }
     z-index: 200;
 }
 .brand {
-    font-size: 1.5rem;
-    font-weight: bold;
     margin-bottom: 24px;
-    color: var(--accent-green);
     display: flex;
     align-items: center;
-    gap: 10px;
+    text-decoration: none;
+    line-height: 0;
+}
+
+.brand-logo {
+    display: block;
+    width: auto;
+    max-width: 140px;
+    height: auto;
+}
+
+.mobile-bar-brand {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    line-height: 0;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.mobile-bar .brand-logo {
+    max-width: 120px;
 }
 .menu-item {
     padding: 14px;

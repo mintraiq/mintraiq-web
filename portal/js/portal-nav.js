@@ -10,6 +10,12 @@ import { installPortalTransitions } from './turbo-transitions.js';
 import { loadLegalContent } from './legal-store.js';
 import { syncWorkspaceBanner } from './workspace-banner.js';
 
+const BRAND_LOGO_SRC = '../assets/mintraiq-logo.png';
+const BRAND_LOGO_MARKUP =
+    '<img src="' +
+    BRAND_LOGO_SRC +
+    '" alt="MintrAIQ" class="brand-logo" width="140" height="36" decoding="async">';
+
 const WORKSPACE = [
     { id: 'dashboard', href: './dashboard.html', icon: 'fa-chart-line', label: 'Dashboard' },
     { id: 'transactions', href: './transactions.html', icon: 'fa-wallet', label: 'Transactions' },
@@ -147,7 +153,7 @@ export function mountPortalNav() {
             .join('');
 
         root.innerHTML =
-            '<div class="brand"><i class="fas fa-brain"></i> MintrAIQ</div>' +
+            '<a href="./dashboard.html" class="brand">' + BRAND_LOGO_MARKUP + '</a>' +
             '<div class="menu-section">Workspace</div>' +
             links +
             '<div style="flex-grow:1"></div>' +
@@ -158,6 +164,20 @@ export function mountPortalNav() {
 
     syncActiveNav();
     syncWorkspaceBanner();
+    syncMobileBarBrand();
+}
+
+function syncMobileBarBrand() {
+    document.querySelectorAll('.mobile-bar').forEach((bar) => {
+        if (bar.querySelector('.brand-logo')) return;
+        const label = bar.querySelector('span');
+        if (!label) return;
+        const link = document.createElement('a');
+        link.href = './dashboard.html';
+        link.className = 'mobile-bar-brand';
+        link.innerHTML = BRAND_LOGO_MARKUP.replace('width="140"', 'width="120"').replace('height="36"', 'height="31"');
+        label.replaceWith(link);
+    });
 }
 
 installMobileShellTurboHygiene();

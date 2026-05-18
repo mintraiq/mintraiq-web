@@ -55,11 +55,17 @@ body {
 }
 
 .legal-nav .brand {
-    font-weight: 800;
-    font-size: 1.1rem;
-    color: var(--accent-green);
+    display: inline-flex;
+    align-items: center;
     text-decoration: none;
-    letter-spacing: 0.02em;
+    line-height: 0;
+}
+
+.legal-nav .brand-logo {
+    display: block;
+    width: auto;
+    max-width: min(160px, 42vw);
+    height: auto;
 }
 
 .legal-nav-links {

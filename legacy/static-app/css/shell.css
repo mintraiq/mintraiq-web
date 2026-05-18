@@ -20,6 +20,8 @@
     /* 4) Structural Lines */
     --border-soft: #273548;
 
+    --gradient-brand: linear-gradient(105deg, #00d4aa 0%, #00c6ff 45%, #2f80ed 78%, #1e4fd6 100%);
+
     /* Backward-compatible aliases used throughout existing CSS */
     --bg-dark: var(--bg-base);
     --bg-card: var(--bg-surface);
@@ -47,32 +49,42 @@ body { background-color: var(--bg-dark); color: var(--text-primary); }
     transition: transform 0.25s ease;
     z-index: 200;
 }
+.gradient-text {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
 .brand {
     margin-bottom: 24px;
     display: flex;
     align-items: center;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     text-decoration: none;
-    line-height: 0;
+    color: var(--text-main);
 }
 
-.brand-logo {
-    display: block;
-    width: auto;
-    max-width: 140px;
-    height: auto;
+.brand .gradient-text {
+    font-weight: 800;
 }
 
 .mobile-bar-brand {
     display: inline-flex;
     align-items: center;
     text-decoration: none;
-    line-height: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-main);
     margin-left: auto;
     margin-right: auto;
 }
 
-.mobile-bar .brand-logo {
-    max-width: 120px;
+.mobile-bar-brand .gradient-text {
+    font-weight: 800;
 }
 .menu-item {
     padding: 14px;

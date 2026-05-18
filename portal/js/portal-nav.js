@@ -10,11 +10,7 @@ import { installPortalTransitions } from './turbo-transitions.js';
 import { loadLegalContent } from './legal-store.js';
 import { syncWorkspaceBanner } from './workspace-banner.js';
 
-const BRAND_LOGO_SRC = '../assets/mintraiq-logo.png';
-const BRAND_LOGO_MARKUP =
-    '<img src="' +
-    BRAND_LOGO_SRC +
-    '" alt="MintrAIQ" class="brand-logo" width="140" height="36" decoding="async">';
+const BRAND_TEXT_MARKUP = 'Mintr<span class="gradient-text">AIQ</span>';
 
 const WORKSPACE = [
     { id: 'dashboard', href: './dashboard.html', icon: 'fa-chart-line', label: 'Dashboard' },
@@ -153,7 +149,7 @@ export function mountPortalNav() {
             .join('');
 
         root.innerHTML =
-            '<a href="./dashboard.html" class="brand">' + BRAND_LOGO_MARKUP + '</a>' +
+            '<a href="./dashboard.html" class="brand">' + BRAND_TEXT_MARKUP + '</a>' +
             '<div class="menu-section">Workspace</div>' +
             links +
             '<div style="flex-grow:1"></div>' +
@@ -169,13 +165,19 @@ export function mountPortalNav() {
 
 function syncMobileBarBrand() {
     document.querySelectorAll('.mobile-bar').forEach((bar) => {
-        if (bar.querySelector('.brand-logo')) return;
+        const existing = bar.querySelector('.mobile-bar-brand');
+        if (existing) {
+            if (!existing.querySelector('.gradient-text')) {
+                existing.innerHTML = BRAND_TEXT_MARKUP;
+            }
+            return;
+        }
         const label = bar.querySelector('span');
         if (!label) return;
         const link = document.createElement('a');
         link.href = './dashboard.html';
         link.className = 'mobile-bar-brand';
-        link.innerHTML = BRAND_LOGO_MARKUP.replace('width="140"', 'width="120"').replace('height="36"', 'height="31"');
+        link.innerHTML = BRAND_TEXT_MARKUP;
         label.replaceWith(link);
     });
 }

@@ -1,8 +1,14 @@
 /**
- * Optional last-mile overrides (no secrets). Prefer:
- *   - env.public + npm run build:env  → config/runtime-env.js
- *   - Vercel Environment Variables (PUBLIC_*)
+ * Optional last-mile overrides for LOCAL dev only.
+ * Production values come from Vercel PUBLIC_* → npm run build:env → config/runtime-env.js.
+ * Do not set keys here if they are already in runtime-env.js (would override deploy config).
  */
-window.__MINTRAIQ_ENV__ = Object.assign({}, window.__MINTRAIQ_ENV__ || {}, {
-    financeApiBase: 'https://api-dev.mintraiq.com/api'
-});
+(function (w) {
+    'use strict';
+    if (!w.__MINTRAIQ_ENV__ || typeof w.__MINTRAIQ_ENV__ !== 'object') {
+        w.__MINTRAIQ_ENV__ = {};
+    }
+    // Example: only fill when build did not set a value (local tunnel)
+    // var env = w.__MINTRAIQ_ENV__;
+    // if (!env.financeApiBase) env.financeApiBase = 'http://127.0.0.1:5000/api';
+})();

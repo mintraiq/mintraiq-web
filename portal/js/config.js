@@ -14,9 +14,13 @@
  *     ocrScannerApiResource: "" // optional Logto API resource for OCR JWT; defaults to financeApiResource
  *   };</script>
  */
+/**
+ * Repo fallbacks when `config/runtime-env.js` is missing (e.g. fresh clone before `npm run build:env`).
+ * Deployed builds should set PUBLIC_* on Vercel; those values win via `window.__MINTRAIQ_ENV__`.
+ */
 const defaults = {
     logtoEndpoint: 'https://ufq3nf.logto.app',
-    /** Logto Application (SPA) App ID from Logto Console — override in portal/env.js per environment. */
+    /** Logto Application (SPA) App ID — override via PUBLIC_LOGTO_APP_ID / runtime-env.js. */
     logtoAppId: 'jj76jvuz39xoys68ys7ly',
     /**
      * Hosted Logto sign-up URL (new users). Override via PUBLIC_LOGTO_REGISTER_URL or window.__MINTRAIQ_ENV__.
@@ -43,19 +47,35 @@ const defaults = {
     ocrScannerApiResource: ''
 };
 
-/** Skip empty strings from generated runtime-env so local defaults still work when build omits tenant IDs. */
-function mergePublicEnv(base, env) {
-    const out = { ...base };
-    if (!env || typeof env !== 'object') return out;
+/** Build-time env from `config/runtime-env.js` (Vercel PUBLIC_* at deploy). */
+function getWindowPublicEnv() {
+    if (typeof window === 'undefined') return {};
+    const env = window.__MINTRAIQ_ENV__;
+    return env && typeof env === 'object' ? env : {};
+}
+
+function isEnvValueSet(v) {
+    if (v == null) return false;
+    if (typeof v === 'string') return v.trim() !== '';
+    return true;
+}
+
+/**
+ * Merge config: `window.__MINTRAIQ_ENV__` (Vercel / build) overrides repo defaults.
+ * Empty strings in runtime-env are ignored so defaults still apply for optional keys.
+ */
+export function getConfig() {
+    const out = { ...defaults };
+    const env = getWindowPublicEnv();
     for (const [k, v] of Object.entries(env)) {
-        if (v == null) continue;
-        if (typeof v === 'string' && v.trim() === '') continue;
+        if (!isEnvValueSet(v)) continue;
         out[k] = v;
     }
     return out;
 }
 
-export const CONFIG = mergePublicEnv(defaults, window.__MINTRAIQ_ENV__);
+/** Frozen at first module import; use getConfig() if env may change after load (rare). */
+export const CONFIG = getConfig();
 
 /**
  * Receipt scanner UI + sidebar entry (requires working /receipt-scanner).

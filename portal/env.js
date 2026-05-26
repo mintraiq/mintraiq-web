@@ -11,4 +11,4 @@
     // Example: only fill when build did not set a value (local tunnel)
     // var env = w.__MINTRAIQ_ENV__;
     // if (!env.financeApiBase) env.financeApiBase = 'http://127.0.0.1:5000/api';
-})();
+})(typeof window !== 'undefined' ? window : globalThis);

@@ -1,14 +1,45 @@
 import { createLogtoClient } from './logto-client.js';
 import { guardSession } from './guard-session.js';
 import { financeApiFetch } from './api.js';
+import { renderReceiptLineItemsPanel } from './receipt-line-items.js';
 
-/** @typedef {{ id: string, date: string, amount: number, description: string, category: string, needs_review: boolean, flag: string, type: string }} TxRow */
+/** @typedef {{ id: string, date: string, amount: number, description: string, category: string, needs_review: boolean, flag: string, type: string, receipt_id?: string | null }} TxRow */
 
 let /** @type {TxRow[]} */ allRows = [];
 let /** @type {TxRow | null} */ selected = null;
+let /** @type {string[]} */ userCategoryVocabulary = [];
+/** @type {Set<string>} */
+let selectedReviewIds = new Set();
 let currentClient = null;
 let sortKey = 'date';
 let sortDir = 'desc';
+let currentPage = 1;
+/** @type {'list' | 'categories'} */
+let viewMode = 'list';
+let expandedCategory = '';
+let highlightedCategory = '';
+
+const SPEND_EXCLUDE = new Set(['Income', 'Internal Transfers', 'Internal', 'Savings']);
+const CATEGORY_COLORS = [
+    '#00ff9d', '#2f80ed', '#bb6bd9', '#f2c94c', '#eb5757', '#56ccf2', '#6fcf97', '#9b51e0',
+    '#f2994a', '#27ae60', '#e056fd', '#00d2ff', '#ff6b6b', '#4ecdc4', '#ffe66d'
+];
+const CATEGORY_ICONS = {
+    Groceries: 'fa-basket-shopping',
+    Dining: 'fa-utensils',
+    'Dining Out': 'fa-utensils',
+    Transport: 'fa-car',
+    Rent: 'fa-house',
+    Utilities: 'fa-bolt',
+    'Mobile/Internet': 'fa-wifi',
+    Fitness: 'fa-dumbbell',
+    Entertainment: 'fa-film',
+    Shopping: 'fa-bag-shopping',
+    Health: 'fa-heart-pulse',
+    Insurance: 'fa-shield-halved',
+    Income: 'fa-arrow-trend-up',
+    MISC: 'fa-ellipsis'
+};
 
 /** When "Needs review only" is on: map every row id → canonical (first-in-sort) id for that similarity group. */
 let reviewIdToCanonicalId = new Map();
@@ -60,6 +91,38 @@ function formatAmount(row) {
     const fmt = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(abs);
     const sign = row.type === 'credit' ? '+' : '−';
     return `${sign}${fmt}`;
+}
+
+function formatMoney(n, { signed = false } = {}) {
+    const val = Number(n);
+    if (!Number.isFinite(val)) return '—';
+    const fmt = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(val));
+    if (!signed) return `$${fmt}`;
+    return val < 0 ? `−$${fmt}` : `+$${fmt}`;
+}
+
+function categoryColor(name, index = 0) {
+    let hash = 0;
+    for (let i = 0; i < String(name).length; i++) hash = (hash + String(name).charCodeAt(i) * (i + 1)) % CATEGORY_COLORS.length;
+    return CATEGORY_COLORS[(hash + index) % CATEGORY_COLORS.length];
+}
+
+function categoryIcon(name) {
+    if (CATEGORY_ICONS[name]) return CATEGORY_ICONS[name];
+    const lower = String(name).toLowerCase();
+    for (const [key, icon] of Object.entries(CATEGORY_ICONS)) {
+        if (lower.includes(key.toLowerCase())) return icon;
+    }
+    return 'fa-tag';
+}
+
+function isSpendRow(r) {
+    if (SPEND_EXCLUDE.has(r.category)) return false;
+    return r.type !== 'credit';
+}
+
+function rowSpendAmount(r) {
+    return Math.abs(Number(r.amount) || 0);
 }
 
 function confidenceScore(row) {
@@ -132,16 +195,20 @@ function canonicalReviewRowId(id) {
     return reviewIdToCanonicalId.get(id) || id;
 }
 
-/** Filled by {@link filteredRows} for table header counts (one filter pass). */
+/** Filled by {@link buildFilteredPool} for table header counts (one filter pass). */
 let lastTxFilterStats = { rawMatch: 0, uniqueBeforePage: 0, reviewOnly: false };
 
-function filteredRows() {
+function getPageSize() {
+    const n = Number(document.getElementById('txPageSize')?.value || 50);
+    return Number.isFinite(n) && n > 0 ? n : 50;
+}
+
+function buildFilteredPool({ forDisplay = true } = {}) {
     const q = (document.getElementById('txSearch')?.value || '').trim().toLowerCase();
     const descQ = (document.getElementById('txDescription')?.value || '').trim().toLowerCase();
     const cat = document.getElementById('txCategory')?.value || '';
     const reviewOnly = Boolean(document.getElementById('txReviewOnly')?.checked);
     const { from, to } = normalizeDateRange(false);
-    const pageSize = Number(document.getElementById('txPageSize')?.value || 50);
 
     const sortedFiltered = allRows
         .slice()
@@ -164,16 +231,280 @@ function filteredRows() {
     lastTxFilterStats.rawMatch = sortedFiltered.length;
 
     let pool = sortedFiltered;
-    if (reviewOnly) {
+    if (forDisplay && reviewOnly) {
         pool = dedupeReviewRows(sortedFiltered);
-    } else {
+    } else if (!reviewOnly) {
         reviewIdToCanonicalId = new Map();
         reviewGroupSizeByCanonicalId = new Map();
     }
     lastTxFilterStats.uniqueBeforePage = pool.length;
+    return pool;
+}
 
-    if (!Number.isFinite(pageSize) || pageSize <= 0) return pool;
-    return pool.slice(0, pageSize);
+function paginateRows(pool) {
+    const pageSize = getPageSize();
+    const totalPages = Math.max(1, Math.ceil(pool.length / pageSize));
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+    const start = (currentPage - 1) * pageSize;
+    return { rows: pool.slice(start, start + pageSize), totalPages, pageSize, total: pool.length, start };
+}
+
+function filteredRows() {
+    return paginateRows(buildFilteredPool({ forDisplay: true })).rows;
+}
+
+function computeSpendSummary(pool) {
+    let totalSpend = 0;
+    let totalIncome = 0;
+    let spendCount = 0;
+    for (const r of pool) {
+        const amt = rowSpendAmount(r);
+        if (r.type === 'credit' || r.category === 'Income') {
+            totalIncome += amt;
+        } else if (isSpendRow(r)) {
+            totalSpend += amt;
+            spendCount += 1;
+        }
+    }
+    return { totalSpend, totalIncome, spendCount, net: totalIncome - totalSpend };
+}
+
+function computeCategoryBreakdown(pool) {
+    /** @type {Map<string, { total: number, count: number, rows: TxRow[] }>} */
+    const map = new Map();
+    for (const r of pool) {
+        if (!isSpendRow(r)) continue;
+        const cat = r.category || 'Uncategorized';
+        const entry = map.get(cat) || { total: 0, count: 0, rows: [] };
+        entry.total += rowSpendAmount(r);
+        entry.count += 1;
+        entry.rows.push(r);
+        map.set(cat, entry);
+    }
+    const items = [...map.entries()]
+        .map(([name, data]) => ({ name, ...data }))
+        .sort((a, b) => b.total - a.total);
+    const grandTotal = items.reduce((s, i) => s + i.total, 0);
+    return { items, grandTotal };
+}
+
+function renderSpendHero() {
+    const el = document.getElementById('txSpendHero');
+    if (!el) return;
+    const pool = buildFilteredPool({ forDisplay: false });
+    const { totalSpend, totalIncome, spendCount, net } = computeSpendSummary(pool);
+    const { items, grandTotal } = computeCategoryBreakdown(pool);
+    const topCat = items[0];
+    el.innerHTML =
+        `<div class="tx-spend-stat" style="--tx-stat-accent:#00ff9d">` +
+        `<div class="tx-spend-stat-label">Total spend</div>` +
+        `<div class="tx-spend-stat-value">${formatMoney(totalSpend)}</div>` +
+        `<div class="tx-spend-stat-sub">${spendCount} debit${spendCount === 1 ? '' : 's'} in range</div>` +
+        `</div>` +
+        `<div class="tx-spend-stat" style="--tx-stat-accent:#2f80ed">` +
+        `<div class="tx-spend-stat-label">Income</div>` +
+        `<div class="tx-spend-stat-value">${formatMoney(totalIncome)}</div>` +
+        `<div class="tx-spend-stat-sub">Credits in filtered set</div>` +
+        `</div>` +
+        `<div class="tx-spend-stat" style="--tx-stat-accent:#bb6bd9">` +
+        `<div class="tx-spend-stat-label">Net flow</div>` +
+        `<div class="tx-spend-stat-value">${formatMoney(net, { signed: true })}</div>` +
+        `<div class="tx-spend-stat-sub">${items.length} spending categor${items.length === 1 ? 'y' : 'ies'}</div>` +
+        `</div>` +
+        (topCat
+            ? `<div class="tx-spend-stat" style="--tx-stat-accent:${categoryColor(topCat.name)}">` +
+              `<div class="tx-spend-stat-label">Top category</div>` +
+              `<div class="tx-spend-stat-value">${escapeHtml(topCat.name)}</div>` +
+              `<div class="tx-spend-stat-sub">${formatMoney(topCat.total)} · ${grandTotal ? ((topCat.total / grandTotal) * 100).toFixed(1) : 0}% of spend</div>` +
+              `</div>`
+            : '');
+}
+
+function buildPageList(totalPages, page) {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages = new Set([1, totalPages, page, page - 1, page + 1, page - 2, page + 2]);
+    const sorted = [...pages].filter((p) => p >= 1 && p <= totalPages).sort((a, b) => a - b);
+    const out = [];
+    let prev = 0;
+    for (const p of sorted) {
+        if (p - prev > 1) out.push('…');
+        out.push(p);
+        prev = p;
+    }
+    return out;
+}
+
+function renderPagination(meta) {
+    const nav = document.getElementById('txPagination');
+    if (!nav) return;
+    const { total, totalPages, pageSize, start } = meta;
+    if (total === 0) {
+        nav.innerHTML = '';
+        return;
+    }
+    const end = Math.min(start + pageSize, total);
+    const pages = buildPageList(totalPages, currentPage);
+    const pageBtns = pages
+        .map((p) => {
+            if (p === '…') return '<span class="tx-page-ellipsis">…</span>';
+            const active = p === currentPage ? ' is-active' : '';
+            return `<button type="button" class="tx-page-btn${active}" data-page="${p}">${p}</button>`;
+        })
+        .join('');
+    nav.innerHTML =
+        `<span class="tx-pagination-info">Showing <strong>${start + 1}–${end}</strong> of <strong>${total}</strong> transaction${total === 1 ? '' : 's'}</span>` +
+        `<div class="tx-pagination-controls">` +
+        `<button type="button" class="tx-page-btn" data-page="first" ${currentPage <= 1 ? 'disabled' : ''} aria-label="First page"><i class="fas fa-angles-left"></i></button>` +
+        `<button type="button" class="tx-page-btn" data-page="prev" ${currentPage <= 1 ? 'disabled' : ''} aria-label="Previous page"><i class="fas fa-angle-left"></i></button>` +
+        pageBtns +
+        `<button type="button" class="tx-page-btn" data-page="next" ${currentPage >= totalPages ? 'disabled' : ''} aria-label="Next page"><i class="fas fa-angle-right"></i></button>` +
+        `<button type="button" class="tx-page-btn" data-page="last" ${currentPage >= totalPages ? 'disabled' : ''} aria-label="Last page"><i class="fas fa-angles-right"></i></button>` +
+        `</div>`;
+}
+
+function renderDonut(items, grandTotal) {
+    const panel = document.getElementById('txDonutPanel');
+    if (!panel) return;
+    if (!items.length || grandTotal <= 0) {
+        panel.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:24px">No spending data for current filters.</p>';
+        return;
+    }
+    const radius = 82;
+    const cx = 110;
+    const cy = 110;
+    const circumference = 2 * Math.PI * radius;
+    let offset = 0;
+    const segments = items.slice(0, 8).map((item, i) => {
+        const pct = item.total / grandTotal;
+        const len = pct * circumference;
+        const color = categoryColor(item.name, i);
+        const dash = `${len} ${circumference - len}`;
+        const seg =
+            `<circle class="tx-donut-segment${highlightedCategory === item.name ? ' is-highlight' : ''}" ` +
+            `data-cat="${escapeHtml(item.name)}" cx="${cx}" cy="${cy}" r="${radius}" ` +
+            `stroke="${color}" stroke-dasharray="${dash}" stroke-dashoffset="${-offset}" />`;
+        offset += len;
+        return seg;
+    }).join('');
+    const legend = items.slice(0, 8).map((item, i) => {
+        const pct = ((item.total / grandTotal) * 100).toFixed(1);
+        const active = highlightedCategory === item.name ? ' is-active' : '';
+        return (
+            `<button type="button" class="tx-donut-legend-item${active}" data-cat="${escapeHtml(item.name)}">` +
+            `<span class="tx-donut-swatch" style="background:${categoryColor(item.name, i)}"></span>` +
+            `<span style="flex:1">${escapeHtml(item.name)}</span>` +
+            `<span>${pct}%</span>` +
+            `</button>`
+        );
+    }).join('');
+    panel.innerHTML =
+        `<svg class="tx-donut-svg" viewBox="0 0 220 220" role="img" aria-label="Spend breakdown donut chart">` +
+        `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="28" />` +
+        segments +
+        `<g class="tx-donut-center" transform="translate(${cx}, ${cy})">` +
+        `<text class="tx-donut-center-label" y="-6">Total spend</text>` +
+        `<text class="tx-donut-center-value" y="14">${formatMoney(grandTotal)}</text>` +
+        `</g>` +
+        `</svg>` +
+        `<div class="tx-donut-legend">${legend}</div>`;
+}
+
+function renderCategoryGrid(items, grandTotal) {
+    const grid = document.getElementById('txCategoryGrid');
+    if (!grid) return;
+    if (!items.length) {
+        grid.innerHTML = '<p style="color:var(--text-secondary)">No categories to show.</p>';
+        return;
+    }
+    grid.innerHTML = items.map((item, i) => {
+        const pct = grandTotal ? (item.total / grandTotal) * 100 : 0;
+        const color = categoryColor(item.name, i);
+        const expanded = expandedCategory === item.name;
+        return (
+            `<article class="tx-cat-card${expanded ? ' is-expanded' : ''}" data-cat="${escapeHtml(item.name)}" tabindex="0" role="button" aria-expanded="${expanded}">` +
+            `<div class="tx-cat-card-top">` +
+            `<div class="tx-cat-card-left">` +
+            `<span class="tx-cat-icon" style="background:${color}22;color:${color}"><i class="fas ${categoryIcon(item.name)}"></i></span>` +
+            `<div><div class="tx-cat-name">${escapeHtml(item.name)}</div><div class="tx-cat-meta">${item.count} transaction${item.count === 1 ? '' : 's'}</div></div>` +
+            `</div>` +
+            `<span class="tx-cat-amount">${formatMoney(item.total)}</span>` +
+            `</div>` +
+            `<div class="tx-cat-bar-track"><div class="tx-cat-bar-fill" style="width:${pct.toFixed(1)}%;background:linear-gradient(90deg,${color},${color}99)"></div></div>` +
+            `<div class="tx-cat-pct">${pct.toFixed(1)}% of filtered spend</div>` +
+            `</article>`
+        );
+    }).join('');
+}
+
+function renderCategoryDrill(item) {
+    const drill = document.getElementById('txCategoryDrill');
+    if (!drill) return;
+    if (!item) {
+        drill.hidden = true;
+        drill.innerHTML = '';
+        return;
+    }
+    drill.hidden = false;
+    const preview = item.rows.slice(0, 8);
+    const rows = preview.map((r) =>
+        `<div class="tx-drill-row" data-id="${escapeHtml(r.id)}" role="button" tabindex="0">` +
+        `<span class="tx-drill-row-date">${escapeHtml(r.date)}</span>` +
+        `<span class="tx-drill-row-desc">${escapeHtml(r.description)}</span>` +
+        `<span class="tx-drill-row-amt">${formatAmount(r)}</span>` +
+        `</div>`
+    ).join('');
+    drill.innerHTML =
+        `<div class="tx-drill-head">` +
+        `<span class="tx-drill-title">${escapeHtml(item.name)} · ${formatMoney(item.total)}</span>` +
+        `<div class="tx-drill-actions">` +
+        `<button type="button" class="tx-drill-btn" data-drill-action="list"><i class="fas fa-list"></i> View all in list</button>` +
+        `<button type="button" class="tx-drill-btn" data-drill-action="close"><i class="fas fa-xmark"></i> Close</button>` +
+        `</div>` +
+        `</div>` +
+        `<div class="tx-drill-list">${rows}</div>` +
+        (item.rows.length > 8 ? `<p style="margin:10px 0 0;font-size:0.82rem;color:var(--text-secondary)">+ ${item.rows.length - 8} more — use “View all in list” for full pagination.</p>` : '');
+}
+
+function renderCategoryView() {
+    const pool = buildFilteredPool({ forDisplay: false });
+    const { items, grandTotal } = computeCategoryBreakdown(pool);
+    renderDonut(items, grandTotal);
+    renderCategoryGrid(items, grandTotal);
+    const active = items.find((i) => i.name === expandedCategory);
+    renderCategoryDrill(active || null);
+}
+
+function setViewMode(mode) {
+    viewMode = mode;
+    const listCard = document.getElementById('txListCard');
+    const catPanel = document.getElementById('txCategoryPanel');
+    document.querySelectorAll('.tx-view-tab').forEach((tab) => {
+        const isActive = tab.getAttribute('data-view') === mode;
+        tab.classList.toggle('is-active', isActive);
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+    if (listCard) listCard.hidden = mode !== 'list';
+    if (catPanel) catPanel.hidden = mode !== 'categories';
+    renderSpendHero();
+    if (mode === 'categories') renderCategoryView();
+    else renderTable();
+}
+
+function drillToCategoryList(category) {
+    const sel = document.getElementById('txCategory');
+    if (sel) sel.value = category;
+    expandedCategory = '';
+    highlightedCategory = '';
+    currentPage = 1;
+    setViewMode('list');
+    renderSpendHero();
+}
+
+function toggleCategoryDrill(name) {
+    expandedCategory = expandedCategory === name ? '' : name;
+    highlightedCategory = expandedCategory;
+    renderCategoryView();
 }
 
 function selectedInlinePanelId() {
@@ -193,6 +524,9 @@ function renderExpandedRow(r) {
         '<div class="tx-detail-actions">' +
         '<button type="button" class="btn-primary" id="txReviewBtn"><i class="fas fa-check-circle"></i> Review</button>' +
         '<button type="button" class="btn-primary" id="txEnquireBtn" style="background:linear-gradient(135deg,#bb6bd9,#2f80ed);color:#fff"><i class="fas fa-magnifying-glass"></i> Enquire</button>' +
+        (r.receipt_id
+            ? '<button type="button" class="btn-primary" id="txReceiptBtn" style="background:rgba(0,255,157,0.15);color:var(--accent-green);border:1px solid rgba(0,255,157,0.35)"><i class="fas fa-receipt"></i> Receipt items</button>'
+            : '') +
         '</div>' +
         '<dl class="tx-detail-dl">' +
         `<dt>Description</dt><dd>${escapeHtml(r.description || '—')}</dd>` +
@@ -216,31 +550,37 @@ function renderExpandedRow(r) {
 function renderTable() {
     const tbody = document.querySelector('#txTable tbody');
     if (!tbody) return;
-    const rows = filteredRows();
+    const pool = buildFilteredPool({ forDisplay: true });
+    const meta = paginateRows(pool);
+    const rows = meta.rows;
     const { rawMatch, uniqueBeforePage, reviewOnly } = lastTxFilterStats;
+    renderSpendHero();
+    renderPagination(meta);
     tbody.textContent = '';
     const countEl = document.getElementById('txCount');
     const subEl = document.getElementById('txCountSub');
     if (countEl) {
         if (reviewOnly && rawMatch > uniqueBeforePage) {
-            countEl.textContent = `${rows.length} shown · ${uniqueBeforePage} unique · ${rawMatch} need review · ${allRows.length} total`;
+            countEl.textContent = `Page ${currentPage} · ${uniqueBeforePage} unique · ${rawMatch} need review · ${allRows.length} loaded`;
         } else if (reviewOnly) {
-            countEl.textContent = `${rows.length} shown · ${rawMatch} need review · ${allRows.length} total`;
+            countEl.textContent = `Page ${currentPage} · ${rawMatch} need review · ${allRows.length} loaded`;
         } else {
-            countEl.textContent = `${rows.length} shown · ${allRows.length} total`;
+            countEl.textContent = `Page ${currentPage} of ${meta.totalPages} · ${allRows.length} loaded`;
         }
     }
     if (subEl) {
-        subEl.textContent =
-            reviewOnly && rawMatch > uniqueBeforePage
-                ? 'Similar rows are grouped. Open a row and use Review — updates still apply to every matching transaction (same as before).'
-                : '';
+        subEl.textContent = reviewOnly
+            ? 'Select rows to mark correctly categorized items as reviewed (no training). Or open a row to change category.'
+            : '';
     }
+
+    syncReviewTableHeader(reviewOnly);
+    updateBulkReviewBar(reviewOnly, rows);
 
     if (!rows.length) {
         const tr = document.createElement('tr');
         const td = document.createElement('td');
-        td.colSpan = 7;
+        td.colSpan = reviewOnly ? 8 : 7;
         td.style.cssText = 'text-align:center;padding:28px;color:var(--text-secondary)';
         td.textContent = allRows.length ? 'No rows match your filters.' : 'No transactions returned.';
         tr.appendChild(td);
@@ -253,6 +593,25 @@ function renderTable() {
         tr.style.cursor = 'pointer';
         if (selected && canonicalReviewRowId(selected.id) === r.id) tr.classList.add('tx-row-selected');
         tr.dataset.id = r.id;
+
+        if (reviewOnly) {
+            const selectTd = document.createElement('td');
+            selectTd.className = 'tx-select-col';
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.className = 'tx-row-check';
+            cb.dataset.id = r.id;
+            cb.checked = selectedReviewIds.has(r.id);
+            cb.addEventListener('click', (ev) => ev.stopPropagation());
+            cb.addEventListener('change', () => {
+                if (cb.checked) selectedReviewIds.add(r.id);
+                else selectedReviewIds.delete(r.id);
+                updateBulkReviewBar(true, rows);
+            });
+            selectTd.appendChild(cb);
+            tr.appendChild(selectTd);
+        }
+
         const cells = [
             r.date,
             formatAmount(r),
@@ -293,14 +652,137 @@ function renderTable() {
     }
 }
 
-function categoryOptionsHtml(current = '') {
-    const set = new Set();
+function allCategoryNames(current = '') {
+    const set = new Set(userCategoryVocabulary);
     for (const r of allRows) if (r.category) set.add(r.category);
-    const sorted = [...set].sort((a, b) => a.localeCompare(b));
+    if (current) set.add(current);
+    return [...set].sort((a, b) => a.localeCompare(b));
+}
+
+function categoryOptionsHtml(current = '') {
+    const sorted = allCategoryNames(current);
     const options = sorted
         .map((c) => `<option value="${escapeHtml(c)}"${c === current ? ' selected' : ''}>${escapeHtml(c)}</option>`)
         .join('');
     return options || `<option value="${escapeHtml(current || 'Uncategorized')}" selected>${escapeHtml(current || 'Uncategorized')}</option>`;
+}
+
+async function loadCategoryVocabulary(client) {
+    try {
+        const res = await financeApiFetch(client, '/users/category-vocabulary', { method: 'GET' });
+        if (!res.ok) return;
+        const data = await res.json();
+        userCategoryVocabulary = Array.isArray(data.categories) ? data.categories : [];
+    } catch {
+        userCategoryVocabulary = [];
+    }
+}
+
+function syncReviewTableHeader(reviewOnly) {
+    const theadRow = document.querySelector('#txTable thead tr');
+    if (!theadRow) return;
+    let selectTh = theadRow.querySelector('.tx-select-col');
+    if (reviewOnly && !selectTh) {
+        selectTh = document.createElement('th');
+        selectTh.className = 'tx-select-col';
+        selectTh.innerHTML = '<input type="checkbox" class="tx-row-check" id="txHeaderSelectAll" title="Select all on this page">';
+        theadRow.insertBefore(selectTh, theadRow.firstChild);
+    } else if (!reviewOnly && selectTh) {
+        selectTh.remove();
+        selectedReviewIds.clear();
+    }
+}
+
+/** @param {TxRow[]} pageRows */
+function updateBulkReviewBar(reviewOnly, pageRows = []) {
+    const bar = document.getElementById('txBulkReviewBar');
+    const countEl = document.getElementById('txSelectedCount');
+    const selectAll = /** @type {HTMLInputElement|null} */ (document.getElementById('txSelectAllReview'));
+    const headerSelectAll = /** @type {HTMLInputElement|null} */ (document.getElementById('txHeaderSelectAll'));
+    if (!bar) return;
+
+    if (!reviewOnly) {
+        bar.hidden = true;
+        if (selectAll) selectAll.checked = false;
+        if (headerSelectAll) headerSelectAll.checked = false;
+        return;
+    }
+
+    bar.hidden = false;
+    const pageIds = pageRows.map((r) => r.id);
+    const selectedOnPage = pageIds.filter((id) => selectedReviewIds.has(id)).length;
+    if (countEl) {
+        countEl.textContent =
+            selectedReviewIds.size === 0
+                ? 'Select correctly categorized rows to clear review flags'
+                : `${selectedReviewIds.size} selected${selectedOnPage < selectedReviewIds.size ? ` (${selectedOnPage} on this page)` : ''}`;
+    }
+    const allOnPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedReviewIds.has(id));
+    if (selectAll) selectAll.checked = allOnPageSelected;
+    if (headerSelectAll) headerSelectAll.checked = allOnPageSelected;
+}
+
+function setReviewSelectionForPage(pageRows, checked) {
+    for (const r of pageRows) {
+        if (checked) selectedReviewIds.add(r.id);
+        else selectedReviewIds.delete(r.id);
+    }
+    updateBulkReviewBar(true, pageRows);
+    renderTable();
+}
+
+async function bulkDismissSelected() {
+    if (!currentClient || selectedReviewIds.size === 0) return;
+    const btn = document.getElementById('txBulkDismiss');
+    const count = selectedReviewIds.size;
+    if (btn) btn.disabled = true;
+    try {
+        const res = await financeApiFetch(currentClient, '/transactions/review/dismiss', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                txn_ids: [...selectedReviewIds],
+                update_similar: true,
+                updated_by: 'portal-user'
+            })
+        });
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text || `Bulk dismiss failed (${res.status})`);
+        }
+        selectedReviewIds.clear();
+        await loadTransactions(currentClient, { reviewSaved: true });
+        const status = document.getElementById('txStatus');
+        if (status) status.textContent = `Cleared review flag on ${count} selection(s).`;
+    } catch (e) {
+        const status = document.getElementById('txStatus');
+        if (status) status.textContent = String(e.message || e);
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+async function persistCustomCategory(client, name) {
+    const trimmed = (name || '').trim();
+    if (!trimmed) return trimmed;
+    try {
+        const res = await financeApiFetch(client, '/users/category-vocabulary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: trimmed })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            userCategoryVocabulary = Array.isArray(data.categories) ? data.categories : userCategoryVocabulary;
+        } else if (!userCategoryVocabulary.includes(trimmed)) {
+            userCategoryVocabulary = [...userCategoryVocabulary, trimmed].sort((a, b) => a.localeCompare(b));
+        }
+    } catch {
+        if (!userCategoryVocabulary.includes(trimmed)) {
+            userCategoryVocabulary = [...userCategoryVocabulary, trimmed].sort((a, b) => a.localeCompare(b));
+        }
+    }
+    return trimmed;
 }
 
 async function readEnquireSample() {
@@ -391,6 +873,36 @@ function getInlinePanel() {
     return panelId ? document.getElementById(panelId) : null;
 }
 
+async function openReceiptPanel() {
+    const inlinePanel = getInlinePanel();
+    if (!inlinePanel || !selected?.receipt_id) return;
+    inlinePanel.style.display = 'block';
+    inlinePanel.innerHTML = '<p style="color:var(--text-secondary)">Loading receipt items…</p>';
+    try {
+        const res = await financeApiFetch(currentClient, `/v1/receipts/${encodeURIComponent(selected.receipt_id)}`, {
+            method: 'GET'
+        });
+        const text = await res.text();
+        let data = {};
+        try {
+            data = text ? JSON.parse(text) : {};
+        } catch {
+            data = {};
+        }
+        if (!res.ok) {
+            const detail = data.detail;
+            const msg =
+                typeof detail === 'string'
+                    ? detail
+                    : data.message || `Receipt fetch failed (${res.status})`;
+            throw new Error(msg);
+        }
+        inlinePanel.innerHTML = `<div class="tx-inline-title">Linked receipt</div>${renderReceiptLineItemsPanel(data)}`;
+    } catch (e) {
+        inlinePanel.innerHTML = `<p style="color:#ffb4b4" data-testid="receipt-panel-error">${escapeHtml(String(e.message || e))}</p>`;
+    }
+}
+
 async function openEnquirePanel() {
     const inlinePanel = getInlinePanel();
     if (!inlinePanel || !selected) return;
@@ -408,11 +920,16 @@ function openReviewPanel() {
     const inlinePanel = getInlinePanel();
     if (!inlinePanel || !selected) return;
     inlinePanel.style.display = 'block';
+    const datalist = allCategoryNames(selected.category)
+        .map((c) => `<option value="${escapeHtml(c)}"></option>`)
+        .join('');
     inlinePanel.innerHTML =
         '<div class="tx-inline-title">Review transaction</div>' +
         '<div class="tx-review-grid">' +
         `<label>Category<select id="txReviewCategory" class="form-control">${categoryOptionsHtml(selected.category)}</select></label>` +
-        '<label style="display:flex;align-items:center;gap:8px;margin-top:22px"><input type="checkbox" id="txReviewTraining" checked> training_required</label>' +
+        '<label>Or add new category<input type="text" id="txReviewNewCategory" class="form-control" placeholder="e.g. Subscriptions" list="txCategoryDatalist" autocomplete="off"></label>' +
+        `<datalist id="txCategoryDatalist">${datalist}</datalist>` +
+        '<label style="display:flex;align-items:center;gap:8px;margin-top:8px"><input type="checkbox" id="txReviewTraining" checked> Include in AI training</label>' +
         '</div>' +
         '<div class="tx-review-actions">' +
         '<button type="button" class="btn-primary" id="txReviewSave"><i class="fas fa-floppy-disk"></i> Update</button>' +
@@ -421,9 +938,15 @@ function openReviewPanel() {
 }
 
 async function saveReviewFromPanel() {
-    if (!selected) return;
+    if (!selected || !currentClient) return;
     const msg = document.getElementById('txReviewMsg');
-    const category = /** @type {HTMLSelectElement|null} */ (document.getElementById('txReviewCategory'))?.value || selected.category;
+    const newCategoryInput = /** @type {HTMLInputElement|null} */ (document.getElementById('txReviewNewCategory'));
+    const newCategoryRaw = (newCategoryInput?.value || '').trim();
+    const selectCategory = /** @type {HTMLSelectElement|null} */ (document.getElementById('txReviewCategory'))?.value || '';
+    let category = newCategoryRaw || selectCategory || selected.category;
+    if (newCategoryRaw) {
+        category = await persistCustomCategory(currentClient, newCategoryRaw);
+    }
     const trainingRequired = Boolean(document.getElementById('txReviewTraining')?.checked);
     const payload = {
         txn_id: selected.id,
@@ -454,11 +977,7 @@ function fillCategoryOptions() {
     const sel = document.getElementById('txCategory');
     if (!sel) return;
     const cur = sel.value;
-    const set = new Set();
-    for (const r of allRows) {
-        if (r.category) set.add(r.category);
-    }
-    const sorted = [...set].sort((a, b) => a.localeCompare(b));
+    const sorted = allCategoryNames(cur);
     sel.innerHTML = '<option value="">All categories</option>';
     for (const c of sorted) {
         const opt = document.createElement('option');
@@ -486,10 +1005,15 @@ function clearFiltersToDefault() {
     setValue('txDateTo', toIsoDate(now));
     sortKey = 'date';
     sortDir = 'desc';
+    currentPage = 1;
+    expandedCategory = '';
+    highlightedCategory = '';
     updateSortIndicators();
     normalizeDateRange(true);
-    renderTable();
-    if (selected && !filteredRows().some((r) => r.id === canonicalReviewRowId(selected.id))) {
+    if (viewMode === 'categories') renderCategoryView();
+    else renderTable();
+    renderSpendHero();
+    if (selected && !buildFilteredPool().some((r) => r.id === canonicalReviewRowId(selected.id))) {
         selected = null;
     }
 }
@@ -532,7 +1056,10 @@ async function loadTransactions(client, opts = {}) {
     allRows = Array.isArray(list) ? list : [];
     selected = null;
     fillCategoryOptions();
-    renderTable();
+    currentPage = 1;
+    renderSpendHero();
+    if (viewMode === 'categories') renderCategoryView();
+    else renderTable();
     if (status) {
         const count = allRows.length;
         let t = count ? `${count} transaction${count === 1 ? '' : 's'} loaded` : '';
@@ -581,16 +1108,22 @@ async function syncAkahu(client) {
 function wireFilters(signal) {
     const rerender = () => {
         normalizeDateRange(true);
-        renderTable();
+        currentPage = 1;
+        renderSpendHero();
+        if (viewMode === 'categories') renderCategoryView();
+        else renderTable();
         updateSortIndicators();
-        if (selected && !filteredRows().some((r) => r.id === canonicalReviewRowId(selected.id))) {
+        if (selected && !buildFilteredPool().some((r) => r.id === canonicalReviewRowId(selected.id))) {
             selected = null;
         }
     };
     document.getElementById('txSearch')?.addEventListener('input', rerender, { signal });
     document.getElementById('txDescription')?.addEventListener('input', rerender, { signal });
     document.getElementById('txCategory')?.addEventListener('change', rerender, { signal });
-    document.getElementById('txReviewOnly')?.addEventListener('change', rerender, { signal });
+    document.getElementById('txReviewOnly')?.addEventListener('change', () => {
+        if (!document.getElementById('txReviewOnly')?.checked) selectedReviewIds.clear();
+        rerender();
+    }, { signal });
     document.getElementById('txDateFrom')?.addEventListener('change', rerender, { signal });
     document.getElementById('txDateTo')?.addEventListener(
         'change',
@@ -623,6 +1156,73 @@ function wireFilters(signal) {
 /**
  * @param {AbortSignal} [signal]
  */
+function wirePagination(signal) {
+    document.getElementById('txPagination')?.addEventListener('click', (e) => {
+        const btn = e.target instanceof Element ? e.target.closest('[data-page]') : null;
+        if (!btn || btn.disabled) return;
+        const pool = buildFilteredPool({ forDisplay: true });
+        const { totalPages } = paginateRows(pool);
+        const action = btn.getAttribute('data-page');
+        if (action === 'first') currentPage = 1;
+        else if (action === 'prev') currentPage = Math.max(1, currentPage - 1);
+        else if (action === 'next') currentPage = Math.min(totalPages, currentPage + 1);
+        else if (action === 'last') currentPage = totalPages;
+        else currentPage = Number(action) || 1;
+        selected = null;
+        renderTable();
+    }, { signal });
+}
+
+/**
+ * @param {AbortSignal} [signal]
+ */
+function wireCategoryView(signal) {
+    document.getElementById('txViewList')?.addEventListener('click', () => setViewMode('list'), { signal });
+    document.getElementById('txViewCategories')?.addEventListener('click', () => setViewMode('categories'), { signal });
+
+    const onCategoryPick = (target) => {
+        const el = target instanceof Element ? target.closest('[data-cat]') : null;
+        if (!el) return;
+        const cat = el.getAttribute('data-cat');
+        if (!cat) return;
+        toggleCategoryDrill(cat);
+    };
+
+    document.getElementById('txDonutPanel')?.addEventListener('click', (e) => onCategoryPick(e.target), { signal });
+    document.getElementById('txCategoryGrid')?.addEventListener('click', (e) => onCategoryPick(e.target), { signal });
+    document.getElementById('txCategoryGrid')?.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const card = e.target instanceof Element ? e.target.closest('.tx-cat-card') : null;
+        if (!card) return;
+        e.preventDefault();
+        onCategoryPick(card);
+    }, { signal });
+
+    document.getElementById('txCategoryDrill')?.addEventListener('click', (e) => {
+        const t = e.target;
+        if (!(t instanceof Element)) return;
+        if (t.closest('[data-drill-action="close"]')) {
+            expandedCategory = '';
+            highlightedCategory = '';
+            renderCategoryView();
+            return;
+        }
+        if (t.closest('[data-drill-action="list"]')) {
+            drillToCategoryList(expandedCategory);
+            return;
+        }
+        const row = t.closest('.tx-drill-row[data-id]');
+        if (!row) return;
+        const id = row.getAttribute('data-id');
+        selected = allRows.find((r) => r.id === id) || null;
+        drillToCategoryList(expandedCategory);
+        renderTable();
+    }, { signal });
+}
+
+/**
+ * @param {AbortSignal} [signal]
+ */
 function wireTableInteractions(signal) {
     const tbody = document.querySelector('#txTable tbody');
     if (!tbody) return;
@@ -645,11 +1245,17 @@ function wireTableInteractions(signal) {
             await openEnquirePanel();
             return;
         }
+        if (t.closest('#txReceiptBtn')) {
+            e.preventDefault();
+            await openReceiptPanel();
+            return;
+        }
         if (t.closest('#txReviewSave')) {
             e.preventDefault();
             await saveReviewFromPanel();
             return;
         }
+        if (t.closest('.tx-row-check') || t.closest('#txHeaderSelectAll')) return;
         if (t.closest('tr[data-expand-row="1"]')) return;
         const tr = t.closest('tr[data-id]');
         if (!tr) return;
@@ -661,6 +1267,28 @@ function wireTableInteractions(signal) {
         }
         selected = allRows.find((r) => r.id === id) || null;
         renderTable();
+    }, { signal });
+}
+
+/**
+ * @param {AbortSignal} [signal]
+ */
+function wireBulkReviewActions(signal) {
+    const onSelectAll = (checked) => {
+        const pool = buildFilteredPool({ forDisplay: true });
+        const { rows } = paginateRows(pool);
+        setReviewSelectionForPage(rows, checked);
+    };
+
+    document.getElementById('txBulkDismiss')?.addEventListener('click', () => void bulkDismissSelected(), { signal });
+    document.getElementById('txSelectAllReview')?.addEventListener('change', (e) => {
+        onSelectAll(/** @type {HTMLInputElement} */ (e.target).checked);
+    }, { signal });
+
+    document.querySelector('#txTable thead')?.addEventListener('change', (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLInputElement) || t.id !== 'txHeaderSelectAll') return;
+        onSelectAll(t.checked);
     }, { signal });
 }
 
@@ -679,9 +1307,13 @@ export async function bootTransactionsPage(opts = {}) {
     document.getElementById('txSyncAkahu')?.addEventListener('click', () => void syncAkahu(client), { signal });
     setDefaultDateRange();
     wireFilters(signal);
+    wirePagination(signal);
+    wireCategoryView(signal);
     wireTableInteractions(signal);
+    wireBulkReviewActions(signal);
 
     try {
+        await loadCategoryVocabulary(client);
         await loadTransactions(client);
         if (signal?.aborted) return;
     } catch (e) {

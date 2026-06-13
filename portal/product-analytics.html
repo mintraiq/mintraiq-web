@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="turbo-cache-control" content="no-cache">
+    <title>MintrAIQ — Product Price Tracker</title>
+    <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="./css/portal-app.css">
+    <link rel="stylesheet" href="./css/product-analytics.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../config/runtime-env.js"></script>
+    <script src="./env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js"></script>
+</head>
+<body data-portal-nav="product-analytics">
+    <div class="dashboard-container">
+        <div id="portal-sidebar-region" data-turbo-permanent>
+            <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+        </div>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <div class="main-wrap">
+            <div class="mobile-bar">
+                <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+                <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
+            </div>
+            <main class="main-content">
+                <header class="top-header">
+                    <div class="header-left">
+                        <h2 style="margin:0;font-size:1.75rem">Product Price Tracker</h2>
+                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">
+                            Search receipt line items and compare your unit prices to the national CPI baseline.
+                        </p>
+                    </div>
+                </header>
+
+                <div class="ppt-search-wrap">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                    <input
+                        type="search"
+                        id="pptSearch"
+                        class="ppt-search-input"
+                        placeholder="Search products from your receipts…"
+                        autocomplete="off"
+                        spellcheck="false"
+                    />
+                    <span id="pptSpinner" hidden aria-hidden="true"><i class="fas fa-spinner fa-spin"></i></span>
+                </div>
+
+                <div class="ppt-suggestions" id="pptSuggestions" aria-label="Quick search suggestions"></div>
+
+                <div id="pptWindowToggle" class="ppt-window-toggle" hidden>
+                    <span class="ppt-window-toggle-label">History window</span>
+                    <div class="ppt-window-toggle-group" role="group" aria-label="History window">
+                        <button type="button" class="ppt-window-btn is-active" data-days="90">3 months</button>
+                        <button type="button" class="ppt-window-btn" data-days="180">6 months</button>
+                    </div>
+                </div>
+
+                <p id="pptStatus" class="ppt-status" aria-live="polite"></p>
+
+                <div id="pptPaywall" class="ppt-empty" hidden>
+                    <div class="ppt-empty-icon"><i class="fas fa-crown"></i></div>
+                    <h3>Product Price Tracker is a Pro feature</h3>
+                    <p>Upgrade to Pro to search receipt line items, compare store prices, and track CPI trends.</p>
+                    <a href="./license.html" class="ppt-chip" style="display:inline-flex;margin-top:12px;text-decoration:none">View plans &amp; upgrade</a>
+                </div>
+
+                <div id="pptHelper" class="ppt-status">
+                    Type at least 2 characters. Results update automatically after a short pause.
+                </div>
+
+                <div id="pptEmpty" class="ppt-empty" hidden>
+                    <div class="ppt-empty-icon"><i class="fas fa-receipt"></i></div>
+                    <h3>No receipt data found for this item</h3>
+                    <p>Try a shorter name, check spelling, or scan a grocery receipt to build your price history.</p>
+                </div>
+
+                <div id="pptSingle" class="ppt-single-card" hidden></div>
+
+                <section id="pptChartCard" class="ppt-chart-card" hidden>
+                    <h3 class="ppt-chart-title">Unit price history</h3>
+                    <p class="ppt-chart-sub" id="pptChartSubtitle"></p>
+                    <div class="ppt-chart-wrap"><canvas id="pptChart"></canvas></div>
+                    <div class="ppt-legend" id="pptLegend"></div>
+                </section>
+            </main>
+        </div>
+    </div>
+    <script type="module" src="./js/turbo-workspace-boot.js"></script>
+</body>
+</html>

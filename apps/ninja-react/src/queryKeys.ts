@@ -5,5 +5,9 @@ export const queryKeys = {
         weeklyPlan: () => [...queryKeys.samples.all, 'weekly_plan'] as const,
         budgetPlan: () => [...queryKeys.samples.all, 'budget_plan'] as const,
         dashboard: () => [...queryKeys.samples.all, 'dashboard'] as const
+    },
+    forecasts: {
+        all: ['forecasts'] as const,
+        current: () => [...queryKeys.forecasts.all, 'current'] as const
     }
 };

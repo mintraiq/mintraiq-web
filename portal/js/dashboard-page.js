@@ -3,6 +3,7 @@ import { isBootstrapOnboardingComplete } from './config.js';
 import { createLogtoClient } from './logto-client.js';
 import { fetchFinanceDashboardJson, monthRangeStrings } from './finance-dashboard.js';
 import * as render from './dashboard-render.js';
+import { renderFidelityDashboard } from './dashboard-fidelity.js';
 import { getLegalContent } from './legal-store.js';
 import { resolveDisplayName, resolveEmail } from './user-display.js';
 
@@ -115,25 +116,8 @@ export async function bootDashboardPage(opts = {}) {
 
         setInsightsFooter(data?.insights_footer || '');
 
-        if (data.ai_status === 'DATA_MISSING') {
-            if (statusEl) statusEl.textContent = '';
-            render.showDataMissingState();
-            return;
-        }
-
         if (statusEl) statusEl.textContent = '';
-
-        render.renderMetrics(data);
-        render.renderTrendChart(data);
-        render.renderBreakdownChart(data);
-
-        if (data.ai_status === 'Offline') {
-            render.showOfflineBanner('AI forecasting offline. Showing available historical data.');
-        } else {
-            render.renderForecastChart(data);
-            render.renderRecommendations(data);
-        }
-        render.renderHighExpenseAlerts(data);
+        renderFidelityDashboard(data, render);
     } catch (e) {
         if (signal?.aborted) return;
         console.error(e);

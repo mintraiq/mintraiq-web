@@ -28,26 +28,49 @@
                 <header class="top-header">
                     <div class="header-left">
                         <h2 style="margin:0;font-size:1.75rem">License &amp; tiers</h2>
-                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">Choose the plan that matches your automation and data volume</p>
+                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">Plans match our tier definitions — dashboard depth, AI forecasting, and monthly usage caps</p>
                     </div>
                 </header>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">
-                    <div class="card">
-                        <div class="card-header"><span class="card-title"><i class="fas fa-seedling"></i> Free</span></div>
-                        <p style="color:var(--text-secondary);font-size:0.92rem;margin-bottom:14px">Core dashboard, manual categorization, limited AI nudges.</p>
-                        <span class="tier-pill" style="display:inline-block;font-size:0.8rem;padding:6px 12px;border-radius:999px;background:rgba(0,255,157,0.1);color:var(--accent-green);border:1px solid rgba(0,255,157,0.35)">Current default</span>
+                <div class="license-mascot-hero" aria-live="polite">
+                    <div id="licenseMascot" class="plan-billing-mascot-frame plan-billing-mascot-frame--idle license-mascot-frame" aria-hidden="true">
+                        <img class="plan-billing-mascot__img" src="./images/mintr-mascot-dollar-leaf.png" width="256" height="256" alt="" decoding="async" />
                     </div>
-                    <div class="card" style="border-color:rgba(47,128,237,0.35)">
-                        <div class="card-header"><span class="card-title" style="color:var(--accent-blue)"><i class="fas fa-bolt"></i> Pro</span></div>
-                        <p style="color:var(--text-secondary);font-size:0.92rem;margin-bottom:14px">Full AI advisor, forecasting, priority support, higher API limits.</p>
-                        <a href="../coming-soon.html?from=license" class="btn-primary" style="display:inline-flex">Upgrade (coming soon)</a>
+                    <div class="license-mascot-hero__copy">
+                        <h3 id="licenseMascotTierLabel">Your plan</h3>
+                        <p>Mintr brightens as you unlock deeper forecasting, planners, and analytics tiers.</p>
                     </div>
                 </div>
-                <p style="color:var(--text-secondary);font-size:0.88rem;margin-top:24px">Billing is managed in <a href="./settings-billing.html" style="color:var(--accent-blue)">Settings → Billing &amp; plan</a> when checkout is connected.</p>
+                <div class="license-tier-grid">
+                    <div class="card license-tier-card" data-tier="free">
+                        <div class="card-header"><span class="card-title"><i class="fas fa-chart-line"></i> Insight Starter</span></div>
+                        <p class="license-tier-meta">FREE · $0/mo</p>
+                        <p style="color:var(--text-secondary);font-size:0.92rem;margin-bottom:14px">3-month insight dashboard and core transaction views.</p>
+                        <span class="tier-pill license-tier-pill">Default tier</span>
+                    </div>
+                    <div class="card license-tier-card" data-tier="basic">
+                        <div class="card-header"><span class="card-title"><i class="fas fa-wallet"></i> Cashflow Essential</span></div>
+                        <p class="license-tier-meta">BASIC · from $4.99/mo</p>
+                        <p style="color:var(--text-secondary);font-size:0.92rem;margin-bottom:14px">Planners plus 15 receipt scans, 2 statement uploads, and 5 AI messages per month.</p>
+                        <span class="tier-pill license-tier-pill license-tier-pill--muted">Upgrade via billing</span>
+                    </div>
+                    <div class="card license-tier-card license-tier-card--pro" data-tier="premium">
+                        <div class="card-header"><span class="card-title" style="color:var(--accent-blue)"><i class="fas fa-brain"></i> Forecast Pro</span></div>
+                        <p class="license-tier-meta">PRO · $7.99/mo</p>
+                        <p style="color:var(--text-secondary);font-size:0.92rem;margin-bottom:14px">LSTM forecasting, CPI outlook, email connector, product analytics, and unlimited planners.</p>
+                        <a href="./settings-billing.html" class="btn-primary" style="display:inline-flex">Compare &amp; upgrade</a>
+                    </div>
+                    <div class="card license-tier-card" data-tier="pilot">
+                        <div class="card-header"><span class="card-title"><i class="fas fa-flask"></i> Pilot Analyst</span></div>
+                        <p class="license-tier-meta">PILOT_3MONTH · promo</p>
+                        <p style="color:var(--text-secondary);font-size:0.92rem;margin-bottom:14px">90-day pilot: forecasting and planners with mid-tier usage limits. Redeem a promo code in billing.</p>
+                        <span class="tier-pill license-tier-pill license-tier-pill--muted">Promo access</span>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
     <script type="module" src="./js/portal-nav.js"></script>
     <script type="module" src="./js/portal-page-boot.js"></script>
+    <script type="module" src="./js/license-page.js"></script>
 </body>
 </html>

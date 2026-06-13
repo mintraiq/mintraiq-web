@@ -1,0 +1,29 @@
+---
+description: "Triggers when building paywalls, upgrade nudges, promo code inputs, or handling usage limits."
+globs: ["finance-ai-mobile/**/*", "mintraiq-web/**/*"]
+alwaysApply: false
+---
+# Rules for Subscription UI & Paywalls
+
+## 1. Source of truth: `GET /users/me`
+Response includes `features[]`, `limits{}`, `usage{}`, `effective_tier_id`. Use `portal/js/entitlements.js` helpers — never hardcode tier names in UI.
+
+## 2. Nav & page gating (`entitlements.js`)
+Hide workspace nav items when the user lacks the required feature or has `limit === 0`:
+- `product-analytics` → `product_analytics`
+- `forecast` → `lstm_forecast`
+- `budget-planner` / `weekly-planner` → `basic_planners` OR `unlimited_planners`
+- `upload-statement` / `receipt-scanner` → `limits.statement_uploads_per_month` / `limits.receipt_scans_per_month` > 0
+- Settings email connector → `email_connector`
+
+Pages must still handle `403 UPGRADE_REQUIRED` from API as a fallback.
+
+## 3. Global fetch interceptor
+Listen for `HTTP 403` with `error_code: "UPGRADE_REQUIRED"` or `"LIMIT_EXCEEDED"` → open upgrade modal (do not hard-crash).
+
+## 4. Paywall components
+- Upgrade modal: state which feature/limit was blocked; CTA to `license.html` / billing.
+- Promo entry on profile/settings → `POST /api/v1/billing/redeem-promo` → refresh profile / reload nav.
+
+## 5. Proactive limit nudges
+When `usage` approaches `limits` (e.g. 13/15 receipt scans on BASIC), show inline banner above the action button.

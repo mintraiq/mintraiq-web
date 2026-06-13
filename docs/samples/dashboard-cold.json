@@ -1,0 +1,23 @@
+{
+  "fidelity_mode": "COLD_START_ONBOARDING",
+  "ai_status": "Online",
+  "anchor_period": {
+    "start_date": "2026-05-01",
+    "end_date": "2026-05-31"
+  },
+  "onboarding_flows": [
+    {
+      "id": "upload_statement",
+      "title": "Upload statement",
+      "description": "Import a PDF or CSV bank statement.",
+      "cta_href": "./upload-statement.html"
+    },
+    {
+      "id": "scan_receipt",
+      "title": "Scan a receipt",
+      "description": "Snap a receipt photo for line-item detail.",
+      "cta_href": "./receipt-scanner.html"
+    }
+  ],
+  "recommendations": []
+}

@@ -2,6 +2,14 @@ import { createLogtoClient } from './logto-client.js';
 import { guardSession } from './guard-session.js';
 import { financeApiFetch } from './api.js';
 import { getLegalContent } from './legal-store.js';
+import {
+    mountPlannerDataBasisModal,
+    resolvePlannerDataBasis,
+    setPlannerDataBasisEnabled,
+    wirePlannerDataBasisButton
+} from './planner-data-basis.js';
+
+let lastPlanData = null;
 
 /**
  * Weekly Planner page — calls authenticated GET {financeApiBase}/weekly-planner.
@@ -253,11 +261,14 @@ async function loadPlan(client, signal) {
         renderFixedNote(data?.fixed_costs);
         setInsightsFooter(data?.insights_footer || '');
         showSections();
+        lastPlanData = data;
+        setPlannerDataBasisEnabled('wpDataBasis', true);
         setStatus(data?.meta?.generated_at ? `Updated ${data.meta.generated_at}` : '');
     } catch (e) {
         if (signal?.aborted) return;
         console.error('weekly-planner', e);
         setInsightsFooter('');
+        setPlannerDataBasisEnabled('wpDataBasis', false);
         setStatus('');
         throw e;
     }
@@ -272,6 +283,12 @@ export async function bootWeeklyPlannerPage(opts = {}) {
     if (!(await guardSession())) return;
     if (signal?.aborted) return;
     const client = createLogtoClient();
+    mountPlannerDataBasisModal();
+    wirePlannerDataBasisButton(
+        'wpDataBasis',
+        () => resolvePlannerDataBasis(lastPlanData, 'weekly'),
+        { signal }
+    );
 
     const reload = async () => {
         try {

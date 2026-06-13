@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="turbo-cache-control" content="no-cache">
+    <title>MintrAIQ — Recurring liabilities</title>
+    <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="./css/portal-app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="../config/runtime-env.js"></script>
+    <script src="./env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js"></script>
+</head>
+<body data-portal-nav="recurring-liabilities">
+    <div class="dashboard-container">
+        <div id="portal-sidebar-region" data-turbo-permanent>
+            <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+        </div>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <div class="main-wrap">
+            <div class="mobile-bar">
+                <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+                <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
+            </div>
+            <main class="main-content">
+                <header class="top-header">
+                    <div class="header-left">
+                        <h2 style="margin:0;font-size:1.75rem">Recurring liabilities</h2>
+                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">
+                            Upcoming reserves from bank history and email bill signals.
+                        </p>
+                    </div>
+                    <div class="header-right">
+                        <button type="button" class="planner-basis-btn" id="rlRefresh" title="Re-scan bank patterns">
+                            <i class="fas fa-rotate" aria-hidden="true"></i> Refresh
+                        </button>
+                    </div>
+                </header>
+                <p id="rlStatus" style="color:var(--text-secondary);font-size:0.85rem;margin:-8px 0 12px" aria-live="polite"></p>
+                <div id="rlHero" class="ai-reserves-hero" hidden></div>
+                <div id="rlList" class="ai-reserves-list"></div>
+            </main>
+        </div>
+    </div>
+    <script type="module" src="./js/turbo-workspace-boot.js"></script>
+</body>
+</html>

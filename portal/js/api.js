@@ -1,6 +1,13 @@
 import { CONFIG } from './config.js';
 import { getAccessTokenOrReauth } from './logto-client.js';
 
+function newRequestId() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+    }
+    return `req-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 /**
  * Authenticated fetch to finance_api (same audience as bootstrap).
  * Path is relative to financeApiBase, e.g. "/generate" → POST {base}/generate
@@ -19,6 +26,7 @@ export async function financeApiFetch(logtoClient, path, options = {}) {
 
     const headers = {
         Accept: 'application/json',
+        'X-Request-ID': options.requestId || newRequestId(),
         ...(options.headers || {}),
         Authorization: `Bearer ${token}`
     };
@@ -52,6 +60,7 @@ export async function ocrScannerFetch(logtoClient, options = {}) {
 
     const headers = {
         Accept: 'application/json',
+        'X-Request-ID': options.requestId || newRequestId(),
         ...(options.headers || {}),
         Authorization: `Bearer ${token}`
     };

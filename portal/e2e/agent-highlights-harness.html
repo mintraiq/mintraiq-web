@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E2E — Agent item highlights harness</title>
+    <link rel="stylesheet" href="../../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="../css/portal-app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body data-e2e-harness="agent-highlights">
+    <main class="main-content" style="max-width:720px;margin:0 auto;padding:24px">
+        <h1 style="font-size:1.25rem;margin:0 0 8px">Agent highlights harness</h1>
+        <p id="harnessMode" data-testid="harness-mode" style="color:var(--text-secondary);margin:0 0 16px"></p>
+        <div class="card" style="padding:16px;margin-bottom:12px" data-testid="agent-reply-card">
+            <p id="agentReply" style="margin:0 0 12px"></p>
+            <div id="agentHighlightsMount"></div>
+        </div>
+        <p id="harnessError" data-testid="harness-error" hidden style="color:var(--accent-red)"></p>
+    </main>
+    <script type="module" src="./agent-highlights-harness.js"></script>
+</body>
+</html>

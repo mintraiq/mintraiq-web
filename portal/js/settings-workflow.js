@@ -1,7 +1,8 @@
 import { isBootstrapOnboardingComplete } from './config.js';
 import { createLogtoClient } from './logto-client.js';
 import { financeApiFetch } from './api.js';
-import { mountBillingPlanCompare, normalizeBillingTierValue } from './billing-plan-compare.js';
+import { selectSubscriptionPlan } from './billing-api.js';
+import { mountBillingPlanCompare, normalizeBillingTierValue, wireBillingPlanCompare } from './billing-plan-compare.js';
 import { visitWithTurbo } from './turbo-visit.js';
 import { resolveDisplayName } from './user-display.js';
 
@@ -336,7 +337,7 @@ function hydrateLowFrictionWidgets(stepId, form, data) {
         if (tierEl instanceof HTMLSelectElement && data && typeof data === 'object' && 'billing_tier' in data) {
             tierEl.value = normalizeBillingTierValue(data.billing_tier);
         }
-        mountBillingPlanCompare(form);
+        wireBillingPlanCompare(form);
     }
 }
 
@@ -867,6 +868,20 @@ async function mountSettingsWorkflow() {
                 }
                 const saveRes = await saveStepData(client, stepId, payload, false);
                 if (saveRes?.ok) {
+                    if (stepId === 'billing' && payload.billing_tier) {
+                        try {
+                            await selectSubscriptionPlan(client, payload.billing_tier);
+                        } catch (planErr) {
+                            setStatus(
+                                planErr instanceof Error
+                                    ? `Workflow saved but plan not applied: ${planErr.message}`
+                                    : 'Workflow saved but plan not applied.',
+                                'warning',
+                            );
+                            syncActions();
+                            return;
+                        }
+                    }
                     initialSnapshot = JSON.stringify(payload);
                     dirty = false;
                     setStatus('Saved successfully.', 'positive');
@@ -891,6 +906,18 @@ async function mountSettingsWorkflow() {
                     }
                     const saveRes = await saveStepData(client, stepId, payload, true);
                     if (saveRes?.ok) {
+                        try {
+                            await selectSubscriptionPlan(client, tier);
+                        } catch (planErr) {
+                            setStatus(
+                                planErr instanceof Error
+                                    ? `Saved workflow but plan not applied: ${planErr.message}`
+                                    : 'Saved workflow but plan not applied.',
+                                'warning',
+                            );
+                            await navigateNext(saveRes);
+                            return;
+                        }
                         if (tier === 'free') {
                             setStatus('You are on the free plan. Upgrade only if you want to, anytime in Settings.', 'positive');
                         } else {

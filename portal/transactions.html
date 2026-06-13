@@ -139,6 +139,7 @@
                         <label class="tx-show-entries" for="txPageSize">
                             Show
                             <select id="txPageSize" class="form-control tx-mini-control">
+                                <option value="10">10</option>
                                 <option value="25">25</option>
                                 <option value="50" selected>50</option>
                                 <option value="100">100</option>
@@ -180,15 +181,37 @@
                     <p id="txSyncHint" style="margin:12px 0 0;font-size:0.82rem;color:var(--text-secondary)"></p>
                 </div>
 
-                <div class="card" style="margin-bottom:16px">
-                    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+                <div class="tx-spend-hero" id="txSpendHero" aria-live="polite"></div>
+
+                <div class="tx-view-tabs" role="tablist" aria-label="Transaction view">
+                    <button type="button" class="tx-view-tab is-active" id="txViewList" role="tab" aria-selected="true" data-view="list">
+                        <i class="fas fa-list-ul"></i> List
+                    </button>
+                    <button type="button" class="tx-view-tab" id="txViewCategories" role="tab" aria-selected="false" data-view="categories">
+                        <i class="fas fa-chart-pie"></i> By category
+                    </button>
+                </div>
+
+                <div id="txBulkReviewBar" class="tx-bulk-review-bar" hidden>
+                    <label class="tx-bulk-select-all">
+                        <input type="checkbox" id="txSelectAllReview" />
+                        <span>Select all on page</span>
+                    </label>
+                    <span id="txSelectedCount" class="tx-bulk-count">0 selected</span>
+                    <button type="button" class="tx-action-btn tx-action-btn--reload" id="txBulkDismiss">
+                        <i class="fas fa-check-double"></i> Mark reviewed (no training)
+                    </button>
+                </div>
+
+                <div class="card tx-list-card" id="txListCard" style="margin-bottom:16px">
+                    <div class="card-header tx-list-header">
                         <span class="card-title">All movements</span>
-                        <div style="text-align:right">
-                            <span id="txCount" style="font-size:0.88rem;color:var(--text-secondary)">0 shown</span>
-                            <span id="txCountSub" style="display:block;font-size:0.78rem;color:var(--text-secondary);margin-top:4px;max-width:420px;margin-left:auto;line-height:1.35"></span>
+                        <div class="tx-list-meta">
+                            <span id="txCount" class="tx-count-main">0 shown</span>
+                            <span id="txCountSub" class="tx-count-sub"></span>
                         </div>
                     </div>
-                    <div style="overflow-x:auto">
+                    <div class="tx-table-wrap">
                         <table class="ninja-table" id="txTable">
                             <thead>
                                 <tr>
@@ -204,6 +227,19 @@
                             <tbody></tbody>
                         </table>
                     </div>
+                    <nav class="tx-pagination" id="txPagination" aria-label="Transaction pages"></nav>
+                </div>
+
+                <div class="card tx-category-card-wrap" id="txCategoryPanel" hidden style="margin-bottom:16px">
+                    <div class="card-header tx-category-header">
+                        <span class="card-title">Spend by category</span>
+                        <span id="txCategoryHint" class="tx-category-hint">Click a slice or card to drill down</span>
+                    </div>
+                    <div class="tx-category-layout">
+                        <div class="tx-donut-panel" id="txDonutPanel"></div>
+                        <div class="tx-category-grid" id="txCategoryGrid"></div>
+                    </div>
+                    <div class="tx-category-drill" id="txCategoryDrill" hidden></div>
                 </div>
 
                 <div id="txDetail" class="card" style="display:none"></div>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="turbo-cache-control" content="no-cache">
+    <title>MintrAIQ — Email connector</title>
+    <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="./css/portal-app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="../config/runtime-env.js"></script>
+    <script src="./env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js"></script>
+</head>
+<body data-portal-nav="settings" data-settings-nav="email">
+    <div class="dashboard-container">
+        <div id="portal-sidebar-region" data-turbo-permanent>
+            <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+        </div>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <div class="main-wrap">
+            <div class="mobile-bar">
+                <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+                <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
+            </div>
+            <main class="main-content main-content--settings">
+                <div class="portal-settings-shell">
+                    <div id="portal-settings-nav-region" data-turbo-permanent>
+                        <div id="settings-nav-root"></div>
+                    </div>
+                    <div class="portal-settings-body">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-envelope"></i>
+                                <h3>Email bill scanner</h3>
+                            </div>
+                            <p style="color:var(--text-secondary);margin:0 0 14px;line-height:1.5">
+                                Connect an email inbox to discover subscription and bill-payment signals.
+                                These merge with bank-history reserves in your AI Reserves timeline.
+                            </p>
+                            <form id="emailConnectorForm">
+                                <label class="form-group">
+                                    <span>Email address</span>
+                                    <input type="email" id="ecEmail" class="form-control" placeholder="you@example.com" />
+                                </label>
+                                <label class="form-group">
+                                    <span>Provider</span>
+                                    <select id="ecProvider" class="form-control">
+                                        <option value="gmail">Gmail</option>
+                                        <option value="outlook">Outlook</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </label>
+                                <div class="form-group" style="display:flex;align-items:center;gap:10px">
+                                    <input type="checkbox" id="ecEnabled" />
+                                    <label for="ecEnabled" style="margin:0">Enable email scanning</label>
+                                </div>
+                                <p id="ecStatus" style="color:var(--text-secondary);font-size:0.9rem;min-height:1.2em"></p>
+                                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+                                    <button type="submit" class="btn-primary">Save connector</button>
+                                    <button type="button" class="planner-basis-btn" id="ecDisconnect">Disconnect</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card" style="margin-top:16px">
+                            <div class="card-header"><span class="card-title">Scan sample email</span></div>
+                            <p style="color:var(--text-secondary);margin:0 0 10px;font-size:0.9rem">
+                                Paste a bill or subscription email to extract payment signals (until OAuth inbox sync is live).
+                            </p>
+                            <label class="form-group">
+                                <span>Subject</span>
+                                <input type="text" id="ecScanSubject" class="form-control" placeholder="Your Netflix payment is due" />
+                            </label>
+                            <label class="form-group">
+                                <span>Email body</span>
+                                <textarea id="ecScanBody" class="form-control" rows="6" placeholder="Amount due: $19.99 by 15 Jun 2026"></textarea>
+                            </label>
+                            <button type="button" class="btn-primary" id="ecScanBtn">Search for payments</button>
+                            <pre id="ecScanResult" style="margin-top:12px;color:var(--text-secondary);font-size:0.82rem;white-space:pre-wrap"></pre>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script type="module" src="./js/portal-settings-nav.js"></script>
+    <script type="module" src="./js/settings-email-page.js"></script>
+</body>
+</html>

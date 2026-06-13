@@ -5,6 +5,8 @@
  * syncs the active nav item on each visit (avoids sidebar flicker).
  */
 import { isFeatureReceiptScannerEnabled } from './config.js';
+import { financeApiFetch } from './api.js';
+import { filterWorkspaceNav, loadEntitlementProfile } from './entitlements.js';
 import { clearClientSessionArtifacts, createLogtoClient, purgeAuthForRelogin } from './logto-client.js';
 import { installPortalTransitions } from './turbo-transitions.js';
 import { loadLegalContent } from './legal-store.js';
@@ -15,12 +17,15 @@ const BRAND_TEXT_MARKUP = 'Mintr<span class="gradient-text">AIQ</span>';
 const WORKSPACE = [
     { id: 'dashboard', href: './dashboard.html', icon: 'fa-chart-line', label: 'Dashboard' },
     { id: 'transactions', href: './transactions.html', icon: 'fa-wallet', label: 'Transactions' },
+    { id: 'product-analytics', href: './product-analytics.html', icon: 'fa-tags', label: 'Product prices' },
     { id: 'upload-statement', href: './upload-statement.html', icon: 'fa-file-import', label: 'Upload statement' },
     { id: 'receipt-scanner', href: './receipt-scanner.html', icon: 'fa-receipt', label: 'Receipt scanner' },
     { id: 'budget-planner', href: './budget-planner.html', icon: 'fa-calendar-check', label: 'Monthly planner' },
     { id: 'weekly-planner', href: './weekly-planner.html', icon: 'fa-calendar-week', label: 'Weekly planner' },
+    { id: 'recurring-liabilities', href: './recurring-liabilities.html', icon: 'fa-repeat', label: 'Recurring bills' },
     { id: 'goals', href: './goals.html', icon: 'fa-bullseye', label: 'Goals' },
     { id: 'forecast', href: './forecast.html', icon: 'fa-chart-area', label: 'Forecast' },
+    { id: 'dashboard-analytics', href: './dashboard-analytics.html', icon: 'fa-wand-magic-sparkles', label: 'Analytics' },
     { id: 'license', href: './license.html', icon: 'fa-crown', label: 'License & tiers' },
     { id: 'profile', href: './profile.html', icon: 'fa-user', label: 'Profile' }
 ];
@@ -29,8 +34,14 @@ function escapeAttr(s) {
     return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 
-function workspaceNavItems() {
-    return WORKSPACE.filter((item) => item.id !== 'receipt-scanner' || isFeatureReceiptScannerEnabled());
+function workspaceNavItems(profile = null) {
+    let items = WORKSPACE.filter(
+        (item) => item.id !== 'receipt-scanner' || isFeatureReceiptScannerEnabled(),
+    );
+    if (profile) {
+        items = filterWorkspaceNav(profile, items);
+    }
+    return items;
 }
 
 /** Rebuild sidebar when feature toggles (e.g. receipt scanner) change between Turbo visits. */
@@ -128,7 +139,16 @@ function shouldPrefetchLegalForNav() {
     return true;
 }
 
-export function mountPortalNav() {
+async function resolveEntitlementProfile(client) {
+    try {
+        return await loadEntitlementProfile(client, financeApiFetch);
+    } catch (err) {
+        console.warn('portal-nav: could not load entitlement profile', err);
+        return null;
+    }
+}
+
+export async function mountPortalNav() {
     const root = document.getElementById('portal-nav-root');
     if (!root) return;
 
@@ -139,10 +159,11 @@ export function mountPortalNav() {
         loadLegalContent(client).catch(() => {});
     }
 
-    const sig = portalNavSignature();
+    const profile = client ? await resolveEntitlementProfile(client) : null;
+    const sig = `${portalNavSignature()}|tier:${profile?.effective_tier_id || 'unknown'}`;
     if (root.dataset.portalNavSig !== sig) {
         root.dataset.portalNavSig = sig;
-        const links = workspaceNavItems()
+        const links = workspaceNavItems(profile)
             .map((item) => {
                 return `<a href="${escapeAttr(item.href)}" class="menu-item" data-nav-id="${escapeAttr(item.id)}"><i class="fas ${item.icon}"></i> ${item.label}</a>`;
             })
@@ -182,10 +203,27 @@ function syncMobileBarBrand() {
     });
 }
 
+async function mountGlobalAiReservesFab() {
+    const nav = document.body?.getAttribute('data-portal-nav');
+    if (!nav) return;
+    try {
+        const mod = await import('./ai-reserves-fab.js');
+        await mod.mountAiReservesFab();
+    } catch (e) {
+        console.warn('ai-reserves fab mount', e);
+    }
+}
+
+function onPortalTurboLoad() {
+    mountPortalNav();
+    void mountGlobalAiReservesFab();
+}
+
 installMobileShellTurboHygiene();
 mountPortalNav();
+void mountGlobalAiReservesFab();
 if (!window.__mintPortalNavTurboLoad) {
     window.__mintPortalNavTurboLoad = true;
-    document.addEventListener('turbo:load', mountPortalNav);
+    document.addEventListener('turbo:load', onPortalTurboLoad);
 }
 installPortalTransitions();

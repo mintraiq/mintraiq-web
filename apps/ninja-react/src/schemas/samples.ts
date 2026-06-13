@@ -101,6 +101,69 @@ export type BudgetPayload = z.infer<typeof budgetPayloadSchema>;
 
 export const dashboardSampleSchema = z
     .object({
+        fidelity_mode: z
+            .enum([
+                'LSTM_FULL',
+                'HYBRID_STANDARD',
+                'LITE_MINIMUM',
+                'RECEIPT_ONLY_INSIGHTS',
+                'COLD_START_ONBOARDING',
+                'NORMAL'
+            ])
+            .optional(),
+        ai_status: z.string().optional(),
+        anchor_period: z
+            .object({
+                start_date: z.string(),
+                end_date: z.string()
+            })
+            .passthrough()
+            .optional(),
+        coverage: z
+            .object({
+                txn_months: z.number().optional(),
+                receipt_months: z.number().optional()
+            })
+            .passthrough()
+            .optional(),
+        influence_hooks: z
+            .object({
+                unlock_percentage: z.number().optional(),
+                cta_label: z.string().optional(),
+                cta_href: z.string().optional(),
+                message: z.string().optional()
+            })
+            .passthrough()
+            .optional(),
+        receipt_summary: z
+            .object({
+                scanned_count_previous_month: z.number().optional(),
+                total_receipt_spend: z.number().optional(),
+                projected_tax_deductions: z.number().optional()
+            })
+            .passthrough()
+            .optional(),
+        expansion_prompt: z
+            .object({
+                title: z.string().optional(),
+                message: z.string().optional(),
+                cta_label: z.string().optional(),
+                cta_href: z.string().optional()
+            })
+            .passthrough()
+            .optional(),
+        onboarding_flows: z
+            .array(
+                z
+                    .object({
+                        id: z.string(),
+                        title: z.string(),
+                        description: z.string().optional(),
+                        cta_href: z.string().optional()
+                    })
+                    .passthrough()
+            )
+            .optional(),
         forecast: z
             .object({
                 future_dates: z.array(z.string()),
@@ -114,6 +177,8 @@ export const dashboardSampleSchema = z
                 historical_avg_expense: z.number().optional(),
                 predicted_income: z.number().optional(),
                 predicted_savings: z.number().optional(),
+                historical_avg_income: z.number().optional(),
+                discretionary_spend: z.number().optional(),
                 top_categories: z
                     .array(
                         z.object({
@@ -130,7 +195,8 @@ export const dashboardSampleSchema = z
             .object({
                 level: z.string().optional(),
                 score: z.number().optional(),
-                explanation: z.array(z.string()).optional()
+                explanation: z.array(z.string()).optional(),
+                flags: z.array(z.string()).optional()
             })
             .passthrough()
             .optional(),

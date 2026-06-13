@@ -1,0 +1,8 @@
+/*
+ * Tailwind v4 — utilities + theme only, NO preflight.
+ * This bundle is embedded into portal pages that ship their own shell.css;
+ * importing preflight here would reset the host page's typography/layout.
+ */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);

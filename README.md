@@ -29,14 +29,23 @@ Static marketing pages, a **Logto-powered portal** (`portal/`), **FastAPI refere
   "status": "success",
   "is_new_user": false,
   "routing": {
-    "dashboard_type": "landing | lite | full",
+    "dashboard_type": "landing | lite | full | onboarding",
+    "fidelity_mode": "HYBRID_STANDARD",
     "redirect_to_license": false
   },
+  "fidelity": { "mode": "HYBRID_STANDARD", "txn_months": 6, "receipt_months": 2 },
   "profile": { "name": "...", "tier": "..." }
 }
 ```
 
-6. The portal maps `routing` to **`portal/dashboard.html`** for `landing` / `lite` / `full` (loads metrics from FastAPI `POST /generate`); `redirect_to_license` → `coming-soon.html?from=license`. Marketing demo remains at **`mock-dashboard.html`**.
+6. The portal maps `routing` to **`portal/dashboard.html`** for `landing` / `lite` / `full` (loads metrics from FastAPI `POST /generate` with **`fidelity_mode`**-aware layouts); `redirect_to_license` → `coming-soon.html?from=license`. See **`docs/MULTI_FIDELITY_PORTAL.md`**. Marketing demo remains at **`mock-dashboard.html`**.
+
+### Playwright E2E (fidelity layouts)
+
+```bash
+cd mintraiq-web
+npm install && npm run test:e2e:install && npm run test:e2e
+```
 
 **Important:** the Logto **client secret** is not used in the browser. It stays on the server if you use a confidential client elsewhere.
 

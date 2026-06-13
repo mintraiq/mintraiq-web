@@ -1,0 +1,24 @@
+{
+  "fidelity_mode": "RECEIPT_ONLY_INSIGHTS",
+  "ai_status": "Online",
+  "anchor_period": {
+    "start_date": "2026-05-01",
+    "end_date": "2026-05-31"
+  },
+  "coverage": {
+    "txn_months": 0,
+    "receipt_months": 4
+  },
+  "receipt_summary": {
+    "scanned_count_previous_month": 18,
+    "total_receipt_spend": 1240.5,
+    "projected_tax_deductions": 310.13
+  },
+  "expansion_prompt": {
+    "title": "Pair receipts with your bank feed",
+    "message": "Connect a primary banking portal to reconcile receipt line-items against statement transactions and unlock full spending forecasts.",
+    "cta_label": "Connect bank account",
+    "cta_href": "./settings-banks.html"
+  },
+  "recommendations": []
+}

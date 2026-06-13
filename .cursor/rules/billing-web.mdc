@@ -1,0 +1,14 @@
+---
+description: "Triggers when building checkout flows, pricing pages, or customer portal integrations in the web application."
+globs: ["mintraiq-web/**/*"]
+alwaysApply: false
+---
+# Rules for Web Payment Gateway (Stripe)
+
+## 1. Stripe Checkout Integration
+- Do not build custom credit card input forms. Utilize Stripe Checkout for maximum PCI compliance and conversion rate.
+- On the Pricing Page, clicking "Upgrade to Pro" must POST to the backend checkout endpoint, retrieve the `sessionId`, and use `@stripe/stripe-js` `redirectToCheckout({ sessionId })`.
+
+## 2. Customer Management (Invoices)
+- Inside the User Settings view, provide a "Manage Billing & Invoices" button.
+- This button must redirect the user to the Stripe Customer Portal (retrieved via the backend portal endpoint) allowing them to download tax invoices, update cards, or cancel securely.

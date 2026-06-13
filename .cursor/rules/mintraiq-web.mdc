@@ -1,0 +1,30 @@
+---
+description: "Triggers when developing user interface components, views, or charts inside the mintraiq-web React project."
+globs: ["mintraiq-web/**/*"]
+alwaysApply: false
+---
+# Rules for mintraiq-web (React + HTML + Tailwind)
+
+## 1. Safety & Resilience Architecture
+- The dashboard container component must check the payload's `fidelity_mode` value BEFORE rendering sub-components.
+- Implement explicit null-checks and conditional rendering guards on all array iterations (e.g., `forecast?.future_dates?.map`). Never let an missing object crash the DOM tree.
+
+## 2. Conditional State Render Mappings
+Implement individual view managers to intercept the incoming payload state parameters:
+
+### Case A: `NORMAL` or `HYBRID_STANDARD`
+- Render the complete analytic views: The interactive 12-month area chart, the dynamic KPI blocks (`predicted_expense`, `predicted_income`), and the full `recommendations` sidebar listing the Behavioral AI drifts and Anomaly items.
+
+### Case B: `LITE_MINIMUM`
+- Swap out the 12-month chart container. In its place, render a blurred, locked vector silhouette of a graph.
+- Overlay a high-conversion call-to-action (CTA) glassmorphism modal card directly over the container utilizing the payload's `influence_hooks` configuration values:
+  * Display: "Unlock your 12-month forecast. You have completed {unlock_percentage}% of your profile history tracker."
+  * Action Button: "Drop Statement PDF or Connect Akahu Feed."
+
+### Case C: `RECEIPT_ONLY_INSIGHTS`
+- Re-orient the workspace viewport to prioritize the `receipt_summary` data objects.
+- Render prominent dashboard indicators displaying `scanned_count_previous_month`, `total_receipt_spend`, and a distinct tracking chip showing tax-optimized deductions (`projected_tax_deductions`).
+- Append a persistent bottom notification banner encouraging the registration of a primary banking portal to pair statement data against raw receipts.
+
+## 3. Styling Guidelines
+- Maintain crisp design patterns with dark-mode optimized canvas frames, using clean semantic dividers over complex structural multi-page routes.

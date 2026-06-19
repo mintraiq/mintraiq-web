@@ -3384,6 +3384,19 @@ body[data-portal-nav="transactions"] .tx-action-btn--sync:hover {
     background: rgba(255, 255, 255, 0.06);
 }
 
+button.portal-banner-icon {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    font: inherit;
+}
+
+.portal-stealth-toggle--active {
+    color: var(--accent-yellow, #fbbf24) !important;
+    background: rgba(251, 191, 36, 0.12);
+}
+
 .portal-banner-icon--notify .portal-banner-badge {
     position: absolute;
     top: 4px;

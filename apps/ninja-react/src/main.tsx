@@ -5,6 +5,7 @@ import { AiDisclaimer } from './AiDisclaimer';
 import { BudgetPlannerApp } from './BudgetPlannerApp';
 import { ForecastAnalyticsApp } from './ForecastAnalyticsApp';
 import { ForecastApp } from './ForecastApp';
+import { MlAdminApp } from './MlAdminApp';
 import { WeeklyPlannerApp } from './WeeklyPlannerApp';
 import { WidgetErrorBoundary } from './WidgetErrorBoundary';
 
@@ -23,6 +24,7 @@ const queryClient = new QueryClient({
 function Root(): JSX.Element {
     if (page === 'forecast') return <ForecastApp />;
     if (page === 'dashboard-analytics') return <ForecastAnalyticsApp />;
+    if (page === 'ml-admin') return <MlAdminApp />;
     if (page === 'weekly-planner') return <WeeklyPlannerApp />;
     return <BudgetPlannerApp />;
 }

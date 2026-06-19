@@ -2,6 +2,15 @@ import { createLogtoClient } from './logto-client.js';
 import { guardSession } from './guard-session.js';
 import { financeApiFetch } from './api.js';
 import { renderReceiptLineItemsPanel } from './receipt-line-items.js';
+import {
+    formatCurrencyPlain,
+    isIncomeTransaction,
+    maskCurrencyValue,
+    onStealthModeChange,
+    shouldMaskField,
+    STEALTH_FIELD,
+    STEALTH_MASK_TOKEN,
+} from './stealth-mode.js';
 
 /** @typedef {{ id: string, date: string, amount: number, description: string, category: string, needs_review: boolean, flag: string, type: string, receipt_id?: string | null }} TxRow */
 
@@ -86,6 +95,10 @@ function escapeHtml(s) {
 }
 
 function formatAmount(row) {
+    if (shouldMaskField(STEALTH_FIELD.INCOME_TRANSACTION) && isIncomeTransaction(row)) {
+        const sign = row.type === 'credit' ? '+' : '−';
+        return `${sign}${STEALTH_MASK_TOKEN}`;
+    }
     const n = Number(row.amount);
     const abs = Math.abs(n);
     const fmt = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(abs);
@@ -93,12 +106,11 @@ function formatAmount(row) {
     return `${sign}${fmt}`;
 }
 
-function formatMoney(n, { signed = false } = {}) {
-    const val = Number(n);
-    if (!Number.isFinite(val)) return '—';
-    const fmt = new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(val));
-    if (!signed) return `$${fmt}`;
-    return val < 0 ? `−$${fmt}` : `+$${fmt}`;
+function formatMoney(n, { signed = false, stealthField = null } = {}) {
+    if (stealthField) {
+        return maskCurrencyValue(n, stealthField, { signed });
+    }
+    return formatCurrencyPlain(n, { signed });
 }
 
 function categoryColor(name, index = 0) {
@@ -304,7 +316,7 @@ function renderSpendHero() {
         `</div>` +
         `<div class="tx-spend-stat" style="--tx-stat-accent:#2f80ed">` +
         `<div class="tx-spend-stat-label">Income</div>` +
-        `<div class="tx-spend-stat-value">${formatMoney(totalIncome)}</div>` +
+        `<div class="tx-spend-stat-value">${formatMoney(totalIncome, { stealthField: STEALTH_FIELD.INCOME })}</div>` +
         `<div class="tx-spend-stat-sub">Credits in filtered set</div>` +
         `</div>` +
         `<div class="tx-spend-stat" style="--tx-stat-accent:#bb6bd9">` +
@@ -1327,4 +1339,16 @@ export async function bootTransactionsPage(opts = {}) {
         const status = document.getElementById('txStatus');
         if (status) status.textContent = '';
     }
+}
+
+function refreshTransactionsForStealth() {
+    if (document.body?.getAttribute('data-portal-nav') !== 'transactions') return;
+    renderSpendHero();
+    if (viewMode === 'categories') renderCategoryView();
+    else renderTable();
+}
+
+if (!window.__mintTxStealthListener) {
+    window.__mintTxStealthListener = true;
+    onStealthModeChange(() => refreshTransactionsForStealth());
 }

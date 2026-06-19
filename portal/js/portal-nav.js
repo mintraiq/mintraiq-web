@@ -5,9 +5,10 @@
  * syncs the active nav item on each visit (avoids sidebar flicker).
  */
 import { isFeatureReceiptScannerEnabled } from './config.js';
+import { CONFIG } from './config.js';
 import { financeApiFetch } from './api.js';
 import { filterWorkspaceNav, loadEntitlementProfile } from './entitlements.js';
-import { clearClientSessionArtifacts, createLogtoClient, purgeAuthForRelogin } from './logto-client.js';
+import { clearClientSessionArtifacts, createLogtoClient, getAccessTokenOrReauth, purgeAuthForRelogin } from './logto-client.js';
 import { installPortalTransitions } from './turbo-transitions.js';
 import { loadLegalContent } from './legal-store.js';
 import { syncWorkspaceBanner } from './workspace-banner.js';
@@ -34,12 +35,34 @@ function escapeAttr(s) {
     return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 
-function workspaceNavItems(profile = null) {
+async function resolveAdminNavVisible(client) {
+    if (!client) return false;
+    try {
+        const token = await getAccessTokenOrReauth(client, CONFIG.financeApiResource);
+        const base = CONFIG.financeApiBase.replace(/\/$/, '');
+        const res = await fetch(`${base}/v1/admin/ml/access`, {
+            headers: { Accept: 'application/json', Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) return false;
+        const data = await res.json();
+        return Boolean(data.allowed);
+    } catch {
+        return false;
+    }
+}
+
+function workspaceNavItems(profile = null, adminVisible = false) {
     let items = WORKSPACE.filter(
         (item) => item.id !== 'receipt-scanner' || isFeatureReceiptScannerEnabled(),
     );
     if (profile) {
         items = filterWorkspaceNav(profile, items);
+    }
+    if (adminVisible) {
+        items = [
+            ...items,
+            { id: 'ml-admin', href: './ml-admin.html', icon: 'fa-microchip', label: 'ML admin' }
+        ];
     }
     return items;
 }
@@ -160,10 +183,11 @@ export async function mountPortalNav() {
     }
 
     const profile = client ? await resolveEntitlementProfile(client) : null;
-    const sig = `${portalNavSignature()}|tier:${profile?.effective_tier_id || 'unknown'}`;
+    const adminVisible = client ? await resolveAdminNavVisible(client) : false;
+    const sig = `${portalNavSignature()}|tier:${profile?.effective_tier_id || 'unknown'}|admin:${adminVisible ? '1' : '0'}`;
     if (root.dataset.portalNavSig !== sig) {
         root.dataset.portalNavSig = sig;
-        const links = workspaceNavItems(profile)
+        const links = workspaceNavItems(profile, adminVisible)
             .map((item) => {
                 return `<a href="${escapeAttr(item.href)}" class="menu-item" data-nav-id="${escapeAttr(item.id)}"><i class="fas ${item.icon}"></i> ${item.label}</a>`;
             })

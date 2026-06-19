@@ -5,7 +5,11 @@ import { fetchFinanceDashboardJson, monthRangeStrings } from './finance-dashboar
 import * as render from './dashboard-render.js';
 import { renderFidelityDashboard } from './dashboard-fidelity.js';
 import { getLegalContent } from './legal-store.js';
+import { onStealthModeChange } from './stealth-mode.js';
 import { resolveDisplayName, resolveEmail } from './user-display.js';
+
+/** @type {Record<string, unknown> | null} */
+let lastDashboardPayload = null;
 
 function readBootstrap() {
     const raw = sessionStorage.getItem('mintraiq_bootstrap');
@@ -117,6 +121,7 @@ export async function bootDashboardPage(opts = {}) {
         setInsightsFooter(data?.insights_footer || '');
 
         if (statusEl) statusEl.textContent = '';
+        lastDashboardPayload = data;
         renderFidelityDashboard(data, render);
     } catch (e) {
         if (signal?.aborted) return;
@@ -129,4 +134,12 @@ export async function bootDashboardPage(opts = {}) {
         }
         render.showLoadError(e.message || e);
     }
+}
+
+if (!window.__mintDashboardStealthListener) {
+    window.__mintDashboardStealthListener = true;
+    onStealthModeChange(() => {
+        if (document.body?.getAttribute('data-portal-nav') !== 'dashboard' || !lastDashboardPayload) return;
+        renderFidelityDashboard(lastDashboardPayload, render);
+    });
 }

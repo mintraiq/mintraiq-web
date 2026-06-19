@@ -2,41 +2,79 @@
  * Renders FastAPI POST /generate JSON (same shape as dataprocessor.generate_dashboard_data).
  */
 
+import {
+    chartTooltipLabel,
+    chartYAxisTick,
+    formatCurrencyPlain,
+    isStealthActive,
+    maskCurrencyValue,
+    STEALTH_FIELD,
+} from './stealth-mode.js';
+
+const CHART_TOOLTIP_PLUGINS = {
+    tooltip: {
+        callbacks: {
+            label: chartTooltipLabel,
+        },
+    },
+};
+
+const CHART_Y_SCALE = {
+    beginAtZero: true,
+    grid: { color: '#222' },
+    ticks: {
+        callback: chartYAxisTick,
+    },
+};
+
 export function renderTrendChart(data) {
     const el = document.getElementById('trendChart');
     if (!el || !window.Chart || !data.main_trend_chart) return;
+    const existing = typeof Chart.getChart === 'function' ? Chart.getChart(el) : null;
+    if (existing) existing.destroy();
+
+    const stealth = isStealthActive();
+    /** @type {import('chart.js').ChartDataset[]} */
+    const datasets = [];
+
+    if (!stealth) {
+        datasets.push({
+            label: 'Income',
+            data: data.main_trend_chart.income_series,
+            borderColor: '#00ff9d',
+            backgroundColor: 'rgba(0, 255, 157, 0.1)',
+            tension: 0.4,
+            fill: true,
+        });
+    }
+
+    datasets.push({
+        label: 'Expenses',
+        data: data.main_trend_chart.expense_series,
+        borderColor: '#ff4757',
+        backgroundColor: 'rgba(255, 71, 87, 0.1)',
+        tension: 0.4,
+        fill: true,
+    });
+
     new Chart(el.getContext('2d'), {
         type: 'line',
         data: {
             labels: data.main_trend_chart.labels,
-            datasets: [
-                {
-                    label: 'Income',
-                    data: data.main_trend_chart.income_series,
-                    borderColor: '#00ff9d',
-                    backgroundColor: 'rgba(0, 255, 157, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                },
-                {
-                    label: 'Expenses',
-                    data: data.main_trend_chart.expense_series,
-                    borderColor: '#ff4757',
-                    backgroundColor: 'rgba(255, 71, 87, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }
-            ]
+            datasets,
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { position: 'top' } },
+            plugins: {
+                legend: { position: 'top' },
+                ...CHART_TOOLTIP_PLUGINS,
+            },
             scales: {
-                y: { beginAtZero: true, grid: { color: '#222' } },
-                x: { grid: { display: false } }
-            }
-        }
+                y: CHART_Y_SCALE,
+                x: { grid: { display: false } },
+            },
+        },
     });
 }
 
@@ -51,16 +89,19 @@ export function renderBreakdownChart(data) {
                 {
                     data: data.expense_breakdown.data,
                     backgroundColor: ['#2f80ed', '#00ff9d', '#f1c40f', '#bb6bd9', '#ff4757'],
-                    borderWidth: 0
-                }
-            ]
+                    borderWidth: 0,
+                },
+            ],
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { position: 'right' } },
-            cutout: '70%'
-        }
+            plugins: {
+                legend: { position: 'right' },
+                ...CHART_TOOLTIP_PLUGINS,
+            },
+            cutout: '70%',
+        },
     });
 }
 
@@ -69,7 +110,12 @@ export function renderForecastChart(data) {
     if (!el || !window.Chart || !data.forecast || !data.forecast.yearly_projection) return;
     const projectionData = data.forecast.yearly_projection.data_points;
     const eoy = document.getElementById('eoy_projection');
-    if (eoy) eoy.innerText = '$' + data.forecast.yearly_projection.end_of_year_value;
+    if (eoy) {
+        eoy.innerText = maskCurrencyValue(
+            data.forecast.yearly_projection.end_of_year_value,
+            STEALTH_FIELD.INVESTMENTS
+        );
+    }
 
     new Chart(el.getContext('2d'), {
         type: 'line',
@@ -82,44 +128,49 @@ export function renderForecastChart(data) {
                     borderColor: '#bb6bd9',
                     borderWidth: 3,
                     pointBackgroundColor: '#bb6bd9',
-                    tension: 0.3
-                }
-            ]
+                    tension: 0.3,
+                },
+            ],
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: { legend: { display: false }, ...CHART_TOOLTIP_PLUGINS },
             scales: {
                 y: { display: false },
-                x: { grid: { display: false } }
-            }
-        }
+                x: { grid: { display: false } },
+            },
+        },
     });
 }
 
 export function renderMetrics(data) {
     if (!data.metrics) return;
-    const set = (id, v) => {
+    const setPlain = (id, v) => {
         const el = document.getElementById(id);
-        if (el) el.textContent = '$' + v;
+        if (el) el.textContent = formatCurrencyPlain(v);
     };
-    set('current_income', data.metrics.income.current);
-    set('current_expense', data.metrics.expenses.current);
-    set('current_savings', data.metrics.savings.current);
-    set('current_investments', data.metrics.investments.current);
+    const setMasked = (id, v, field) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = maskCurrencyValue(v, field);
+    };
+
+    setMasked('current_income', data.metrics.income.current, STEALTH_FIELD.INCOME);
+    setPlain('current_expense', data.metrics.expenses.current);
+    setPlain('current_savings', data.metrics.savings.current);
+    setMasked('current_investments', data.metrics.investments.current, STEALTH_FIELD.INVESTMENTS);
 
     if (data.ai_status === 'Online' && data.forecast && data.forecast.next_month) {
         const nm = data.forecast.next_month;
         const ei = document.getElementById('est_income');
         const ee = document.getElementById('est_expenses');
         const es = document.getElementById('est_savings');
-        if (ei) ei.textContent = '$' + nm.est_income;
-        if (ee) ee.textContent = '$' + nm.est_expense;
+        if (ei) ei.textContent = maskCurrencyValue(nm.est_income, STEALTH_FIELD.INCOME);
+        if (ee) ee.textContent = formatCurrencyPlain(nm.est_expense);
         if (es && nm.est_income != null && nm.est_expense != null) {
             const inc = Number(String(nm.est_income).replace(/[^0-9.-]/g, '')) || 0;
             const exp = Number(String(nm.est_expense).replace(/[^0-9.-]/g, '')) || 0;
-            es.textContent = '$' + Math.round(inc - exp).toLocaleString('en-US');
+            es.textContent = formatCurrencyPlain(Math.round(inc - exp));
         }
     }
 }
@@ -159,10 +210,11 @@ export function renderHighExpenseAlerts(data) {
         let color = 'var(--accent-green)';
         if (al.severity === 'High') color = 'var(--accent-red)';
         else if (al.severity === 'Medium') color = 'var(--accent-blue)';
+        const amount = formatCurrencyPlain(al.amount);
         const li = document.createElement('li');
         li.style.listStyle = 'none';
         li.innerHTML = `<p style="margin:12px 0;color:${color}">
-            You spent <strong>${al.amount}</strong> on "${al.category}" — over budget by ${al.breach}%.</p>`;
+            You spent <strong>${amount}</strong> on "${al.category}" — over budget by ${al.breach}%.</p>`;
         expAlert.appendChild(li);
     });
 }

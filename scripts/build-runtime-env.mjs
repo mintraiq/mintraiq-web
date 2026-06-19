@@ -27,15 +27,19 @@ const DEFAULT_PUBLIC_ENV = {
     logtoEndpoint: '',
     logtoAppId: '',
     logtoRegisterUrl: '',
-    financeApiBase: 'http://127.0.0.1:5000/api',
-    financeApiResource: '',
+    financeApiBase: 'http://localhost:5000/api',
+    financeApiResource: 'https://api.finance-ai.suite.com',
     signInRedirectUri: '',
     legacyFlaskBase: 'http://127.0.0.1:5000',
-    fastApiDocsUrl: 'http://127.0.0.1:5000/api/docs',
+    fastApiDocsUrl: 'http://localhost:5000/api/docs',
     /** "0" / "false" until receipt OCR backend is ready; set "1" or "true" to enable. */
     featureReceiptScanner: false,
     ocrScannerApiUrl: 'https://ocr-dev.mintraiq.com/ocr/scanner',
-    ocrScannerApiResource: ''
+    ocrScannerApiResource: '',
+    /** Stripe publishable key (pk_… — browser-safe). Enables stripe-js redirectToCheckout. */
+    stripePublishableKey: '',
+    /** Billing kill switch mirror — "0"/"false" hides upgrade CTAs (UI renders as premium). */
+    requireBillingPaywall: true
 };
 
 const PUBLIC_TO_ENV = {
@@ -49,7 +53,9 @@ const PUBLIC_TO_ENV = {
     PUBLIC_FASTAPI_DOCS_URL: 'fastApiDocsUrl',
     PUBLIC_FEATURE_RECEIPT_SCANNER: 'featureReceiptScanner',
     PUBLIC_OCR_SCANNER_API_URL: 'ocrScannerApiUrl',
-    PUBLIC_OCR_SCANNER_API_RESOURCE: 'ocrScannerApiResource'
+    PUBLIC_OCR_SCANNER_API_RESOURCE: 'ocrScannerApiResource',
+    PUBLIC_STRIPE_PUBLISHABLE_KEY: 'stripePublishableKey',
+    PUBLIC_REQUIRE_BILLING_PAYWALL: 'requireBillingPaywall'
 };
 
 const ENV_KEYS = Object.keys(PUBLIC_TO_ENV);

@@ -17,3 +17,9 @@ finance_api.py
 expense_loader.py
 # Local copy of env.public.example for build:env (tunnels, localhost)
 env.public
+
+# Playwright E2E artifacts
+e2e/report/
+e2e/test-results/
+playwright-report/
+test-results/

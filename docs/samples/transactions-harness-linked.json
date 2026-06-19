@@ -1,0 +1,25 @@
+{
+  "transactions": [
+    {
+      "id": "tx-linked-grocery",
+      "date": "2026-05-28",
+      "amount": 87.42,
+      "description": "PAK'NSAVE ALBANY",
+      "category": "Groceries",
+      "needs_review": false,
+      "flag": "✅",
+      "type": "debit",
+      "receipt_id": "receipt-grocery-001"
+    },
+    {
+      "id": "tx-unlinked-coffee",
+      "date": "2026-05-27",
+      "amount": 5.5,
+      "description": "Z ESPRESSO AUCKLAND",
+      "category": "Dining",
+      "needs_review": false,
+      "flag": "✅",
+      "type": "debit"
+    }
+  ]
+}

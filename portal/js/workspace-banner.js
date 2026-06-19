@@ -1,3 +1,6 @@
+import { syncDataLevelNotificationBell } from './data-level-nudges.js';
+import { syncStealthToggleButtons } from './stealth-mode.js';
+
 /**
  * Global workspace top banner: page title + subtitle, settings / notifications / logout / avatar.
  * Injects once per header; keeps dashboard #welcomeLine / #tierPill markup intact.
@@ -145,9 +148,11 @@ function injectHeaderRightGlobalActions(header) {
     const stack = document.createElement('div');
     stack.className = 'portal-banner-global-stack';
     stack.innerHTML =
+        `<button type="button" class="portal-banner-icon portal-stealth-toggle" data-stealth-toggle title="Hide sensitive amounts" aria-label="Hide sensitive amounts" aria-pressed="false">` +
+        `<i class="fas fa-eye" aria-hidden="true"></i></button>` +
         `<a href="${escapeAttr('./settings-profile.html')}" class="portal-banner-icon" title="Settings" aria-label="Settings"><i class="fas fa-cog" aria-hidden="true"></i></a>` +
         `<a href="${escapeAttr('./notifications.html')}" class="portal-banner-icon portal-banner-icon--notify" title="Notifications" aria-label="Notifications">` +
-        `<span class="portal-banner-badge" aria-hidden="true">3</span><i class="fas fa-bell" aria-hidden="true"></i></a>` +
+        `<span class="portal-banner-badge" data-base-count="3" aria-hidden="true">3</span><i class="fas fa-bell" aria-hidden="true"></i></a>` +
         `<button type="button" class="portal-banner-logout" id="portalSignOut" data-turbo="false" title="Sign out" aria-label="Sign out">` +
         `<i class="fas fa-sign-out-alt" aria-hidden="true"></i><span class="portal-banner-logout-label">Logout</span></button>`;
 
@@ -267,5 +272,7 @@ export function syncWorkspaceBanner() {
         applyTitleSubtitle(header, nav, settingsNav);
     } finally {
         applyTierSkinToAllBanners();
+        syncDataLevelNotificationBell();
+        syncStealthToggleButtons();
     }
 }

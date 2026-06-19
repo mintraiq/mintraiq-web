@@ -69,6 +69,9 @@ export function createLogtoClient() {
         opts.resources = [CONFIG.financeApiResource];
     }
     sharedClient = new LogtoClient(opts);
+    // #region agent log
+    fetch('http://127.0.0.1:7478/ingest/644bafec-be20-4001-92d1-9dc284896227',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6f70b8'},body:JSON.stringify({sessionId:'6f70b8',runId:'post-fix-v3',hypothesisId:'E',location:'logto-client.js:createLogtoClient',message:'Logto client created',data:{endpoint:CONFIG.logtoEndpoint,appId:CONFIG.logtoAppId,resources:opts.resources??[]},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     return sharedClient;
 }
 

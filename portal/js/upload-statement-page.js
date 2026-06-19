@@ -2,6 +2,18 @@ import { guardSession } from './guard-session.js';
 import { createLogtoClient } from './logto-client.js';
 import { financeApiFetch } from './api.js';
 import { resolveDisplayName } from './user-display.js';
+import { bootstrapSession } from './bootstrap.js';
+import {
+    dataLevelForBucket,
+    shouldShowHungryMintrBucket,
+    txnMonthsFromBootstrap
+} from './data-level-progress.js';
+import { syncDataLevelNotificationBell } from './data-level-nudges.js';
+import {
+    animateHungryMintrFill,
+    applyHungryMintrFill,
+    mountHungryMintrBucket
+} from './hungry-mintr-bucket.js';
 
 function readBootstrap() {
     const raw = sessionStorage.getItem('mintraiq_bootstrap');
@@ -100,6 +112,7 @@ export async function bootUploadStatementPage(opts = {}) {
     const insightActionEl = document.getElementById('statementInsightBalloonAction');
     const insightCloseBtn = document.getElementById('statementInsightBalloonClose');
     const insightDismissBtn = document.getElementById('statementInsightBalloonDismiss');
+    const bucketMount = document.getElementById('hungryMintrBucketMount');
 
     if (
         !(
@@ -145,11 +158,29 @@ export async function bootUploadStatementPage(opts = {}) {
     }
 
     const client = createLogtoClient();
-    const bootstrap = readBootstrap();
+    let bootstrap = readBootstrap();
     const claims = await client.getIdTokenClaims();
     const profile = bootstrap && bootstrap.profile;
     const name = resolveDisplayName(profile, claims);
     greetEl.textContent = name ? `Welcome back! ${name}.` : 'Welcome back!';
+
+    let bucketRoot = null;
+    const initialTxnMonths = txnMonthsFromBootstrap(bootstrap);
+    let currentFillPct = dataLevelForBucket(initialTxnMonths).fillPercent;
+
+    syncDataLevelNotificationBell();
+
+    if (bucketMount) {
+        if (shouldShowHungryMintrBucket(initialTxnMonths)) {
+            bucketRoot = mountHungryMintrBucket(bucketMount, {
+                txnMonths: initialTxnMonths,
+                variant: 'hero'
+            });
+        } else {
+            bucketMount.innerHTML = '';
+            bucketMount.hidden = true;
+        }
+    }
 
     resetStaleFileRow();
 
@@ -332,6 +363,14 @@ export async function bootUploadStatementPage(opts = {}) {
         const prevLabel = submitBtn.textContent;
         submitBtn.disabled = true;
         submitBtn.textContent = 'Processing…';
+        if (bucketRoot instanceof HTMLElement && shouldShowHungryMintrBucket(initialTxnMonths)) {
+            void animateHungryMintrFill(
+                bucketRoot,
+                currentFillPct,
+                Math.min(100, currentFillPct + 14),
+                900
+            );
+        }
 
         try {
             const res = await financeApiFetch(client, '/upload-statement', {
@@ -369,6 +408,35 @@ export async function bootUploadStatementPage(opts = {}) {
             resultWrap.hidden = false;
             fileInput.value = '';
             syncFileUi();
+
+            try {
+                const freshBootstrap = await bootstrapSession(client);
+                sessionStorage.setItem(
+                    'mintraiq_bootstrap',
+                    JSON.stringify({ ...freshBootstrap, at: Date.now() })
+                );
+                bootstrap = freshBootstrap;
+                const nextTxnMonths = txnMonthsFromBootstrap(freshBootstrap);
+                const nextFill = dataLevelForBucket(nextTxnMonths).fillPercent;
+                syncDataLevelNotificationBell();
+
+                if (!shouldShowHungryMintrBucket(nextTxnMonths) && bucketMount) {
+                    bucketMount.innerHTML = '';
+                    bucketMount.hidden = true;
+                    bucketRoot = null;
+                } else if (bucketRoot instanceof HTMLElement && nextFill > currentFillPct) {
+                    await animateHungryMintrFill(bucketRoot, currentFillPct, nextFill, 1600);
+                    currentFillPct = nextFill;
+                } else if (
+                    bucketRoot instanceof HTMLElement &&
+                    shouldShowHungryMintrBucket(nextTxnMonths)
+                ) {
+                    applyHungryMintrFill(bucketRoot, nextFill);
+                    currentFillPct = nextFill;
+                }
+            } catch {
+                /* bucket animation is best-effort after upload */
+            }
         } catch (err) {
             if (err?.name === 'AbortError') return;
             showError(err instanceof Error ? err.message : 'Upload failed.');

@@ -6,7 +6,7 @@
  *
  * Override for local dev (before module scripts):
  *   <script>window.__MINTRAIQ_ENV__ = {
- *     financeApiBase: "http://127.0.0.1:5000/api",
+ *     financeApiBase: "http://localhost:5000/api",
  *     financeApiResource: "https://your-api-resource-id-in-logto",
  *     logtoRegisterUrl: "https://your-tenant.logto.app/register?app_id=...", // optional
  *     featureReceiptScanner: true, // optional; receipt scanner + sidebar link (default false)
@@ -28,9 +28,10 @@ const defaults = {
      * If unset entirely, derived as `${logtoEndpoint}/register?app_id=${logtoAppId}`.
      */
     logtoRegisterUrl: '',
-    financeApiBase: 'https://api-dev.mintraiq.com/api',
+    financeApiBase: 'http://localhost:5000/api',
     /** Required for Bearer tokens accepted by finance_api.validate_token (JWT aud = API_IDENTIFIER). */
-    financeApiResource: '',
+    /** Must match FastAPI `api_identifier` / Logto API resource (see config.json). */
+    financeApiResource: 'https://api.finance-ai.suite.com',
     /**
      * Optional. If set, signIn() uses this exact URL — it must match a Redirect URI in Logto Console.
      * If unset, uses `${getPortalBase()}/callback.html` (e.g. https://mintraiq.com/portal/callback.html).
@@ -44,7 +45,19 @@ const defaults = {
     /** Full URL for dedicated OCR service (not financeApiBase). */
     ocrScannerApiUrl: 'https://ocr-dev.mintraiq.com/ocr/scanner',
     /** If set, Logto access token is requested for this API resource; otherwise financeApiResource is used. */
-    ocrScannerApiResource: ''
+    ocrScannerApiResource: '',
+    /**
+     * Stripe publishable key (pk_… — public, safe in browser). Enables
+     * stripe-js redirectToCheckout; without it billing falls back to the
+     * hosted Checkout URL returned by the backend.
+     */
+    stripePublishableKey: '',
+    /**
+     * Billing kill switch (mirror of backend REQUIRE_BILLING_PAYWALL).
+     * When false, upgrade buttons / pro-tier prompts are hidden and the UI
+     * behaves as if the user is already premium. Default: paywall on.
+     */
+    requireBillingPaywall: true
 };
 
 /** Build-time env from `config/runtime-env.js` (Vercel PUBLIC_* at deploy). */
@@ -76,6 +89,20 @@ export function getConfig() {
 
 /** Frozen at first module import; use getConfig() if env may change after load (rare). */
 export const CONFIG = getConfig();
+
+/**
+ * Billing kill switch. Accepts boolean or string from runtime env.
+ * @returns {boolean} true when the paywall (upgrade prompts) must be shown
+ */
+export function isBillingPaywallRequired() {
+    const v = CONFIG.requireBillingPaywall;
+    if (v === false) return false;
+    if (typeof v === 'string') {
+        const s = v.trim().toLowerCase();
+        if (s === '0' || s === 'false' || s === 'no' || s === 'off') return false;
+    }
+    return true;
+}
 
 /**
  * Receipt scanner UI + sidebar entry (requires working /receipt-scanner).

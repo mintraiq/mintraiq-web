@@ -1,0 +1,20 @@
+---
+description: "Triggers when constructing product search bars, rendering multi-line price history charts, or handling store filtering tabs."
+globs: ["finance-ai-mobile/**/*", "mintraiq-web/**/*"]
+alwaysApply: false
+---
+# Rules for Frontend Product Analytics Views
+
+## 1. UI Components & Layout
+- Build a dedicated search terminal view called `ProductPriceTracker`.
+- **Top:** Search input bar with instantaneous query suggestions and debounce logic (wait 300ms before firing the API).
+- **Middle:** A multi-line time-series chart component.
+
+## 2. Charting Specifications
+- Render two distinct data series on the same axis:
+  * **Line A (User Data):** Solid color mapped per store (e.g., Pak'nSave vs. Countdown). Represents the user's actual historical paid unit price.
+  * **Line B (Macro Data):** A dotted or dashed neutral-colored line representing the National CPI average baseline.
+
+## 3. Fallbacks and Null State Safety Guards
+- **Single Purchase Exception:** If the returning array shows a product has only been purchased once, completely hide the trend line chart component. Render a static "Single Purchase Detail" metric card instead to prevent the charting library from throwing coordinate rendering errors.
+- **Empty State:** If the search returns 0 matches, display a clean "No receipt data found for this item" graphic.

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Mintr mascot">
+  <defs>
+    <linearGradient id="mintGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#6ee7b7"/>
+      <stop offset="55%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#15803d"/>
+    </linearGradient>
+    <filter id="mintGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#22c55e" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <g class="mint-mascot-body" filter="url(#mintGlow)">
+    <path fill="url(#mintGrad)" d="M64 18c-8 14-22 22-22 38 0 10 6 18 14 22-6 4-10 12-10 20 0 14 12 24 28 24s28-10 28-24c0-8-4-16-10-20 8-4 14-12 14-22 0-16-14-24-22-38-4 6-10 10-14 10s-10-4-14-10z"/>
+    <path fill="none" stroke="#14532d" stroke-width="2" opacity="0.35" d="M64 36v52M52 48c8 4 16 4 24 0M48 72c10 6 22 6 32 0"/>
+    <circle cx="54" cy="58" r="5" fill="#0f172a"/>
+    <circle cx="74" cy="58" r="5" fill="#0f172a"/>
+    <circle cx="55" cy="57" r="1.8" fill="#fff"/>
+    <circle cx="75" cy="57" r="1.8" fill="#fff"/>
+    <path d="M58 68q6 6 12 0" fill="none" stroke="#14532d" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="64" y="98" text-anchor="middle" font-family="system-ui,sans-serif" font-size="22" font-weight="700" fill="#ecfdf5">$</text>
+  </g>
+</svg>

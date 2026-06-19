@@ -1,4 +1,12 @@
 import { isBootstrapOnboardingComplete } from './config.js';
+import { financeApiFetch } from './api.js';
+import {
+    FEAT_EMAIL_CONNECTOR,
+    getEntitlementProfile,
+    hasFeature,
+    loadEntitlementProfile,
+} from './entitlements.js';
+import { createLogtoClient } from './logto-client.js';
 import './settings-workflow.js';
 
 /**
@@ -42,7 +50,10 @@ const CHAPTERS = [
         id: 'data',
         label: 'The Data',
         summary: 'Bank link or statements — your call',
-        items: [{ id: 'banks', href: './settings-banks.html', icon: 'fa-university', label: 'Banks & income' }]
+        items: [
+            { id: 'banks', href: './settings-banks.html', icon: 'fa-university', label: 'Banks & income' },
+            { id: 'email', href: './settings-email.html', icon: 'fa-envelope', label: 'Email connector' }
+        ]
     },
     {
         id: 'gameplan',
@@ -67,17 +78,46 @@ function findChapterForStep(stepId) {
     return null;
 }
 
-export function mountSettingsNav() {
+function filterSettingsItems(items, profile) {
+    if (!profile) return items;
+    return items.filter((item) => {
+        if (item.id === 'email') return hasFeature(profile, FEAT_EMAIL_CONNECTOR);
+        return true;
+    });
+}
+
+function chaptersForProfile(profile) {
+    return CHAPTERS.map((chapter) => ({
+        ...chapter,
+        items: filterSettingsItems(chapter.items, profile),
+    }));
+}
+
+async function ensureEntitlementProfile() {
+    const cached = getEntitlementProfile();
+    if (cached) return cached;
+    try {
+        const client = createLogtoClient();
+        if (!client) return null;
+        return await loadEntitlementProfile(client, financeApiFetch);
+    } catch {
+        return null;
+    }
+}
+
+export async function mountSettingsNav() {
     const root = document.getElementById('settings-nav-root');
     if (!root) return;
 
+    const profile = await ensureEntitlementProfile();
+    const chapters = chaptersForProfile(profile);
     const active = document.body.getAttribute('data-settings-nav') || 'profile';
     const loc = findChapterForStep(active);
     const bootstrap = readBootstrap();
     /** Finished users (`onboarding_complete` or all steps done): show every settings tab, not one chapter at a time. */
     const isCompleted = isBootstrapOnboardingComplete(bootstrap);
 
-    const trackParts = CHAPTERS.map((ch, i) => {
+    const trackParts = chapters.map((ch, i) => {
         const isCurrent = loc?.chapter?.id === ch.id;
         const cls = ['settings-chapter-pill', isCurrent ? 'is-current' : ''].filter(Boolean).join(' ');
         return (
@@ -97,7 +137,8 @@ export function mountSettingsNav() {
             '</p>';
     } else if (loc) {
         const subs = [];
-        const items = isCompleted ? CHAPTERS.flatMap((c) => c.items) : loc.chapter.items;
+        const chapter = chapters.find((c) => c.id === loc.chapter.id) || loc.chapter;
+        const items = isCompleted ? chapters.flatMap((c) => c.items) : chapter.items;
         for (const item of items) {
             const on = item.id === active;
             subs.push(

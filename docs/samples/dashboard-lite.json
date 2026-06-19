@@ -1,0 +1,36 @@
+{
+  "fidelity_mode": "LITE_MINIMUM",
+  "ai_status": "Online",
+  "anchor_period": {
+    "start_date": "2026-05-01",
+    "end_date": "2026-05-31"
+  },
+  "coverage": {
+    "txn_months": 3,
+    "receipt_months": 1
+  },
+  "monthly": {
+    "historical_avg_expense": 2840.5,
+    "historical_avg_income": 5200.0,
+    "top_categories": [
+      { "category": "Groceries", "amount": 620.0 },
+      { "category": "Transport", "amount": 410.0 },
+      { "category": "Dining", "amount": 285.0 }
+    ]
+  },
+  "influence_hooks": {
+    "unlock_percentage": 50,
+    "cta_label": "Drop Statement PDF or Connect Akahu Feed.",
+    "cta_href": "./upload-statement.html",
+    "message": "Unlock your 12-month forecast. You have completed 50% of your profile history tracker."
+  },
+  "recommendations": [
+    {
+      "id": "upload_more_history",
+      "type": "Data Expansion",
+      "severity": "Medium",
+      "title": "Add more statement history",
+      "description": "Upload additional months of bank statements to unlock full AI forecasting."
+    }
+  ]
+}

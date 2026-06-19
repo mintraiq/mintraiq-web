@@ -33,27 +33,28 @@
                         <div class="card plan-billing-card">
                             <form data-settings-step="billing">
                                 <div class="plan-chooser-hero">
-                                    <h2 class="plan-chooser-title">Choose Your Path</h2>
-                                    <p class="plan-chooser-sub">Upgrade to unlock AI forecasting and the CPI Guru.</p>
+                                    <h2 class="plan-chooser-title">Choose your plan</h2>
+                                    <p class="plan-chooser-sub">Compare tiers from our live definitions — dashboard depth, AI forecasting, and monthly usage caps.</p>
                                 </div>
 
                                 <div class="plan-chooser-layout">
                                     <div class="plan-chooser-controls">
                                         <label for="billingTier">Compare plans</label>
                                         <select id="billingTier" name="billing_tier" class="form-control plan-tier-select">
-                                            <option value="free">Ninja Initiate (Free)</option>
-                                            <option value="basic">Ninja Warrior — Basic · $4.99/mo (7-day trial)</option>
-                                            <option value="premium">Shadow Master — Advanced · $9.99/mo (14-day trial)</option>
+                                            <option value="free">Insight Starter — Free</option>
+                                            <option value="basic">Cashflow Essential — Basic · $4.99/mo</option>
+                                            <option value="premium">Forecast Pro — $7.99/mo</option>
+                                            <option value="pilot">Pilot Analyst — promo (90 days)</option>
                                         </select>
                                     </div>
                                     <div id="planCompareHost" class="plan-compare-host" aria-live="polite"></div>
                                     <aside class="plan-compare-mascot" aria-label="Plan tip">
-                                        <div id="planBillingMascot" class="plan-billing-mascot-frame">
+                                        <div id="planBillingMascot" class="plan-billing-mascot-frame plan-billing-mascot-frame--idle" aria-hidden="true">
                                             <img
                                                 class="plan-billing-mascot__img"
-                                                src="./images/plan-mascot-dollar-leaf.png"
-                                                width="448"
-                                                height="448"
+                                                src="./images/mintr-mascot-dollar-leaf.png"
+                                                width="256"
+                                                height="256"
                                                 alt=""
                                                 decoding="async"
                                                 fetchpriority="low"
@@ -87,7 +88,16 @@
                                         <input id="cardholderName" name="cardholder_name" class="form-control" autocomplete="cc-name" />
                                     </div>
                                 </div>
-                                <p class="money-talk-prose plan-billing-footnote">Paid upgrades use Stripe when checkout is connected. Until then, your tier choice saves here — no charge.</p>
+                                <div class="plan-billing-actions" style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.75rem;">
+                                    <button type="button" id="billingUpgradeBtn" class="btn-primary">
+                                        <i class="fas fa-rocket"></i> Upgrade to Pro
+                                    </button>
+                                    <button type="button" id="billingManageBtn" class="btn-secondary">
+                                        <i class="fas fa-file-invoice-dollar"></i> Manage Billing &amp; Invoices
+                                    </button>
+                                </div>
+                                <p id="billingActionsStatus" class="settings-flow-status" aria-live="polite"></p>
+                                <p class="money-talk-prose plan-billing-footnote">Upgrades use Stripe Checkout — card details never touch our servers. Invoices, card updates, and cancellation are handled in the secure Stripe Customer Portal.</p>
                             </form>
                         </div>
                     </div>
@@ -98,5 +108,6 @@
     <script type="module" src="./js/portal-page-boot.js"></script>
     <script type="module" src="./js/portal-nav.js"></script>
     <script type="module" src="./js/portal-settings-nav.js"></script>
+    <script type="module" src="./js/billing-actions.js"></script>
 </body>
 </html>

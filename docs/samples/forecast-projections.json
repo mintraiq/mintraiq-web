@@ -1,0 +1,7 @@
+[
+    { "category": "Groceries", "predicted_amount": 812.4, "lower_bound": 701.1, "upper_bound": 923.7 },
+    { "category": "Transport", "predicted_amount": 240.0, "lower_bound": 180.55, "upper_bound": 311.0 },
+    { "category": "Dining Out", "predicted_amount": 318.75, "lower_bound": 215.3, "upper_bound": 402.2 },
+    { "category": "Utilities", "predicted_amount": 286.0, "lower_bound": 262.4, "upper_bound": 309.6 },
+    { "category": "Entertainment", "predicted_amount": 142.5, "lower_bound": 88.0, "upper_bound": 197.0 }
+]

@@ -2,6 +2,12 @@ import { createLogtoClient } from './logto-client.js';
 import { guardSession } from './guard-session.js';
 import { financeApiFetch } from './api.js';
 import { getLegalContent } from './legal-store.js';
+import {
+    mountPlannerDataBasisModal,
+    resolvePlannerDataBasis,
+    setPlannerDataBasisEnabled,
+    wirePlannerDataBasisButton
+} from './planner-data-basis.js';
 
 /**
  * Budget Planner page — fetches the authenticated monthly plan and renders the result.
@@ -9,6 +15,7 @@ import { getLegalContent } from './legal-store.js';
  */
 
 let chartInstance = null;
+let lastPlanData = null;
 const STATUS_LABELS = {
     GOAL_TOO_AGGRESSIVE: { text: 'GOAL_TOO_AGGRESSIVE', tone: 'critical' },
     GOAL_REACHABLE: { text: 'GOAL_REACHABLE', tone: 'positive' },
@@ -298,11 +305,14 @@ async function loadPlan(client, signal) {
         renderCuts(data?.cuts || {}, currency);
         setInsightsFooter(data?.insights_footer || '');
 
+        lastPlanData = data;
+        setPlannerDataBasisEnabled('bpDataBasis', true);
         setStatus(`Plan for savings goal ${formatCurrency(goal, currency)}`);
     } catch (e) {
         if (signal?.aborted) return;
         console.error('budget-planner', e);
         setInsightsFooter('');
+        setPlannerDataBasisEnabled('bpDataBasis', false);
         setStatus('');
         throw e;
     }
@@ -317,6 +327,12 @@ export async function bootBudgetPlannerPage(opts = {}) {
     if (!(await guardSession())) return;
     if (signal?.aborted) return;
     const client = createLogtoClient();
+    mountPlannerDataBasisModal();
+    wirePlannerDataBasisButton(
+        'bpDataBasis',
+        () => resolvePlannerDataBasis(lastPlanData, 'monthly'),
+        { signal }
+    );
 
     const reload = async () => {
         try {

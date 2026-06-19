@@ -23,3 +23,13 @@ export async function fetchDashboardSample(): Promise<DashboardSample> {
     const raw = await fetchSampleJson('dashboard.json');
     return parseSample('dashboard.json', dashboardSampleSchema, raw);
 }
+
+export async function fetchDashboardLiteSample(): Promise<DashboardSample> {
+    const raw = await fetchSampleJson('dashboard-lite.json');
+    return parseSample('dashboard-lite.json', dashboardSampleSchema, raw);
+}
+
+export async function fetchDashboardReceiptSample(): Promise<DashboardSample> {
+    const raw = await fetchSampleJson('dashboard-receipt.json');
+    return parseSample('dashboard-receipt.json', dashboardSampleSchema, raw);
+}

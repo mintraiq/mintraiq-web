@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E2E — Modal & error state harness</title>
+    <link rel="stylesheet" href="../../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="../css/portal-app.css">
+    <link rel="stylesheet" href="../css/dashboard-fidelity.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body data-e2e-harness="modal-states">
+    <main class="main-content" style="max-width:960px;margin:0 auto;padding:24px">
+        <h1 style="font-size:1.25rem;margin:0 0 8px">Modal & error harness</h1>
+        <p id="harnessMode" data-testid="harness-mode" style="color:var(--text-secondary);margin:0 0 16px"></p>
+        <div id="stateErrorCard" class="card" data-testid="state-error-card" hidden style="margin-bottom:16px;padding:16px;border-color:rgba(255,71,87,0.45);color:#ffb4b4"></div>
+        <div id="stateModal" class="card" data-testid="state-modal" hidden style="padding:16px;margin-bottom:16px">
+            <h2 id="stateModalTitle" style="margin:0 0 8px;font-size:1rem"></h2>
+            <p id="stateModalBody" style="margin:0 0 12px;color:var(--text-secondary)"></p>
+            <button type="button" class="btn-primary" id="stateModalConfirm" data-testid="state-modal-confirm">Confirm</button>
+            <button type="button" id="stateModalDismiss" data-testid="state-modal-dismiss" style="margin-left:8px">Dismiss</button>
+        </div>
+        <div class="grid-container" id="stateDashboardMount"></div>
+        <p id="harnessError" data-testid="harness-error" hidden style="color:var(--accent-red)"></p>
+    </main>
+    <script type="module" src="./modal-states-harness.js"></script>
+</body>
+</html>

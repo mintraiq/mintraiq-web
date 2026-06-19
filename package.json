@@ -6,7 +6,13 @@
     "build:env": "node scripts/build-runtime-env.mjs",
     "build:react": "npm install --prefix apps/ninja-react && npm run build --prefix apps/ninja-react",
     "build": "npm run build:env && npm run build:react",
-    "vercel-build": "npm run build"
+    "vercel-build": "npm run build",
+    "test:e2e": "playwright test --config=e2e/playwright.config.js",
+    "test:e2e:ui": "playwright test --config=e2e/playwright.config.js --ui",
+    "test:e2e:install": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.0"
   },
   "engines": {
     "node": ">=18"

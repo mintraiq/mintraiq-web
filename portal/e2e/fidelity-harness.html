@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E2E — Fidelity dashboard harness</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="../css/portal-app.css">
+    <link rel="stylesheet" href="../css/dashboard-fidelity.css">
+    <link rel="stylesheet" href="../css/hungry-mintr-bucket.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-green);
+            color: #0a0a0a;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body data-portal-nav="dashboard" data-e2e-harness="true">
+    <main class="main-content">
+        <h1 id="harnessTitle" style="font-size:1.25rem;margin:0 0 12px">Fidelity harness</h1>
+        <p id="harnessMode" data-testid="harness-mode" style="color:var(--text-secondary);margin:0 0 16px"></p>
+        <div class="grid-container">
+            <div class="card grid-span-3" id="liteForecastLock" data-fidelity-view="lite" hidden>
+                    <div class="fidelity-lite-lock">
+                        <div class="fidelity-lite-lock__silhouette" aria-hidden="true"></div>
+                        <div data-hungry-mintr-host></div>
+                        <div class="fidelity-lite-lock__cta">
+                        <p style="margin:0;color:var(--text-secondary);font-size:0.95rem" id="liteUnlockMessage">Unlock your 12-month forecast.</p>
+                        <div class="fidelity-lite-lock__pct" id="liteUnlockPct">—</div>
+                        <a class="btn-primary" id="liteUnlockCta" href="../upload-statement.html">Drop Statement PDF or Connect Akahu Feed.</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card metric-card" data-fidelity-view="lite" hidden>
+                <div class="card-header"><span class="card-title">Avg. monthly expense</span></div>
+                <div class="value" id="liteAvgExpense">—</div>
+            </div>
+            <div class="card metric-card" data-fidelity-view="lite" hidden>
+                <div class="card-header"><span class="card-title">Avg. monthly income</span></div>
+                <div class="value" id="liteAvgIncome">—</div>
+            </div>
+            <div class="card grid-span-2" data-fidelity-view="lite" hidden>
+                <div class="card-header"><span class="card-title">Top categories</span></div>
+                <ul id="liteTopCategories" style="margin:0;padding-left:18px;color:var(--text-secondary)"></ul>
+            </div>
+            <div class="card grid-span-3" data-fidelity-view="receipt" hidden>
+                <div class="card-header"><span class="card-title">Receipt ledger (previous month)</span></div>
+                <div class="receipt-summary-grid">
+                    <div class="card metric-card">
+                        <div class="card-title">Scanned receipts</div>
+                        <div class="value" id="receiptScanCount">—</div>
+                    </div>
+                    <div class="card metric-card">
+                        <div class="card-title">Total receipt spend</div>
+                        <div class="value" id="receiptTotalSpend">—</div>
+                    </div>
+                    <div class="card metric-card">
+                        <div class="card-title">Tax-optimised deductions</div>
+                        <div class="receipt-metric-chip" id="receiptTaxDeductions">—</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card grid-span-3" data-fidelity-view="cold" hidden>
+                <div class="card-header"><span class="card-title">Get started</span></div>
+                <p class="cold-start-lead">Add your first transactions to unlock charts, alerts, and AI insights.</p>
+                <div class="cold-start-flows" id="coldStartFlows"></div>
+            </div>
+            <div class="card metric-card income" data-fidelity-view="full">
+                <div class="card-header"><span class="card-title">Income</span></div>
+                <div class="value" id="current_income">—</div>
+            </div>
+            <div class="card metric-card expense" data-fidelity-view="full">
+                <div class="card-header"><span class="card-title">Expenses</span></div>
+                <div class="value" id="current_expense">—</div>
+            </div>
+            <div class="card metric-card investment" data-fidelity-view="full">
+                <div class="card-header"><span class="card-title">Investments</span></div>
+                <div class="value" id="current_investments">—</div>
+            </div>
+            <div class="card metric-card savings" data-fidelity-view="full">
+                <div class="card-header"><span class="card-title">Savings</span></div>
+                <div class="value" id="current_savings">—</div>
+            </div>
+            <div class="card grid-span-3" data-fidelity-view="full">
+                <div class="card-header"><span class="card-title">Income vs expense</span></div>
+                <div class="chart-container"><canvas id="trendChart"></canvas></div>
+            </div>
+            <div class="card grid-span-2" data-fidelity-view="full">
+                <div class="card-header"><span class="card-title">Expense breakdown</span></div>
+                <div class="chart-container" style="height:220px"><canvas id="breakdownChart"></canvas></div>
+            </div>
+            <div class="card" data-fidelity-view="full">
+                <div class="card-header"><span class="card-title">Next month</span></div>
+                <div id="est_income">—</div>
+                <div id="est_expenses">—</div>
+                <div id="est_savings">—</div>
+            </div>
+            <div class="card ai-card" data-fidelity-view="full">
+                <div class="card-header"><span class="card-title">AI forecast</span></div>
+                <div class="chart-container" style="height:180px"><canvas id="aiForecastChart"></canvas></div>
+                <div class="forecast-value" id="eoy_projection">—</div>
+            </div>
+            <div class="card grid-span-3" data-fidelity-view="full lite receipt" id="dashboardRecommendationsCard">
+                <div class="card-header"><span class="card-title">Recommendations</span></div>
+                <ul class="recommendation-list" id="recommendationList"></ul>
+            </div>
+        </div>
+        <div class="receipt-bank-banner" id="receiptBankBanner" data-fidelity-view="receipt" hidden>
+            <div>
+                <strong data-receipt-banner-title>Connect your bank</strong>
+                <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.9rem" data-receipt-banner-body></p>
+            </div>
+            <a class="btn-primary" data-receipt-banner-cta href="../settings-banks.html">Connect bank account</a>
+        </div>
+        <p id="harnessError" data-testid="harness-error" hidden style="color:var(--accent-red)"></p>
+    </main>
+    <script type="module" src="./fidelity-harness.js"></script>
+</body>
+</html>

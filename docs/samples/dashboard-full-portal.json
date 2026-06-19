@@ -1,0 +1,44 @@
+{
+  "fidelity_mode": "HYBRID_STANDARD",
+  "ai_status": "Online",
+  "anchor_period": {
+    "start_date": "2026-05-01",
+    "end_date": "2026-05-31"
+  },
+  "metrics": {
+    "income": { "current": 9200, "trend_percentage": 4.2, "trend_direction": "up" },
+    "expenses": { "current": 7100, "trend_percentage": -2.1, "trend_direction": "down" },
+    "savings": { "current": 2100, "status": "On track" },
+    "investments": { "current": 45900, "trend_percentage": 8.5, "trend_direction": "up" }
+  },
+  "main_trend_chart": {
+    "labels": ["Jan 26", "Feb 26", "Mar 26"],
+    "income_series": [8800, 9000, 9200],
+    "expense_series": [7200, 7000, 7100]
+  },
+  "expense_breakdown": {
+    "labels": ["Rent", "Groceries", "Transport"],
+    "data": [2200, 850, 420]
+  },
+  "forecast": {
+    "next_month": {
+      "est_income": 9300,
+      "est_expense": 7050,
+      "predicted_savings": 2250
+    },
+    "yearly_projection": {
+      "end_of_year_value": 51200,
+      "monthly_labels": ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+      "data_points": [48000, 48500, 49000, 49500, 49800, 50000, 50200, 50500, 50700, 50900, 51100, 51200]
+    }
+  },
+  "recommendations": [
+    {
+      "title": "Spending behavior shift detected",
+      "description": "Your spending pattern differs from your usual behavior.",
+      "severity": "High",
+      "icon": "fa-chart-line"
+    }
+  ],
+  "high_expense_alert": []
+}

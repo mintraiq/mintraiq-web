@@ -10,5 +10,8 @@
     }
     // Example: only fill when build did not set a value (local tunnel)
     // var env = w.__MINTRAIQ_ENV__;
-    // if (!env.financeApiBase) env.financeApiBase = 'http://127.0.0.1:5000/api';
+    // if (!env.financeApiBase) env.financeApiBase = 'http://localhost:5000/api';
+    // Billing (local Stripe test mode):
+    // if (!env.stripePublishableKey) env.stripePublishableKey = 'pk_test_...';
+    // if (env.requireBillingPaywall == null) env.requireBillingPaywall = true;
 })(typeof window !== 'undefined' ? window : globalThis);

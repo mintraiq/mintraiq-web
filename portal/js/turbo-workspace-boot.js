@@ -18,6 +18,9 @@ async function runWorkspacePage() {
         if (nav === 'dashboard') {
             const m = await import('./dashboard-page.js');
             await m.bootDashboardPage({ signal });
+        } else if (nav === 'recurring-liabilities') {
+            const m = await import('./recurring-liabilities-page.js');
+            await m.bootRecurringLiabilitiesPage({ signal });
         } else if (nav === 'budget-planner') {
             const m = await import('./budget-planner-page.js');
             await m.bootBudgetPlannerPage({ signal });
@@ -27,12 +30,18 @@ async function runWorkspacePage() {
         } else if (nav === 'transactions') {
             const m = await import('./transactions-page.js');
             await m.bootTransactionsPage({ signal });
+        } else if (nav === 'product-analytics') {
+            const m = await import('./product-analytics-page.js');
+            await m.bootProductAnalyticsPage({ signal });
         } else if (nav === 'upload-statement') {
             const m = await import('./upload-statement-page.js');
             await m.bootUploadStatementPage({ signal });
         } else if (nav === 'receipt-scanner') {
             const m = await import('./receipt-scanner-page.js');
             await m.bootReceiptScannerPage({ signal });
+        } else if (nav === 'notifications') {
+            const { mountTwelveMonthReminderOnNotificationsPage } = await import('./data-level-nudges.js');
+            mountTwelveMonthReminderOnNotificationsPage();
         }
     } catch (e) {
         if (e?.name === 'AbortError') return;

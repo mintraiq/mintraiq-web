@@ -1,83 +1,184 @@
-import { LogtoClient } from '../auth.js';
+// portal/js/logto-client.js
+//
+// Auth client wrapper. Migrated from the Logto Browser SDK to Supabase Auth.
+// The file name and all exported function names are preserved so the existing
+// call sites (index.js, join.js, callback.js, shell.js, profile.js,
+// settings-profile.js, bootstrap.js) keep working with minimal changes.
+//
+// `createLogtoClient()` now returns a small adapter object that exposes the same
+// methods the call sites used on the Logto client (isAuthenticated, signIn,
+// handleSignInCallback, getAccessToken, getIdTokenClaims, signOut). On the web
+// we let supabase-js own the session (localStorage + auto-refresh) — unlike
+// mobile, where the tokenManager owns it.
+//
+// --- Logto (legacy — retained for rollback) ---
+// import { LogtoClient } from '../auth.js';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { CONFIG } from './config.js';
+import { getSignInRedirectUri } from './config.js';
 import { clearLegalContentState } from './legal-store.js';
 
+let supabase = null;
 let sharedClient = null;
 const SENSITIVE_SESSION_PREFIXES = ['mintraiq_settings_workflow_draft_v1', 'mintraiq_settings_workflow_mode_v1'];
 
-/** Logto Browser SDK persists under `logto:${appId}` (see @logto/browser BrowserStorage). */
+/** Lazily create the singleton supabase-js client. */
+function getSupabase() {
+    if (supabase) return supabase;
+    supabase = createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey, {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: false, // callback.js calls handleSignInCallback() explicitly
+            flowType: 'pkce',
+        },
+    });
+    return supabase;
+}
+
 export function resetLogtoClient() {
     sharedClient = null;
 }
 
 /**
- * Remove Logto OIDC tokens and sign-in session from localStorage/sessionStorage.
- * Required after invalid_grant or before a clean re-login; otherwise isAuthenticated() stays true on a dead refresh token and the app loops.
+ * Remove the Supabase session + PKCE artifacts from local/session storage.
+ * Required after an invalid refresh token or before a clean re-login; otherwise
+ * isAuthenticated() can stay true on a dead session and the app loops.
+ * (supabase-js persists under `sb-<ref>-auth-token` and related `sb-*` keys.)
  */
 export function clearLogtoBrowserStorage() {
     if (typeof window === 'undefined') return;
-    const id = CONFIG.logtoAppId && String(CONFIG.logtoAppId).trim();
-    const prefix = id ? `logto:${id}` : '';
     for (const store of [localStorage, sessionStorage]) {
         for (let i = store.length - 1; i >= 0; i -= 1) {
             const k = store.key(i);
-            if (!k || !k.startsWith('logto:')) continue;
-            if (id) {
-                if (k === prefix || k.startsWith(`${prefix}:`)) store.removeItem(k);
-            } else {
-                store.removeItem(k);
-            }
+            if (k && k.startsWith('sb-')) store.removeItem(k);
         }
     }
 }
 
 /**
- * Clears only the in-flight OIDC sign-in session (sessionStorage).
- * Stale values here cause "Error found in the callback URI" in normal browsers after interrupted flows; incognito works because storage is empty.
- * @see @logto/browser BrowserStorage — keys `logto:${appId}:signInSession` and legacy `logto:${appId}`
+ * Clears only the in-flight OAuth/PKCE artifacts (the code verifier). Stale
+ * values here can break a retried sign-in; clearing them lets a fresh flow start.
  */
 export function clearPendingLogtoOAuthSession() {
-    if (typeof sessionStorage === 'undefined') return;
-    const id = CONFIG.logtoAppId && String(CONFIG.logtoAppId).trim();
-    if (id) {
-        sessionStorage.removeItem(`logto:${id}:signInSession`);
-        sessionStorage.removeItem(`logto:${id}`);
-        return;
-    }
-    /** Config app id missing (e.g. empty build env): drop any Logto pending keys in sessionStorage only. */
-    for (let i = sessionStorage.length - 1; i >= 0; i -= 1) {
-        const k = sessionStorage.key(i);
-        if (k && k.startsWith('logto:')) sessionStorage.removeItem(k);
+    if (typeof window === 'undefined') return;
+    for (const store of [localStorage, sessionStorage]) {
+        for (let i = store.length - 1; i >= 0; i -= 1) {
+            const k = store.key(i);
+            if (k && k.startsWith('sb-') && k.includes('code-verifier')) store.removeItem(k);
+        }
     }
 }
 
-/** Full client-side auth wipe for re-login / recovery (Logto keys + MintrAIQ session + singleton). */
+/** Full client-side auth wipe for re-login / recovery (Supabase keys + MintrAIQ session + singleton). */
 export function purgeAuthForRelogin() {
     clearLogtoBrowserStorage();
     resetLogtoClient();
     clearClientSessionArtifacts();
 }
 
+/**
+ * Returns the auth adapter (Logto-compatible surface, backed by Supabase).
+ * Singleton per page load.
+ */
 export function createLogtoClient() {
     if (sharedClient) return sharedClient;
-    const opts = {
-        endpoint: CONFIG.logtoEndpoint,
-        appId: CONFIG.logtoAppId,
-        scopes: ['openid', 'profile', 'offline_access', 'email']
+    const sb = getSupabase();
+
+    sharedClient = {
+        /** True when a Supabase session exists (supabase-js auto-refreshes it). */
+        async isAuthenticated() {
+            const { data } = await sb.auth.getSession();
+            return Boolean(data?.session);
+        },
+
+        /**
+         * Start OAuth sign-in. Accepts either a redirect URI string (legacy Logto
+         * call shape) or an options object. Supabase requires an explicit provider
+         * (no unified hosted page) — defaults to 'google'; pass { provider: 'apple' }.
+         */
+        async signIn(opts) {
+            const redirectTo =
+                (typeof opts === 'string' ? opts : opts && opts.redirectUri) || getSignInRedirectUri();
+            const provider = (opts && typeof opts === 'object' && opts.provider) || 'google';
+            const { data, error } = await sb.auth.signInWithOAuth({
+                provider,
+                options: { redirectTo, skipBrowserRedirect: true },
+            });
+            if (error) throw error;
+            if (data && data.url) window.location.assign(data.url);
+        },
+
+        /** Email/password sign-in (feature-flagged). Returns the supabase data on success. */
+        async signInWithPassword(email, password) {
+            const { data, error } = await sb.auth.signInWithPassword({ email, password });
+            if (error) throw error;
+            return data;
+        },
+
+        /** Email/password sign-up (feature-flagged). `data.session` is null when email confirmation is required. */
+        async signUpWithPassword(email, password) {
+            const { data, error } = await sb.auth.signUp({ email, password });
+            if (error) throw error;
+            return data;
+        },
+
+        /** Complete the PKCE flow from the callback URL (?code=...). */
+        async handleSignInCallback(url) {
+            const code = new URL(url).searchParams.get('code');
+            if (!code) throw new Error('Sign-in callback is missing the authorization code.');
+            const { error } = await sb.auth.exchangeCodeForSession(code);
+            if (error) throw error;
+        },
+
+        /** Current access token (Supabase JWT). `resource` is ignored — Supabase tokens are not resource-scoped. */
+        async getAccessToken(_resource) {
+            const { data, error } = await sb.auth.getSession();
+            if (error || !data?.session?.access_token) {
+                throw new Error('No active session.');
+            }
+            return data.session.access_token;
+        },
+
+        /** Identity claims used by bootstrap.js (email + display name). */
+        async getIdTokenClaims() {
+            const { data, error } = await sb.auth.getUser();
+            const user = data?.user;
+            if (error || !user) throw new Error('No authenticated user.');
+            const m = user.user_metadata || {};
+            return {
+                sub: user.id,
+                email: user.email ?? m.email ?? '',
+                name: m.full_name ?? m.name ?? '',
+                username: m.user_name ?? m.preferred_username ?? '',
+                preferred_username: m.preferred_username ?? '',
+            };
+        },
+
+        /** Sign out and redirect to the post-logout URL. */
+        async signOut(postLogout) {
+            try {
+                await sb.auth.signOut();
+            } finally {
+                clearClientSessionArtifacts();
+                if (postLogout) window.location.replace(postLogout);
+            }
+        },
     };
-    if (CONFIG.financeApiResource) {
-        opts.resources = [CONFIG.financeApiResource];
-    }
-    sharedClient = new LogtoClient(opts);
-    // #region agent log
-    fetch('http://127.0.0.1:7478/ingest/644bafec-be20-4001-92d1-9dc284896227',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6f70b8'},body:JSON.stringify({sessionId:'6f70b8',runId:'post-fix-v3',hypothesisId:'E',location:'logto-client.js:createLogtoClient',message:'Logto client created',data:{endpoint:CONFIG.logtoEndpoint,appId:CONFIG.logtoAppId,resources:opts.resources??[]},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     return sharedClient;
 }
 
+/** Recognise a dead-session / bad-refresh-token error so callers can force re-login. */
 export function isInvalidGrantError(error) {
     const s = String((error && (error.message || error.error || error.code)) || '').toLowerCase();
-    return s.includes('invalid grant') || s.includes('grant request is invalid') || s.includes('invalid_grant');
+    return (
+        s.includes('invalid grant') ||
+        s.includes('invalid_grant') ||
+        s.includes('refresh token') ||
+        s.includes('refresh_token') ||
+        s.includes('jwt expired') ||
+        s.includes('session') && s.includes('missing')
+    );
 }
 
 export function redirectToSignIn(reason = 'invalid-grant') {
@@ -100,9 +201,9 @@ export function clearClientSessionArtifacts() {
     }
 }
 
-export async function getAccessTokenOrReauth(logtoClient, resource) {
+export async function getAccessTokenOrReauth(authClient, resource) {
     try {
-        return await logtoClient.getAccessToken(resource);
+        return await authClient.getAccessToken(resource);
     } catch (e) {
         if (isInvalidGrantError(e)) {
             redirectToSignIn('invalid-grant');

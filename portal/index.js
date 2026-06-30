@@ -6,7 +6,7 @@ import {
     redirectToSignIn,
     resetLogtoClient
 } from './js/logto-client.js';
-import { getSignInRedirectUri, isBootstrapOnboardingComplete, resolveDashboardEntry } from './js/config.js';
+import { getSignInRedirectUri, isBootstrapOnboardingComplete, isEmailPasswordAuthEnabled, resolveDashboardEntry } from './js/config.js';
 import { bootstrapSession } from './js/bootstrap.js';
 import { visitWithTurbo } from './js/turbo-visit.js';
 import { claimPageScript } from './js/page-script-guard.js';
@@ -79,11 +79,60 @@ async function main() {
         if (oauthNavLock) return;
         oauthNavLock = true;
         signInBtn.disabled = true;
-        if (statusEl) statusEl.textContent = 'Redirecting to Logto…';
+        if (statusEl) statusEl.textContent = 'Redirecting to secure sign-in…';
         clearPendingLogtoOAuthSession();
         resetLogtoClient();
         createLogtoClient().signIn(getSignInRedirectUri());
     });
+
+    // Email/password (feature-flagged: social-only by default).
+    if (isEmailPasswordAuthEnabled()) {
+        const emailBlock = document.getElementById('emailAuthBlock');
+        if (emailBlock) emailBlock.style.display = 'block';
+        const emailSubmit = document.getElementById('emailSubmit');
+        const emailModeToggle = document.getElementById('emailModeToggle');
+        let isSignUp = false;
+
+        emailModeToggle?.addEventListener('click', (e) => {
+            e.preventDefault();
+            isSignUp = !isSignUp;
+            emailSubmit.textContent = isSignUp ? 'Create account' : 'Sign in';
+            emailModeToggle.textContent = isSignUp ? 'Have an account? Sign in' : 'New here? Create an account';
+            if (statusEl) statusEl.textContent = '';
+        });
+
+        emailSubmit?.addEventListener('click', async () => {
+            const email = document.getElementById('emailInput').value.trim();
+            const password = document.getElementById('passwordInput').value;
+            if (!email || !password) {
+                if (statusEl) statusEl.textContent = 'Enter your email and password.';
+                return;
+            }
+            emailSubmit.disabled = true;
+            if (statusEl) statusEl.textContent = isSignUp ? 'Creating your account…' : 'Signing in…';
+            try {
+                const c = createLogtoClient();
+                if (isSignUp) {
+                    const data = await c.signUpWithPassword(email, password);
+                    if (!data.session) {
+                        // Email confirmation required (no session yet).
+                        if (statusEl) statusEl.textContent = 'Check your email to confirm your account, then sign in.';
+                        isSignUp = false;
+                        emailSubmit.textContent = 'Sign in';
+                        emailModeToggle.textContent = 'New here? Create an account';
+                        emailSubmit.disabled = false;
+                        return;
+                    }
+                } else {
+                    await c.signInWithPassword(email, password);
+                }
+                await openWorkspace(c);
+            } catch (err) {
+                if (statusEl) statusEl.textContent = String((err && err.message) || err);
+                emailSubmit.disabled = false;
+            }
+        });
+    }
 }
 
 main();

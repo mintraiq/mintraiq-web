@@ -19,6 +19,19 @@
  * Deployed builds should set PUBLIC_* on Vercel; those values win via `window.__MINTRAIQ_ENV__`.
  */
 const defaults = {
+    // --- Supabase Auth (active provider) ---
+    // Public values, safe in the browser (the publishable key is meant to be public;
+    // RLS / server-side JWT verification protect data). Override via PUBLIC_* / runtime-env.js.
+    supabaseUrl: 'https://ebpplhhokqolooxpwtxw.supabase.co',
+    supabaseAnonKey: 'sb_publishable_5sMWq9v0UyUb-_BrZxD7ZA_9zHvYEWl',
+    /**
+     * Email/password auth toggle — false = social-only (launch default).
+     * Flip via PUBLIC_AUTH_EMAIL_PASSWORD_ENABLED / runtime-env, and enable the
+     * Supabase email provider + HIBP/CAPTCHA/SMTP, to expose email sign-in.
+     */
+    authEmailPasswordEnabled: false,
+
+    // --- Logto (legacy — retained for rollback) ---
     logtoEndpoint: 'https://ufq3nf.logto.app',
     /** Logto Application (SPA) App ID — override via PUBLIC_LOGTO_APP_ID / runtime-env.js. */
     logtoAppId: 'jj76jvuz39xoys68ys7ly',
@@ -102,6 +115,22 @@ export function isBillingPaywallRequired() {
         if (s === '0' || s === 'false' || s === 'no' || s === 'off') return false;
     }
     return true;
+}
+
+/**
+ * Email/password auth toggle (default off → social-only).
+ * Accepts boolean or string from runtime env ("1", "true", "0", "false").
+ * @returns {boolean}
+ */
+export function isEmailPasswordAuthEnabled() {
+    const v = CONFIG.authEmailPasswordEnabled;
+    if (v === true) return true;
+    if (v === false || v == null) return false;
+    if (typeof v === 'string') {
+        const s = v.trim().toLowerCase();
+        return s === '1' || s === 'true' || s === 'yes' || s === 'on';
+    }
+    return Boolean(v);
 }
 
 /**

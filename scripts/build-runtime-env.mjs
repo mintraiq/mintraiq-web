@@ -24,6 +24,9 @@ const outFile = join(root, 'config', 'runtime-env.js');
  * come from env / Vercel — do not rely on baked-in defaults in the repo.
  */
 const DEFAULT_PUBLIC_ENV = {
+    // Supabase (active auth). Real per-env values come from PUBLIC_* — never bake prod here.
+    supabaseUrl: '',
+    supabaseAnonKey: '',
     logtoEndpoint: '',
     logtoAppId: '',
     logtoRegisterUrl: '',
@@ -43,6 +46,8 @@ const DEFAULT_PUBLIC_ENV = {
 };
 
 const PUBLIC_TO_ENV = {
+    PUBLIC_SUPABASE_URL: 'supabaseUrl',
+    PUBLIC_SUPABASE_ANON_KEY: 'supabaseAnonKey',
     PUBLIC_LOGTO_ENDPOINT: 'logtoEndpoint',
     PUBLIC_LOGTO_APP_ID: 'logtoAppId',
     PUBLIC_LOGTO_REGISTER_URL: 'logtoRegisterUrl',

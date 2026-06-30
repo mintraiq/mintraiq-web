@@ -28,6 +28,13 @@
         button:hover { filter: brightness(1.05); }
         #status { margin-top: 14px; font-size: 0.85rem; color: var(--m); min-height: 1.2em; }
         a { color: #7ee8ff; font-size: 0.85rem; }
+        .email-divider { text-align: center; color: var(--m); font-size: 0.8rem; margin: 16px 0 12px; }
+        .email-input {
+            width: 100%; padding: 13px 14px; margin-bottom: 12px; border-radius: 12px;
+            border: 1px solid rgba(122,152,205,0.25); background: #0f1626; color: #fff; font-size: 0.92rem;
+        }
+        .email-input::placeholder { color: #6b7686; }
+        #emailModeToggle { display: inline-block; margin-top: 12px; cursor: pointer; }
     </style>
     <script>
         window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -44,11 +51,20 @@
         <p>Securely access your financial &ldquo;Game Plan.&rdquo; We use bank-grade authentication to keep your data encrypted and private. One tap to pick up exactly where you left off.</p>
         <p style="margin-top:-8px;font-size:0.86rem;color:#9edfc1;">Mintr Tip: I&rsquo;m standing by to help you crunch the numbers as soon as you&rsquo;re in! 🤖</p>
         <button type="button" id="signIn">Secure Sign In</button>
+        <!-- Email/password (feature-flagged: hidden unless authEmailPasswordEnabled). Revealed by index.js. -->
+        <div id="emailAuthBlock" style="display:none;">
+            <div class="email-divider">or</div>
+            <input id="emailInput" class="email-input" type="email" placeholder="Email" autocomplete="email" />
+            <input id="passwordInput" class="email-input" type="password" placeholder="Password" autocomplete="current-password" />
+            <button type="button" id="emailSubmit">Sign in</button>
+            <p style="text-align:center;"><a href="#" id="emailModeToggle">New here? Create an account</a></p>
+        </div>
         <p id="status"></p>
         <p><a href="../intro.html">← Back to marketing site</a></p>
     </div>
     <script type="module" src="./index.js"></script>
     <!-- The type="module" is CRITICAL because your script uses 'import' statements -->
-    <script type="module" src="./auth.js"></script>
+    <!-- Logto SDK (legacy — retained for rollback; auth now via supabase-js in js/logto-client.js) -->
+    <!-- <script type="module" src="./auth.js"></script> -->
 </body>
 </html>

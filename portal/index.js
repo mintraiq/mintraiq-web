@@ -85,6 +85,65 @@ async function main() {
         createLogtoClient().signIn(getSignInRedirectUri());
     });
 
+    // Passwordless email OTP (first-class option — any email address).
+    const otpEmailInput = document.getElementById('otpEmailInput');
+    const otpSendBtn = document.getElementById('otpSendBtn');
+    const otpCodeRow = document.getElementById('otpCodeRow');
+    const otpCodeInput = document.getElementById('otpCodeInput');
+    const otpVerifyBtn = document.getElementById('otpVerifyBtn');
+    const otpResend = document.getElementById('otpResend');
+    const otpChange = document.getElementById('otpChange');
+
+    async function sendOtp() {
+        const email = (otpEmailInput.value || '').trim().toLowerCase();
+        if (!email) {
+            if (statusEl) statusEl.textContent = 'Enter your email address.';
+            return;
+        }
+        otpSendBtn.disabled = true;
+        if (statusEl) statusEl.textContent = 'Sending your code…';
+        try {
+            await createLogtoClient().signInWithOtp(email);
+            otpCodeRow.style.display = 'block';
+            if (statusEl) statusEl.textContent = `We emailed a 6-digit code to ${email}. Enter it below.`;
+        } catch (err) {
+            if (statusEl) statusEl.textContent = String((err && err.message) || err);
+        } finally {
+            otpSendBtn.disabled = false;
+        }
+    }
+
+    otpSendBtn?.addEventListener('click', sendOtp);
+    otpResend?.addEventListener('click', (e) => {
+        e.preventDefault();
+        sendOtp();
+    });
+    otpChange?.addEventListener('click', (e) => {
+        e.preventDefault();
+        otpCodeRow.style.display = 'none';
+        otpCodeInput.value = '';
+        if (statusEl) statusEl.textContent = '';
+    });
+
+    otpVerifyBtn?.addEventListener('click', async () => {
+        const email = (otpEmailInput.value || '').trim().toLowerCase();
+        const token = (otpCodeInput.value || '').trim();
+        if (token.length < 6) {
+            if (statusEl) statusEl.textContent = 'Enter the 6-digit code from your email.';
+            return;
+        }
+        otpVerifyBtn.disabled = true;
+        if (statusEl) statusEl.textContent = 'Verifying…';
+        try {
+            const c = createLogtoClient();
+            await c.verifyOtp(email, token);
+            await openWorkspace(c);
+        } catch (err) {
+            if (statusEl) statusEl.textContent = String((err && err.message) || err);
+            otpVerifyBtn.disabled = false;
+        }
+    });
+
     // Email/password (feature-flagged: social-only by default).
     if (isEmailPasswordAuthEnabled()) {
         const emailBlock = document.getElementById('emailAuthBlock');

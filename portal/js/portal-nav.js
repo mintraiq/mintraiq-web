@@ -61,7 +61,8 @@ function workspaceNavItems(profile = null, adminVisible = false) {
     if (adminVisible) {
         items = [
             ...items,
-            { id: 'ml-admin', href: './ml-admin.html', icon: 'fa-microchip', label: 'ML admin' }
+            { id: 'ml-admin', href: './ml-admin.html', icon: 'fa-microchip', label: 'ML admin' },
+            { id: 'admin-config', href: './admin-config.html', icon: 'fa-shield-halved', label: 'Config & secrets' }
         ];
     }
     return items;

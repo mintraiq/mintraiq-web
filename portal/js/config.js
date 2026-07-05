@@ -42,6 +42,14 @@ const defaults = {
      */
     logtoRegisterUrl: '',
     financeApiBase: 'http://localhost:5000/api',
+    /**
+     * Optional explicit per-environment finance API bases for the admin
+     * Config & Secrets console environment switcher. When unset, the console
+     * falls back to `financeApiBase` (this deployment's own environment).
+     * Set via PUBLIC_FINANCE_API_BASE_STAGING / _PROD at build time.
+     */
+    financeApiBaseStaging: '',
+    financeApiBaseProd: '',
     /** Required for Bearer tokens accepted by finance_api.validate_token (JWT aud = API_IDENTIFIER). */
     /** Must match FastAPI `api_identifier` / Logto API resource (see config.json). */
     financeApiResource: 'https://api.finance-ai.suite.com',

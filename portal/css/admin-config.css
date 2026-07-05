@@ -1,0 +1,484 @@
+/**
+ * Admin-only Config & Secrets registry page.
+ * Reuses portal design tokens (--bg-surface, --border-soft, --accent-green, etc.).
+ */
+
+.ac-loading,
+.ac-denied {
+    border: 1px solid var(--border-soft);
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 28px;
+    color: var(--text-secondary);
+}
+
+.ac-denied {
+    border-color: rgba(255, 71, 87, 0.45);
+}
+
+.ac-denied strong {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+.ac-denied code {
+    background: rgba(255, 255, 255, 0.06);
+    padding: 2px 7px;
+    border-radius: 6px;
+    color: var(--accent-green);
+}
+
+/* --- Toolbar (environment switcher) --- */
+.ac-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    border: 1px solid var(--border-soft);
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+}
+
+.ac-env {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ac-env label {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+}
+
+.ac-env select {
+    background: var(--bg-surface-hover);
+    color: var(--text-primary);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+
+.ac-env-note {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+}
+
+.ac-spacer { flex: 1; }
+
+.ac-verified {
+    color: var(--accent-green);
+    font-size: 0.84rem;
+    font-weight: 600;
+}
+.ac-verified i { margin-right: 5px; }
+
+.ac-lock {
+    border: 1px solid var(--border-soft);
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+.ac-lock:hover { color: var(--text-primary); border-color: var(--bg-pill-active); }
+
+/* --- OTP / step-up verification card --- */
+.ac-verify-card {
+    max-width: 460px;
+    margin: 32px auto;
+    text-align: center;
+    border: 1px solid var(--border-soft);
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 32px 28px;
+}
+
+.ac-verify-icon {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--mintr-neon-glow);
+    color: var(--accent-green);
+    font-size: 1.4rem;
+}
+
+.ac-verify-card h3 {
+    margin: 0 0 8px;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+}
+
+.ac-verify-card .ac-muted {
+    margin: 0 auto 16px;
+    max-width: 380px;
+}
+
+.ac-verify-card .ac-callout {
+    text-align: left;
+    margin: 0 0 16px;
+}
+
+.ac-otp-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 16px 0 12px;
+}
+
+.ac-otp-input {
+    width: 160px;
+    text-align: center;
+    letter-spacing: 8px;
+    font-size: 1.3rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: var(--bg-surface-hover);
+    color: var(--text-primary);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+.ac-otp-input:focus {
+    outline: none;
+    border-color: var(--accent-green);
+}
+
+.ac-otp-error {
+    color: #ff6b7a;
+    font-size: 0.85rem;
+    margin: 4px 0 0;
+}
+
+.ac-btn {
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: 1px solid var(--border-soft);
+}
+.ac-btn:disabled { opacity: 0.6; cursor: default; }
+
+.ac-btn-primary {
+    background: var(--accent-green);
+    color: #06281c;
+    border-color: var(--accent-green);
+    font-weight: 600;
+}
+.ac-btn-primary:hover:not(:disabled) { filter: brightness(1.05); }
+
+.ac-btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+}
+.ac-btn-ghost:hover:not(:disabled) { color: var(--text-primary); }
+
+/* --- Live inventory statuses --- */
+.ac-status-ok { color: var(--accent-green); font-size: 0.84rem; }
+.ac-status-miss { color: #ff6b7a; font-size: 0.84rem; }
+.ac-dot.is-success { background: var(--accent-green); }
+
+/* --- Summary stats --- */
+.ac-stats {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.ac-stat {
+    border: 1px solid var(--border-soft);
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 16px 18px;
+}
+
+.ac-stat-value {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.ac-stat-value.is-danger { color: #ff4757; }
+.ac-stat-value.is-warning { color: #f1c40f; }
+.ac-stat-value.is-success { color: var(--accent-green); }
+
+.ac-stat-label {
+    margin-top: 8px;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+}
+
+@media (max-width: 820px) {
+    .ac-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* --- Tabs --- */
+.ac-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.ac-tab {
+    border: 1px solid var(--border-soft);
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 999px;
+    padding: 7px 16px;
+    font-size: 0.86rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.ac-tab:hover { color: var(--text-primary); }
+
+.ac-tab.is-active {
+    background: var(--bg-pill-active);
+    border-color: var(--bg-pill-active);
+    color: var(--text-primary);
+}
+
+.ac-panel[hidden] { display: none; }
+
+/* --- Cards / sections --- */
+.ac-card {
+    border: 1px solid var(--border-soft);
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+}
+
+.ac-card-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.ac-card-head h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+}
+
+.ac-card-kind {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-left: auto;
+}
+
+.ac-muted {
+    color: var(--text-secondary);
+    font-size: 0.86rem;
+}
+
+.ac-files {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    word-break: break-word;
+}
+
+.ac-group {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+    border-top: 1px solid var(--border-soft);
+    align-items: flex-start;
+}
+
+.ac-group-label {
+    min-width: 120px;
+    flex-shrink: 0;
+}
+
+.ac-tag {
+    display: inline-block;
+    background: var(--bg-surface-hover);
+    border: 1px solid var(--border-soft);
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-size: 0.74rem;
+    color: var(--text-secondary);
+}
+
+code, .ac-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+    color: #c8d4e8;
+    word-break: break-word;
+}
+
+/* --- Tables --- */
+.ac-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.ac-table th,
+.ac-table td {
+    text-align: left;
+    padding: 11px 14px;
+    font-size: 0.84rem;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.ac-table th {
+    color: var(--text-secondary);
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.ac-table tr:last-child td { border-bottom: none; }
+
+.ac-table tbody tr:nth-child(even) td { background: rgba(255, 255, 255, 0.015); }
+
+.ac-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+.ac-dot.is-danger { background: #ff4757; }
+.ac-dot.is-warning { background: #f1c40f; }
+.ac-dot.is-info { background: #2f80ed; }
+.ac-dot.is-neutral { background: #64748b; }
+
+.ac-sev {
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+}
+.ac-sev.is-critical { color: #ff4757; }
+.ac-sev.is-high { color: #ff7043; }
+.ac-sev.is-medium { color: #f1c40f; }
+.ac-sev.is-low { color: var(--text-secondary); }
+
+/* --- Callout --- */
+.ac-callout {
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    font-size: 0.86rem;
+    border: 1px solid var(--border-soft);
+}
+.ac-callout strong { display: block; margin-bottom: 4px; color: var(--text-primary); }
+.ac-callout.is-danger { background: rgba(255, 71, 87, 0.08); border-color: rgba(255, 71, 87, 0.4); }
+.ac-callout.is-warning { background: rgba(241, 196, 15, 0.07); border-color: rgba(241, 196, 15, 0.4); }
+
+/* --- Checklist --- */
+.ac-progress-card {
+    border: 1px solid var(--border-soft);
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+}
+
+.ac-progress-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.ac-progress-top strong { color: var(--text-primary); }
+.ac-progress-count { color: var(--text-secondary); font-size: 0.86rem; }
+
+.ac-progress-track {
+    height: 10px;
+    border-radius: 999px;
+    background: var(--bg-surface-hover);
+    overflow: hidden;
+}
+
+.ac-progress-fill {
+    height: 100%;
+    width: 0;
+    background: var(--accent-green);
+    border-radius: 999px;
+    transition: width 0.25s ease;
+}
+
+.ac-reset {
+    margin-top: 12px;
+    border: 1px solid var(--border-soft);
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+.ac-reset:hover { color: var(--text-primary); border-color: var(--bg-pill-active); }
+
+.ac-group-block { margin-bottom: 22px; }
+
+.ac-group-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.ac-group-title {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+.ac-group-title.is-accent { color: var(--accent-green); }
+
+.ac-group-progress {
+    margin-left: auto;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    background: var(--bg-surface-hover);
+    border-radius: 999px;
+    padding: 2px 10px;
+}
+
+.ac-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 7px 0;
+    cursor: pointer;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.ac-check input {
+    margin-top: 3px;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent-green);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.ac-check-label {
+    font-size: 0.88rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.ac-check.is-done .ac-check-label {
+    color: var(--text-secondary);
+    text-decoration: line-through;
+}

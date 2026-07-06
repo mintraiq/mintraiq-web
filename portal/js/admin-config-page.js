@@ -21,22 +21,26 @@
 import { CONFIG } from './config.js';
 import { createLogtoClient, getAccessTokenOrReauth } from './logto-client.js';
 import { claimPageScript } from './page-script-guard.js';
+import { MASTER_MATRIX } from './admin-config-master-matrix.js';
 
 const NAV_ID = 'admin-config';
 const STORAGE_KEY = 'mintraiq_prod_checklist_v1';
 const STEPUP_KEY = 'mintraiq_admin_stepup_v1';
 const TABS = [
-    { id: 'live', label: 'Live config' },
+    { id: 'master', label: 'Master matrix' },
+    { id: 'live', label: 'Live config (dashboard API)' },
     { id: 'checklist', label: 'Production checklist' },
     { id: 'services', label: 'Service inventory' },
     { id: 'repos', label: 'Repos & config' },
     { id: 'security', label: 'Security risks' },
 ];
 
-let activeTab = 'live';
+let activeTab = 'master';
 let activeEnv = null; // resolved on first render from the current deployment
 let lastAccess = null;
 let verifyState = null; // { phase, emailHint, emailDelivery, message }
+let lastLiveInventory = null;
+let masterFilter = 'all'; // all | missing | manual | live
 
 /* ------------------------------- data -------------------------------- */
 
@@ -269,6 +273,7 @@ const CHECKLIST = [
 ];
 
 const TOTAL_ITEMS = CHECKLIST.reduce((n, g) => n + g.items.length, 0);
+const MASTER_TOTAL = MASTER_MATRIX.length;
 
 /* ----------------------------- helpers ------------------------------- */
 
@@ -468,18 +473,34 @@ function renderVerifyInner() {
         </div>`;
 }
 
+function liveInventoryMap(data) {
+    const map = Object.create(null);
+    if (!data || !Array.isArray(data.variables)) return map;
+    for (const v of data.variables) {
+        if (v && v.name) map[v.name] = v;
+    }
+    return map;
+}
+
 function renderStats(done) {
     const pct = Math.round((done / TOTAL_ITEMS) * 100);
     const readyTone = pct === 100 ? 'is-success' : pct >= 50 ? 'is-warning' : 'is-danger';
+    const liveMap = liveInventoryMap(lastLiveInventory);
+    const liveTracked = MASTER_MATRIX.filter((r) => r.live === 'dashboard').length;
+    const liveMissing = MASTER_MATRIX.filter((r) => {
+        if (r.live !== 'dashboard') return false;
+        const hit = liveMap[r.name];
+        return !hit || !hit.populated;
+    }).length;
     const stat = (value, label, cls = '') =>
         `<div class="ac-stat"><div class="ac-stat-value ${cls}">${value}</div><div class="ac-stat-label">${label}</div></div>`;
     return `
         <div class="ac-stats">
-            ${stat('8', 'Repositories')}
-            ${stat(String(SERVICES.length), 'External services')}
-            ${stat('5', 'Critical / high risks', 'is-danger')}
+            ${stat(String(MASTER_TOTAL), 'Master vars (Bible §20)')}
+            ${stat(String(liveTracked), 'Live-tracked (dashboard)')}
+            ${stat(String(liveMissing), 'Dashboard missing', liveMissing ? 'is-danger' : 'is-success')}
             ${stat(String(TOTAL_ITEMS), 'Checklist items')}
-            ${stat(`${pct}%`, 'Ready', readyTone)}
+            ${stat(`${pct}%`, 'Checklist ready', readyTone)}
         </div>`;
 }
 
@@ -494,9 +515,76 @@ function renderLivePanel() {
         <div class="ac-panel" data-ac-panel="live" ${activeTab === 'live' ? '' : 'hidden'}>
             <div class="ac-callout">
                 <strong>Live configuration — ${escapeHtml(envLabel(activeEnv || 'staging'))}</strong>
-                Reported directly by the finance API for this environment. Use <strong>Reveal</strong> to inspect values after step-up — secrets show a masked fingerprint only (e.g. <code>xkey****abcd</code>, length).
+                Populated/missing for <strong>finance-ai-dashboard</strong> only (this Cloud Run deployment). Use <strong>Master matrix</strong> for GitHub, Vercel, EAS, Supabase, Mongo Atlas, etc.
             </div>
             <div data-live-body><div class="ac-loading"><i class="fas fa-spinner fa-spin"></i> Loading live config…</div></div>
+        </div>`;
+}
+
+function renderMasterPanel() {
+    const liveMap = liveInventoryMap(lastLiveInventory);
+    const rows = MASTER_MATRIX.filter((row) => {
+        const live = row.live === 'dashboard' ? liveMap[row.name] : null;
+        const isMissing = row.live === 'dashboard' && (!live || !live.populated);
+        if (masterFilter === 'missing') return isMissing;
+        if (masterFilter === 'manual') return row.live !== 'dashboard';
+        if (masterFilter === 'live') return row.live === 'dashboard';
+        return true;
+    });
+
+    const liveMissingCount = MASTER_MATRIX.filter((r) => {
+        if (r.live !== 'dashboard') return false;
+        const hit = liveMap[r.name];
+        return !hit || !hit.populated;
+    }).length;
+    const manualCount = MASTER_MATRIX.filter((r) => r.live !== 'dashboard').length;
+
+    const tableRows = rows.map((row) => {
+        const live = row.live === 'dashboard' ? liveMap[row.name] : null;
+        let statusCell;
+        if (row.live === 'dashboard') {
+            statusCell = live && live.populated
+                ? '<span class="ac-status-ok"><span class="ac-dot is-success"></span>configured</span>'
+                : '<span class="ac-status-miss"><span class="ac-dot is-danger"></span>missing</span>';
+        } else {
+            statusCell = '<span class="ac-status-manual"><span class="ac-dot is-warning"></span>verify manually</span>';
+        }
+        return `
+        <tr data-ac-master-row="${escapeHtml(row.name)}">
+            <td><span class="ac-code">${escapeHtml(row.name)}</span></td>
+            <td class="ac-muted">${escapeHtml(row.section)}</td>
+            <td class="ac-muted">${escapeHtml(row.repos)}</td>
+            <td>${escapeHtml(row.platform)}</td>
+            <td>${row.secret ? '<span class="ac-tag">secret</span>' : '<span class="ac-tag">public</span>'}</td>
+            <td>${statusCell}</td>
+        </tr>`;
+    }).join('');
+
+    return `
+        <div class="ac-panel" data-ac-panel="master" ${activeTab === 'master' ? '' : 'hidden'}>
+            <div class="ac-callout">
+                <strong>Production Bible master list (§20)</strong>
+                Canonical variable names across GCP, GitHub, Vercel, Expo/EAS, Supabase, MongoDB Atlas, Brevo, Azure, Stripe, RevenueCat, Cloudflare, Firebase, and Apple/Google stores.
+                Rows marked <em>verify manually</em> are not pulled automatically — check the platform column in GitHub/Vercel/EAS/Supabase consoles.
+            </div>
+            <div class="ac-master-toolbar">
+                <label for="acMasterFilter">Filter</label>
+                <select id="acMasterFilter" data-ac-master-filter>
+                    <option value="all" ${masterFilter === 'all' ? 'selected' : ''}>All (${MASTER_TOTAL})</option>
+                    <option value="missing" ${masterFilter === 'missing' ? 'selected' : ''}>Dashboard missing (${liveMissingCount})</option>
+                    <option value="live" ${masterFilter === 'live' ? 'selected' : ''}>Dashboard live-tracked (${MASTER_TOTAL - manualCount})</option>
+                    <option value="manual" ${masterFilter === 'manual' ? 'selected' : ''}>Manual only (${manualCount})</option>
+                </select>
+            </div>
+            <div class="ac-stats" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:14px">
+                <div class="ac-stat"><div class="ac-stat-value">${MASTER_TOTAL}</div><div class="ac-stat-label">Total vars</div></div>
+                <div class="ac-stat"><div class="ac-stat-value is-danger">${liveMissingCount}</div><div class="ac-stat-label">Dashboard missing (live)</div></div>
+                <div class="ac-stat"><div class="ac-stat-value is-warning">${manualCount}</div><div class="ac-stat-label">Manual verification</div></div>
+            </div>
+            <table class="ac-table ac-table--master">
+                <thead><tr><th>Variable</th><th>Section</th><th>Repos</th><th>Set at (platform)</th><th>Type</th><th>Status</th></tr></thead>
+                <tbody>${tableRows || '<tr><td colspan="6" class="ac-muted">No rows match this filter.</td></tr>'}</tbody>
+            </table>
         </div>`;
 }
 
@@ -531,6 +619,10 @@ function renderInventory(data) {
             ${stat(String(summary.total ?? vars.length), 'Tracked keys')}
             ${stat(String(summary.configured ?? 0), 'Configured', 'is-success')}
             ${stat(String(summary.missing ?? 0), 'Missing', (summary.missing ? 'is-danger' : 'is-success'))}
+        </div>
+        <div class="ac-live-actions">
+            <button type="button" class="ac-btn ac-btn-ghost" data-ac-reveal-all>Reveal all</button>
+            <button type="button" class="ac-btn ac-btn-ghost" data-ac-hide-all>Hide all</button>
         </div>
         <table class="ac-table">
             <thead><tr><th>Key</th><th>Type</th><th>Status</th><th>Value</th><th></th></tr></thead>
@@ -641,6 +733,7 @@ function renderConsole(state) {
     return `
         ${renderStats(done)}
         ${renderTabs()}
+        ${renderMasterPanel()}
         ${renderLivePanel()}
         ${renderChecklistPanel(state)}
         ${renderServicesPanel()}
@@ -719,9 +812,24 @@ async function loadLiveInventory(base, token) {
     try {
         const headers = token ? { 'X-Admin-Step-Up': token } : undefined;
         const data = await apiRequest(base, '/v1/admin/config/inventory', { headers });
+        lastLiveInventory = data;
         panel.innerHTML = renderInventory(data);
         panel.dataset.liveBase = base;
         panel.dataset.liveToken = token || '';
+        const masterPanel = document.querySelector('[data-ac-panel="master"]');
+        if (masterPanel) {
+            masterPanel.outerHTML = renderMasterPanel();
+            if (activeTab === 'master') {
+                const root = document.getElementById('acBody');
+                if (root) switchTab(root, 'master');
+            }
+        }
+        const statsEl = document.querySelector('[data-admin-config-root] .ac-stats');
+        if (statsEl) {
+            const state = loadChecklistState();
+            const done = CHECKLIST.reduce((n, g) => n + g.items.filter((i) => state[i.id]).length, 0);
+            statsEl.outerHTML = renderStats(done);
+        }
     } catch (e) {
         if (e.status === 401) {
             clearStepUp(activeEnv);
@@ -794,6 +902,18 @@ function hideConfigValue(name) {
         btn.dataset.acReveal = name;
         btn.removeAttribute('data-ac-hide');
     }
+    document.querySelectorAll(`[data-ac-row="${CSS.escape(name)}"] .ac-reveal-error`).forEach((el) => el.remove());
+}
+
+async function revealAllConfigValues() {
+    const buttons = [...document.querySelectorAll('[data-ac-reveal]')];
+    await Promise.all(buttons.map((btn) => revealConfigValue(btn.getAttribute('data-ac-reveal'))));
+}
+
+function hideAllConfigValues() {
+    [...document.querySelectorAll('[data-ac-hide]')].forEach((btn) => {
+        hideConfigValue(btn.getAttribute('data-ac-hide'));
+    });
 }
 
 function updateProgressUi(root, state) {
@@ -852,6 +972,14 @@ function ensureDelegation() {
             hideConfigValue(hideBtn.getAttribute('data-ac-hide'));
             return;
         }
+        if (target.closest('[data-ac-reveal-all]') && root.contains(target.closest('[data-ac-reveal-all]'))) {
+            void revealAllConfigValues();
+            return;
+        }
+        if (target.closest('[data-ac-hide-all]') && root.contains(target.closest('[data-ac-hide-all]'))) {
+            hideAllConfigValues();
+            return;
+        }
 
         const tabBtn = target.closest('[data-ac-tab]');
         if (tabBtn && root.contains(tabBtn)) { switchTab(root, tabBtn.getAttribute('data-ac-tab')); return; }
@@ -884,7 +1012,16 @@ function ensureDelegation() {
         if (envSel && root.contains(envSel)) {
             activeEnv = normalizeEnv(envSel.value);
             verifyState = null;
+            lastLiveInventory = null;
             void render();
+            return;
+        }
+
+        const masterSel = target.closest('[data-ac-master-filter]');
+        if (masterSel && root.contains(masterSel)) {
+            masterFilter = masterSel.value || 'all';
+            const masterPanel = document.querySelector('[data-ac-panel="master"]');
+            if (masterPanel) masterPanel.outerHTML = renderMasterPanel();
             return;
         }
 

@@ -1,26 +1,55 @@
 import { renderLegalFormatted } from '../portal/js/legal-format.js';
 
-const DOC_KEY = document.body.dataset.legalDoc;
-const titleEl = document.getElementById('legal-title');
-const bodyEl = document.getElementById('legal-body');
-const statusEl = document.getElementById('legal-status');
+let legalJsonCache = null;
+let legalJsonPromise = null;
+
+function getDocKey() {
+    return document.body?.dataset?.legalDoc || '';
+}
 
 function setStatus(message) {
+    const statusEl = document.getElementById('legal-status');
     if (statusEl) statusEl.textContent = message || '';
 }
 
+async function fetchLegalJson() {
+    if (legalJsonCache) return legalJsonCache;
+    if (!legalJsonPromise) {
+        legalJsonPromise = fetch('legal.json', {
+            headers: { Accept: 'application/json' },
+            cache: 'force-cache'
+        })
+            .then((res) => {
+                if (!res.ok) throw new Error(`Failed to load legal content (${res.status}).`);
+                return res.json();
+            })
+            .then((data) => {
+                legalJsonCache = data;
+                return data;
+            })
+            .finally(() => {
+                legalJsonPromise = null;
+            });
+    }
+    return legalJsonPromise;
+}
+
 async function loadLegalPage() {
-    if (!DOC_KEY) {
+    const docKey = getDocKey();
+    const titleEl = document.getElementById('legal-title');
+    const bodyEl = document.getElementById('legal-body');
+
+    if (!docKey) {
         setStatus('Legal document type is not configured.');
         renderLegalFormatted(bodyEl, '', 'Content is not available.');
         return;
     }
 
+    setStatus('Loading…');
+
     try {
-        const res = await fetch('legal.json', { headers: { Accept: 'application/json' } });
-        if (!res.ok) throw new Error(`Failed to load legal content (${res.status}).`);
-        const data = await res.json();
-        const doc = data?.documents?.[DOC_KEY];
+        const data = await fetchLegalJson();
+        const doc = data?.documents?.[docKey];
         if (!doc?.content) throw new Error('This document is not available yet.');
 
         const pageTitle = doc.title || 'Legal';
@@ -41,4 +70,13 @@ async function loadLegalPage() {
     }
 }
 
-loadLegalPage();
+function bootLegalPage() {
+    if (!getDocKey()) return;
+    void loadLegalPage();
+}
+
+bootLegalPage();
+if (!window.__mintLegalPageTurboLoad) {
+    window.__mintLegalPageTurboLoad = true;
+    document.addEventListener('turbo:load', bootLegalPage);
+}

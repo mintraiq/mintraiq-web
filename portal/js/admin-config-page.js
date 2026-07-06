@@ -494,7 +494,7 @@ function renderLivePanel() {
         <div class="ac-panel" data-ac-panel="live" ${activeTab === 'live' ? '' : 'hidden'}>
             <div class="ac-callout">
                 <strong>Live configuration — ${escapeHtml(envLabel(activeEnv || 'staging'))}</strong>
-                Reported directly by the finance API for this environment. Use <strong>Reveal</strong> on each row to view the loaded value (requires verified session).
+                Reported directly by the finance API for this environment. Use <strong>Reveal</strong> to inspect values after step-up — secrets show a masked fingerprint only (e.g. <code>xkey****abcd</code>, length).
             </div>
             <div data-live-body><div class="ac-loading"><i class="fas fa-spinner fa-spin"></i> Loading live config…</div></div>
         </div>`;
@@ -754,7 +754,8 @@ async function revealConfigValue(name) {
         const mask = document.querySelector(`[data-ac-value-mask="${CSS.escape(name)}"]`);
         const plain = document.querySelector(`[data-ac-value-plain="${CSS.escape(name)}"]`);
         if (plain) {
-            plain.textContent = data.value || '';
+            const lenHint = data.masked && data.value_length ? ` · ${data.value_length} chars` : '';
+            plain.textContent = `${data.value || ''}${lenHint}`;
             plain.hidden = false;
         }
         if (mask) mask.hidden = true;

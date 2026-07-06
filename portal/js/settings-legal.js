@@ -1,7 +1,6 @@
 import { createLogtoClient } from './logto-client.js';
 import { guardSession } from './guard-session.js';
 import { loadLegalContent, mergeUserStatuses, userStatusFromBootstrapPayload } from './legal-store.js';
-import { claimPageScript } from './page-script-guard.js';
 import { renderLegalFormatted } from './legal-format.js';
 
 function setText(id, value) {
@@ -25,9 +24,11 @@ function readBootstrap() {
     }
 }
 
-await guardSession();
+async function bootSettingsLegalPage() {
+    if (document.body?.getAttribute('data-settings-nav') !== 'legal') return;
+    const ok = await guardSession();
+    if (!ok) return;
 
-if (claimPageScript('settings-legal')) {
     const client = createLogtoClient();
     setText('legalStatus', 'Loading legal content…');
     const tosEl = document.getElementById('legalTos');
@@ -63,4 +64,12 @@ if (claimPageScript('settings-legal')) {
         setText('legalAgreementBadge', '');
         setText('legalStatus', String(e?.message || 'Could not load legal content.'));
     }
+}
+
+void bootSettingsLegalPage();
+if (!window.__mintSettingsLegalTurboLoad) {
+    window.__mintSettingsLegalTurboLoad = true;
+    document.addEventListener('turbo:load', () => {
+        void bootSettingsLegalPage();
+    });
 }

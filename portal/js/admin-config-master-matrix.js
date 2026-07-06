@@ -1,9 +1,8 @@
 /**
  * Master variable registry — sourced from docs/PRODUCTION-BIBLE.md §20 (2026-07-06).
  *
- * live: 'dashboard' = finance-ai-dashboard Cloud Run can report presence via
- *       GET /v1/admin/config/inventory for the selected environment.
- *       All other platforms are manual checklist items (GitHub, Vercel, EAS, etc.).
+ * live: 'dashboard' = finance-ai-dashboard Cloud Run loaded config (selected env API).
+ *       Platform column drives GCP SM / GitHub auto-check via platform_sources in inventory.
  */
 export const MASTER_MATRIX = [
     // --- finance-ai-dashboard (Cloud Run) ---

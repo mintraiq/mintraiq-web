@@ -350,6 +350,12 @@
     color: var(--text-secondary);
 }
 
+.ac-tag--muted {
+    opacity: 0.75;
+    font-size: 0.68rem;
+    margin-left: 4px;
+}
+
 code, .ac-code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 0.8rem;

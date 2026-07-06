@@ -482,6 +482,105 @@ function liveInventoryMap(data) {
     return map;
 }
 
+function normSecretKey(name) {
+    return String(name || '').toUpperCase().replace(/[^A-Z0-9]/g, '_');
+}
+
+const GCP_SECRET_ALIASES = {
+    SUPABASE_WEBHOOK_SECRET: ['supabase-webhook-secret', 'SUPABASE_WEBHOOK_SECRET'],
+    LOGTO_ENDPOINT: ['OIDC_URL', 'LOGTO_ENDPOINT'],
+    LOGTO_CLIENT_ID: ['OIDC_CLIENT_ID', 'LOGTO_CLIENT_ID'],
+    LOGTO_CLIENT_SECRET: ['OIDC_CLIENT_SECRET', 'LOGTO_CLIENT_SECRET'],
+    LOGTO_ISSUER_URL: ['OIDC_ISSUER_URL', 'LOGTO_ISSUER_URL'],
+    MONGO_URI: ['MONGO_URI', 'MONGO_DB_URL'],
+};
+
+function gcpSecretPopulated(matrixName, secretIds) {
+    const normalized = new Set((secretIds || []).map(normSecretKey));
+    const candidates = [normSecretKey(matrixName)];
+    for (const alias of GCP_SECRET_ALIASES[matrixName] || []) {
+        candidates.push(normSecretKey(alias));
+    }
+    return candidates.some((c) => normalized.has(c));
+}
+
+function githubNameCandidates(matrixName, ghEnv) {
+    const names = [matrixName];
+    const prefixed = `${ghEnv}_${matrixName}`;
+    if (!names.includes(prefixed)) names.push(prefixed);
+    return names;
+}
+
+/** @returns {{ source: string, populated: boolean|null, detail: string }} */
+function resolveMatrixStatus(row, data) {
+    const sources = (data && data.platform_sources) || {};
+    const liveMap = liveInventoryMap(data);
+    const platform = String(row.platform || '').toLowerCase();
+    const dashPop = row.live === 'dashboard' ? Boolean(liveMap[row.name]?.populated) : null;
+
+    if (platform.includes('cloud run env') || platform.startsWith('cloud run')) {
+        if (dashPop !== null) {
+            return { source: 'dashboard', populated: dashPop, detail: 'Loaded on finance-ai-dashboard Cloud Run' };
+        }
+        return { source: 'manual', populated: null, detail: 'Verify Cloud Run env' };
+    }
+
+    if (platform.includes('gcp secret manager')) {
+        const gcp = sources.gcp_secret_manager || {};
+        if (!gcp.enabled) {
+            return { source: 'gcp', populated: null, detail: gcp.error || 'GCP Secret Manager unavailable' };
+        }
+        const ok = gcpSecretPopulated(row.name, gcp.secret_ids);
+        return { source: 'gcp', populated: ok, detail: `project ${gcp.project_id || ''}` };
+    }
+
+    if (platform.includes('github variables')) {
+        const gh = sources.github || {};
+        if (!gh.enabled) {
+            return { source: 'github', populated: null, detail: gh.error || 'GitHub not configured' };
+        }
+        const ghEnv = gh.environment || 'STAGING';
+        for (const candidate of githubNameCandidates(row.name, ghEnv)) {
+            const hit = (gh.variables || {})[candidate];
+            if (hit) {
+                return { source: 'github', populated: true, detail: `${ghEnv} · ${(hit.repos || []).join(', ')}` };
+            }
+        }
+        return { source: 'github', populated: false, detail: `${ghEnv} · not in scanned repos` };
+    }
+
+    if (platform.includes('github secrets')) {
+        const gh = sources.github || {};
+        if (!gh.enabled) {
+            return { source: 'github', populated: null, detail: gh.error || 'GitHub not configured' };
+        }
+        const ghEnv = gh.environment || 'STAGING';
+        for (const candidate of githubNameCandidates(row.name, ghEnv)) {
+            const hit = (gh.secrets || {})[candidate];
+            if (hit) {
+                return { source: 'github', populated: true, detail: `${ghEnv} · ${(hit.repos || []).join(', ')}` };
+            }
+        }
+        return { source: 'github', populated: false, detail: `${ghEnv} · not in scanned repos` };
+    }
+
+    if (dashPop !== null) {
+        return { source: 'dashboard', populated: dashPop, detail: 'finance-ai-dashboard loaded config' };
+    }
+
+    return { source: 'manual', populated: null, detail: 'Verify manually' };
+}
+
+function matrixStatusCell(status) {
+    if (status.populated === true) {
+        return `<span class="ac-status-ok" title="${escapeHtml(status.detail)}"><span class="ac-dot is-success"></span>configured</span>`;
+    }
+    if (status.populated === false) {
+        return `<span class="ac-status-miss" title="${escapeHtml(status.detail)}"><span class="ac-dot is-danger"></span>missing</span>`;
+    }
+    return `<span class="ac-status-manual" title="${escapeHtml(status.detail)}"><span class="ac-dot is-warning"></span>verify manually</span>`;
+}
+
 function renderStats(done) {
     const pct = Math.round((done / TOTAL_ITEMS) * 100);
     const readyTone = pct === 100 ? 'is-success' : pct >= 50 ? 'is-warning' : 'is-danger';
@@ -511,44 +610,46 @@ function renderTabs() {
 }
 
 function renderLivePanel() {
+    const ps = lastLiveInventory && lastLiveInventory.platform_sources;
+    const gcp = ps && ps.gcp_secret_manager;
+    const gh = ps && ps.github;
+    const platformNote = gcp && gcp.enabled
+        ? `GCP Secret Manager: <strong>${escapeHtml(gcp.project_id || '')}</strong> (${(gcp.secret_ids || []).length} secrets). `
+        : `GCP: ${escapeHtml((gcp && gcp.error) || 'unavailable')}. `;
+    const ghNote = gh && gh.enabled
+        ? `GitHub <strong>${escapeHtml(gh.environment || '')}</strong> env on ${(gh.repos_scanned || []).length} repos.`
+        : `GitHub: ${escapeHtml((gh && gh.error) || 'not configured')}.`;
     return `
         <div class="ac-panel" data-ac-panel="live" ${activeTab === 'live' ? '' : 'hidden'}>
             <div class="ac-callout">
                 <strong>Live configuration — ${escapeHtml(envLabel(activeEnv || 'staging'))}</strong>
-                Populated/missing for <strong>finance-ai-dashboard</strong> only (this Cloud Run deployment). Use <strong>Master matrix</strong> for GitHub, Vercel, EAS, Supabase, Mongo Atlas, etc.
+                Loaded keys for <strong>finance-ai-dashboard</strong> on this Cloud Run deployment.
+                ${platformNote}${ghNote}
+                Master matrix merges dashboard + GCP + GitHub for Bible §20 rows.
             </div>
             <div data-live-body><div class="ac-loading"><i class="fas fa-spinner fa-spin"></i> Loading live config…</div></div>
         </div>`;
 }
 
 function renderMasterPanel() {
-    const liveMap = liveInventoryMap(lastLiveInventory);
     const rows = MASTER_MATRIX.filter((row) => {
-        const live = row.live === 'dashboard' ? liveMap[row.name] : null;
-        const isMissing = row.live === 'dashboard' && (!live || !live.populated);
+        const status = resolveMatrixStatus(row, lastLiveInventory);
+        const isMissing = status.populated === false;
         if (masterFilter === 'missing') return isMissing;
-        if (masterFilter === 'manual') return row.live !== 'dashboard';
-        if (masterFilter === 'live') return row.live === 'dashboard';
+        if (masterFilter === 'manual') return status.populated === null;
+        if (masterFilter === 'live') return status.populated !== null;
         return true;
     });
 
-    const liveMissingCount = MASTER_MATRIX.filter((r) => {
-        if (r.live !== 'dashboard') return false;
-        const hit = liveMap[r.name];
-        return !hit || !hit.populated;
-    }).length;
-    const manualCount = MASTER_MATRIX.filter((r) => r.live !== 'dashboard').length;
+    const liveMissingCount = MASTER_MATRIX.filter((r) => resolveMatrixStatus(r, lastLiveInventory).populated === false).length;
+    const manualCount = MASTER_MATRIX.filter((r) => resolveMatrixStatus(r, lastLiveInventory).populated === null).length;
+    const liveTrackedCount = MASTER_TOTAL - manualCount;
 
     const tableRows = rows.map((row) => {
-        const live = row.live === 'dashboard' ? liveMap[row.name] : null;
-        let statusCell;
-        if (row.live === 'dashboard') {
-            statusCell = live && live.populated
-                ? '<span class="ac-status-ok"><span class="ac-dot is-success"></span>configured</span>'
-                : '<span class="ac-status-miss"><span class="ac-dot is-danger"></span>missing</span>';
-        } else {
-            statusCell = '<span class="ac-status-manual"><span class="ac-dot is-warning"></span>verify manually</span>';
-        }
+        const status = resolveMatrixStatus(row, lastLiveInventory);
+        const sourceTag = status.source === 'manual'
+            ? ''
+            : `<span class="ac-tag ac-tag--muted">${escapeHtml(status.source)}</span>`;
         return `
         <tr data-ac-master-row="${escapeHtml(row.name)}">
             <td><span class="ac-code">${escapeHtml(row.name)}</span></td>
@@ -556,7 +657,7 @@ function renderMasterPanel() {
             <td class="ac-muted">${escapeHtml(row.repos)}</td>
             <td>${escapeHtml(row.platform)}</td>
             <td>${row.secret ? '<span class="ac-tag">secret</span>' : '<span class="ac-tag">public</span>'}</td>
-            <td>${statusCell}</td>
+            <td>${matrixStatusCell(status)} ${sourceTag}</td>
         </tr>`;
     }).join('');
 
@@ -564,21 +665,23 @@ function renderMasterPanel() {
         <div class="ac-panel" data-ac-panel="master" ${activeTab === 'master' ? '' : 'hidden'}>
             <div class="ac-callout">
                 <strong>Production Bible master list (§20)</strong>
-                Canonical variable names across GCP, GitHub, Vercel, Expo/EAS, Supabase, MongoDB Atlas, Brevo, Azure, Stripe, RevenueCat, Cloudflare, Firebase, and Apple/Google stores.
-                Rows marked <em>verify manually</em> are not pulled automatically — check the platform column in GitHub/Vercel/EAS/Supabase consoles.
+                Live status from the selected environment's API: finance-ai-dashboard loaded config,
+                GCP Secret Manager (<code>mintraiq-staging</code> / <code>mintraiq-production</code>),
+                and GitHub Environment vars/secrets (names only for secrets).
+                Vercel, EAS, Supabase, and Atlas rows still require manual verification.
             </div>
             <div class="ac-master-toolbar">
                 <label for="acMasterFilter">Filter</label>
                 <select id="acMasterFilter" data-ac-master-filter>
                     <option value="all" ${masterFilter === 'all' ? 'selected' : ''}>All (${MASTER_TOTAL})</option>
-                    <option value="missing" ${masterFilter === 'missing' ? 'selected' : ''}>Dashboard missing (${liveMissingCount})</option>
-                    <option value="live" ${masterFilter === 'live' ? 'selected' : ''}>Dashboard live-tracked (${MASTER_TOTAL - manualCount})</option>
+                    <option value="missing" ${masterFilter === 'missing' ? 'selected' : ''}>Missing / not found (${liveMissingCount})</option>
+                    <option value="live" ${masterFilter === 'live' ? 'selected' : ''}>Auto-tracked (${liveTrackedCount})</option>
                     <option value="manual" ${masterFilter === 'manual' ? 'selected' : ''}>Manual only (${manualCount})</option>
                 </select>
             </div>
             <div class="ac-stats" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:14px">
                 <div class="ac-stat"><div class="ac-stat-value">${MASTER_TOTAL}</div><div class="ac-stat-label">Total vars</div></div>
-                <div class="ac-stat"><div class="ac-stat-value is-danger">${liveMissingCount}</div><div class="ac-stat-label">Dashboard missing (live)</div></div>
+                <div class="ac-stat"><div class="ac-stat-value is-danger">${liveMissingCount}</div><div class="ac-stat-label">Missing (live)</div></div>
                 <div class="ac-stat"><div class="ac-stat-value is-warning">${manualCount}</div><div class="ac-stat-label">Manual verification</div></div>
             </div>
             <table class="ac-table ac-table--master">

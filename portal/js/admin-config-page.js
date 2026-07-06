@@ -494,7 +494,7 @@ function renderLivePanel() {
         <div class="ac-panel" data-ac-panel="live" ${activeTab === 'live' ? '' : 'hidden'}>
             <div class="ac-callout">
                 <strong>Live configuration — ${escapeHtml(envLabel(activeEnv || 'staging'))}</strong>
-                Reported directly by the finance API for this environment. Shows whether each key is populated — never the value.
+                Reported directly by the finance API for this environment. Use <strong>Reveal</strong> on each row to view the loaded value (requires verified session).
             </div>
             <div data-live-body><div class="ac-loading"><i class="fas fa-spinner fa-spin"></i> Loading live config…</div></div>
         </div>`;
@@ -505,14 +505,27 @@ function renderInventory(data) {
     const vars = Array.isArray(data.variables) ? data.variables : [];
     const stat = (value, label, cls = '') =>
         `<div class="ac-stat"><div class="ac-stat-value ${cls}">${value}</div><div class="ac-stat-label">${label}</div></div>`;
-    const rows = vars.map((v) => `
-        <tr>
-            <td><span class="ac-code">${escapeHtml(v.name)}</span></td>
+    const rows = vars.map((v) => {
+        const name = String(v.name || '');
+        const canReveal = Boolean(v.populated);
+        return `
+        <tr data-ac-row="${escapeHtml(name)}">
+            <td><span class="ac-code">${escapeHtml(name)}</span></td>
             <td>${v.secret ? '<span class="ac-tag">secret</span>' : '<span class="ac-tag">public</span>'}</td>
             <td>${v.populated
                 ? '<span class="ac-status-ok"><span class="ac-dot is-success"></span>configured</span>'
                 : '<span class="ac-status-miss"><span class="ac-dot is-danger"></span>missing</span>'}</td>
-        </tr>`).join('');
+            <td class="ac-value-cell">
+                <span class="ac-value-mask" data-ac-value-mask="${escapeHtml(name)}">${v.secret ? '••••••••' : '—'}</span>
+                <code class="ac-value-plain" data-ac-value-plain="${escapeHtml(name)}" hidden></code>
+            </td>
+            <td class="ac-actions-cell">
+                ${canReveal
+                    ? `<button type="button" class="ac-btn ac-btn-ghost ac-reveal-btn" data-ac-reveal="${escapeHtml(name)}" title="Reveal value">Reveal</button>`
+                    : '<span class="ac-muted">—</span>'}
+            </td>
+        </tr>`;
+    }).join('');
     return `
         <div class="ac-stats" style="grid-template-columns:repeat(3,minmax(0,1fr))">
             ${stat(String(summary.total ?? vars.length), 'Tracked keys')}
@@ -520,7 +533,7 @@ function renderInventory(data) {
             ${stat(String(summary.missing ?? 0), 'Missing', (summary.missing ? 'is-danger' : 'is-success'))}
         </div>
         <table class="ac-table">
-            <thead><tr><th>Key</th><th>Type</th><th>Status</th></tr></thead>
+            <thead><tr><th>Key</th><th>Type</th><th>Status</th><th>Value</th><th></th></tr></thead>
             <tbody>${rows}</tbody>
         </table>`;
 }
@@ -707,6 +720,8 @@ async function loadLiveInventory(base, token) {
         const headers = token ? { 'X-Admin-Step-Up': token } : undefined;
         const data = await apiRequest(base, '/v1/admin/config/inventory', { headers });
         panel.innerHTML = renderInventory(data);
+        panel.dataset.liveBase = base;
+        panel.dataset.liveToken = token || '';
     } catch (e) {
         if (e.status === 401) {
             clearStepUp(activeEnv);
@@ -716,6 +731,67 @@ async function loadLiveInventory(base, token) {
         panel.innerHTML =
             `<div class="ac-callout is-warning"><strong>Couldn't load live config</strong>${escapeHtml(e.message || '')}. ` +
             `If you're viewing a different environment, ensure its API base is configured and its CORS_ALLOW_ORIGINS permits this portal.</div>`;
+    }
+}
+
+async function revealConfigValue(name) {
+    const panel = document.querySelector('[data-ac-panel="live"] [data-live-body]');
+    if (!panel || !name) return;
+    const base = panel.dataset.liveBase || apiBaseFor(activeEnv);
+    const token = panel.dataset.liveToken || (getStepUp(activeEnv) && getStepUp(activeEnv).token) || '';
+    const btn = document.querySelector(`[data-ac-reveal="${CSS.escape(name)}"]`);
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Loading…';
+    }
+    try {
+        const headers = token ? { 'X-Admin-Step-Up': token } : undefined;
+        const data = await apiRequest(
+            base,
+            `/v1/admin/config/value/${encodeURIComponent(name)}`,
+            { headers },
+        );
+        const mask = document.querySelector(`[data-ac-value-mask="${CSS.escape(name)}"]`);
+        const plain = document.querySelector(`[data-ac-value-plain="${CSS.escape(name)}"]`);
+        if (plain) {
+            plain.textContent = data.value || '';
+            plain.hidden = false;
+        }
+        if (mask) mask.hidden = true;
+        if (btn) {
+            btn.textContent = 'Hide';
+            btn.disabled = false;
+            btn.dataset.acHide = name;
+            btn.removeAttribute('data-ac-reveal');
+        }
+    } catch (e) {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Reveal';
+        }
+        const row = document.querySelector(`[data-ac-row="${CSS.escape(name)}"] .ac-value-cell`);
+        if (row) {
+            row.insertAdjacentHTML(
+                'beforeend',
+                `<div class="ac-reveal-error">${escapeHtml(e.message || 'Could not reveal value.')}</div>`,
+            );
+        }
+    }
+}
+
+function hideConfigValue(name) {
+    const mask = document.querySelector(`[data-ac-value-mask="${CSS.escape(name)}"]`);
+    const plain = document.querySelector(`[data-ac-value-plain="${CSS.escape(name)}"]`);
+    if (plain) {
+        plain.textContent = '';
+        plain.hidden = true;
+    }
+    if (mask) mask.hidden = false;
+    const btn = document.querySelector(`[data-ac-hide="${CSS.escape(name)}"]`);
+    if (btn) {
+        btn.textContent = 'Reveal';
+        btn.dataset.acReveal = name;
+        btn.removeAttribute('data-ac-hide');
     }
 }
 
@@ -764,6 +840,17 @@ function ensureDelegation() {
         if (target.closest('[data-ac-resend]')) { void sendOtp(); return; }
         if (target.closest('[data-ac-verify-otp]')) { void verifyOtp(); return; }
         if (target.closest('[data-ac-lock]')) { clearStepUp(activeEnv); void render(); return; }
+
+        const revealBtn = target.closest('[data-ac-reveal]');
+        if (revealBtn && root.contains(revealBtn)) {
+            void revealConfigValue(revealBtn.getAttribute('data-ac-reveal'));
+            return;
+        }
+        const hideBtn = target.closest('[data-ac-hide]');
+        if (hideBtn && root.contains(hideBtn)) {
+            hideConfigValue(hideBtn.getAttribute('data-ac-hide'));
+            return;
+        }
 
         const tabBtn = target.closest('[data-ac-tab]');
         if (tabBtn && root.contains(tabBtn)) { switchTab(root, tabBtn.getAttribute('data-ac-tab')); return; }

@@ -178,6 +178,43 @@
     background: transparent;
     color: var(--text-secondary);
 }
+
+.ac-value-cell {
+    max-width: 420px;
+    word-break: break-all;
+}
+
+.ac-value-mask {
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+}
+
+.ac-value-plain {
+    display: block;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-size: 0.82rem;
+    color: var(--accent-green);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 6px 8px;
+    border-radius: 8px;
+}
+
+.ac-actions-cell {
+    width: 96px;
+    text-align: right;
+}
+
+.ac-reveal-btn {
+    padding: 6px 12px;
+    font-size: 0.82rem;
+}
+
+.ac-reveal-error {
+    color: #ff6b7a;
+    font-size: 0.78rem;
+    margin-top: 6px;
+}
 .ac-btn-ghost:hover:not(:disabled) { color: var(--text-primary); }
 
 /* --- Live inventory statuses --- */

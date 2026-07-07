@@ -22,6 +22,7 @@ import { CONFIG } from './config.js';
 import { createLogtoClient, getAccessTokenOrReauth } from './logto-client.js';
 import { claimPageScript } from './page-script-guard.js';
 import { MASTER_MATRIX } from './admin-config-master-matrix.js';
+import { FIREBASE_HOSTING } from './service-endpoints.js';
 
 const NAV_ID = 'admin-config';
 const STORAGE_KEY = 'mintraiq_prod_checklist_v1';
@@ -61,7 +62,7 @@ const SERVICES = [
     { service: 'RevenueCat', repos: 'dashboard, mobile', keys: 'REVENUECAT_WEBHOOK_AUTH, EXPO_PUBLIC_REVENUECAT_IOS/ANDROID_API_KEY', tone: 'neutral' },
     { service: 'Brevo (email)', repos: 'lead-agent (active), dashboard', keys: 'BREVO_API_KEY, BREVO_SENDER_EMAIL/NAME, BREVO_TEMPLATE_ID_*, BREVO_WAITLIST_ID', tone: 'neutral' },
     { service: 'Cloudflare Turnstile', repos: 'lead-agent', keys: 'CAPTCHA_SECRET_KEY, TURNSTILE_VERIFY_URL, VITE_TURNSTILE_SITE_KEY', tone: 'neutral' },
-    { service: 'Firebase Hosting', repos: 'lead-agent (frontend)', keys: 'FIREBASE_HOSTING_TARGET, FIREBASE_HOSTING_SITE_ID, {ENV}_FIREBASE_SERVICE_ACCOUNT', tone: 'neutral' },
+    { service: 'Firebase Hosting', repos: 'API proxies + survey SPA', keys: 'app / forecasting / scanner / agent / survey custom domains — see Service inventory tab', tone: 'neutral' },
     { service: 'Grafana Cloud / Loki', repos: 'dashboard (observability)', keys: 'LOKI_URL, LOKI_USER, LOKI_API_KEY, OBS_ENVIRONMENT', tone: 'danger' },
     { service: 'Expo / EAS', repos: 'mobile', keys: 'EXPO_TOKEN, EXPO_PUBLIC_EAS_PROJECT_ID, APP_VARIANT, eas.json projectId/ascAppId', tone: 'neutral' },
     { service: 'Apple App Store Connect', repos: 'mobile', keys: 'ascAppId 6782332605 (prod) / 6782330914 (staging), bundle com.mintraiq.app', tone: 'neutral' },
@@ -778,6 +779,15 @@ function renderServicesPanel() {
             <td class="ac-muted">${escapeHtml(s.repos)}</td>
             <td><span class="ac-code">${escapeHtml(s.keys)}</span></td>
         </tr>`).join('');
+
+    const fbRows = (env) => (FIREBASE_HOSTING[env] || []).map((row) => `
+        <tr>
+            <td><span class="ac-code">${escapeHtml(row.siteId)}</span></td>
+            <td><a href="${escapeHtml(row.customDomain)}" target="_blank" rel="noopener">${escapeHtml(row.customDomain)}</a></td>
+            <td class="ac-muted"><a href="${escapeHtml(row.webApp)}" target="_blank" rel="noopener">${escapeHtml(row.webApp)}</a></td>
+            <td class="ac-muted">${escapeHtml(row.backend)}</td>
+        </tr>`).join('');
+
     return `
         <div class="ac-panel" data-ac-panel="services" ${activeTab === 'services' ? '' : 'hidden'}>
             <div class="ac-callout is-warning">
@@ -787,6 +797,18 @@ function renderServicesPanel() {
             <table class="ac-table">
                 <thead><tr><th>Service</th><th>Used by</th><th>Key names</th></tr></thead>
                 <tbody>${rows}</tbody>
+            </table>
+            <h3 class="ac-section-title" style="margin:24px 0 12px">Firebase Hosting → custom domains</h3>
+            <p class="ac-muted" style="margin:0 0 12px">Target custom domains (DNS via Firebase Console). <code>*.web.app</code> fallbacks work until DNS propagates.</p>
+            <h4 class="ac-group-title">Production</h4>
+            <table class="ac-table ac-table--master" style="margin-bottom:20px">
+                <thead><tr><th>Site ID</th><th>Custom domain</th><th>Firebase URL</th><th>Backend</th></tr></thead>
+                <tbody>${fbRows('production')}</tbody>
+            </table>
+            <h4 class="ac-group-title">Staging</h4>
+            <table class="ac-table ac-table--master">
+                <thead><tr><th>Site ID</th><th>Custom domain</th><th>Firebase URL</th><th>Backend</th></tr></thead>
+                <tbody>${fbRows('staging')}</tbody>
             </table>
         </div>`;
 }

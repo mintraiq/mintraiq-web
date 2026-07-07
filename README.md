@@ -99,16 +99,32 @@ Open `http://localhost:8080/portal/index.html`.
 2. In [Vercel](https://vercel.com), **Add New Project** → **Import** the repository. Use the **repository root** as the project root (no subdirectory).
 3. **Framework Preset:** Other (or leave default). Vercel reads **`vercel.json`**: install runs **`npm install`**, build runs **`npm run build:env`**, which generates **`config/runtime-env.js`** from environment variables.
 4. **Output:** Static files are served from the repo root (same as local layout: `intro.html`, `portal/`, `legacy/pages/`, etc.).
-5. **Environment variables** (Project → Settings → Environment Variables). Add at least the **`PUBLIC_*`** keys from **`env.public.example`** for Production (and Preview if you want preview deploys to hit a staging API):
+5. **Environment variables** (Project → Settings → Environment Variables). Vercel runs `npm run build` → `build:env`, which bakes **`PUBLIC_*`** into `config/runtime-env.js`. Copy from **`.env.vars`** / **`env.public.example`**. Set **Production** and **Preview** as needed:
 
-   | Variable | Example |
-   |----------|---------|
-   | `PUBLIC_LOGTO_ENDPOINT` | `https://your-tenant.logto.app` |
-   | `PUBLIC_LOGTO_APP_ID` | Your Logto SPA app id |
-   | `PUBLIC_FINANCE_API_BASE` | `https://api.yourdomain.com/api` |
-   | `PUBLIC_FINANCE_API_RESOURCE` | Same as FastAPI `api_identifier` |
-   | `PUBLIC_LEGACY_FLASK_BASE` | Only if you use `legacy/pages` against Flask (tunnel URL ok) |
-   | `PUBLIC_SIGN_IN_REDIRECT_URI` | `https://your-project.vercel.app/portal/callback.html` |
+   | Variable | Production example | Staging / Preview example |
+   |----------|----------------------|---------------------------|
+   | `PUBLIC_LOGTO_ENDPOINT` | `https://your-tenant.logto.app` | same or staging tenant |
+   | `PUBLIC_LOGTO_APP_ID` | Logto SPA app id | staging app id |
+   | `PUBLIC_FINANCE_API_BASE` | `https://app.mintraiq.com/api` | `https://staging-app.mintraiq.com/api` |
+   | `PUBLIC_FINANCE_API_BASE_STAGING` | — | `https://staging-app.mintraiq.com/api` |
+   | `PUBLIC_FINANCE_API_BASE_PROD` | `https://app.mintraiq.com/api` | — |
+   | `PUBLIC_FINANCE_API_RESOURCE` | FastAPI `api_identifier` | same |
+   | `PUBLIC_FORECAST_API_BASE_PROD` | `https://forecasting.mintraiq.com` | — |
+   | `PUBLIC_FORECAST_API_BASE_STAGING` | — | `https://staging-forecasting.mintraiq.com` |
+   | `PUBLIC_AGENT_API_BASE_PROD` | `https://agent.mintraiq.com` | — |
+   | `PUBLIC_AGENT_API_BASE_STAGING` | — | `https://staging-agent.mintraiq.com` |
+   | `PUBLIC_SURVEY_URL_PROD` | `https://survey.mintraiq.com` | — |
+   | `PUBLIC_SURVEY_URL_STAGING` | — | `https://staging-survey.mintraiq.com` |
+   | `PUBLIC_OCR_SCANNER_API_URL` | — | `https://staging-scanner.mintraiq.com/ocr/scanner` |
+   | `PUBLIC_OCR_SCANNER_API_URL_PROD` | `https://scanner.mintraiq.com/ocr/scanner` | — |
+   | `PUBLIC_LEGACY_FLASK_BASE` | `https://app.mintraiq.com` | `https://staging-app.mintraiq.com` |
+   | `PUBLIC_FASTAPI_DOCS_URL` | `https://app.mintraiq.com/api/docs` | `https://staging-app.mintraiq.com/api/docs` |
+   | `PUBLIC_SIGN_IN_REDIRECT_URI` | `https://mintraiq.com/portal/callback.html` | preview URL if needed |
+   | `PUBLIC_STRIPE_PUBLISHABLE_KEY` | `pk_live_…` | `pk_test_…` |
+   | `PUBLIC_FEATURE_RECEIPT_SCANNER` | `true` | `true` |
+   | `PUBLIC_REQUIRE_BILLING_PAYWALL` | `true` | `true` |
+
+   **Primary deploy path:** Vercel Git integration (push to connected branch → auto build). GitHub Actions CD (`DEPLOY_TO_VERCEL=true`) is optional.
 
 6. **Redeploy** after changing env vars: Deployments → **Redeploy** (or push a commit). The build must run so **`config/runtime-env.js`** is regenerated.
 7. **Logto Console:** Add **Redirect URI** `https://<your-vercel-domain>/portal/callback.html` and **allowed CORS / post-logout** URLs for your production site origin.

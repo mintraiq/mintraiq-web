@@ -4,6 +4,8 @@
  * financeApiResource MUST match `settings.api_identifier` in your FastAPI `config`:
  * finance_api.validate_token() decodes JWT with audience=API_IDENTIFIER (Logto API resource).
  *
+ * Service URLs (custom domains): see portal/js/service-endpoints.js and PUBLIC_* in .env.vars.
+ *
  * Override for local dev (before module scripts):
  *   <script>window.__MINTRAIQ_ENV__ = {
  *     financeApiBase: "http://localhost:5000/api",
@@ -14,6 +16,7 @@
  *     ocrScannerApiResource: "" // optional Logto API resource for OCR JWT; defaults to financeApiResource
  *   };</script>
  */
+import { CUSTOM_DOMAINS } from './service-endpoints.js';
 /**
  * Repo fallbacks when `config/runtime-env.js` is missing (e.g. fresh clone before `npm run build:env`).
  * Deployed builds should set PUBLIC_* on Vercel; those values win via `window.__MINTRAIQ_ENV__`.
@@ -42,16 +45,22 @@ const defaults = {
      */
     logtoRegisterUrl: '',
     financeApiBase: 'http://localhost:5000/api',
+    financeApiBaseStaging: CUSTOM_DOMAINS.staging.appApi,
+    financeApiBaseProd: CUSTOM_DOMAINS.production.appApi,
+    forecastApiBaseStaging: CUSTOM_DOMAINS.staging.forecasting,
+    forecastApiBaseProd: CUSTOM_DOMAINS.production.forecasting,
+    agentApiBaseStaging: CUSTOM_DOMAINS.staging.agent,
+    agentApiBaseProd: CUSTOM_DOMAINS.production.agent,
+    surveyUrlStaging: CUSTOM_DOMAINS.staging.survey,
+    surveyUrlProd: CUSTOM_DOMAINS.production.survey,
+    legacyFlaskBase: 'http://127.0.0.1:5000',
+    fastApiDocsUrl: 'http://localhost:5000/api/docs',
     /**
      * Optional explicit per-environment finance API bases for the admin
      * Config & Secrets console environment switcher. When unset, the console
      * falls back to `financeApiBase` (this deployment's own environment).
      * Set via PUBLIC_FINANCE_API_BASE_STAGING / _PROD at build time.
      */
-    financeApiBaseStaging: '',
-    financeApiBaseProd: '',
-    /** Required for Bearer tokens accepted by finance_api.validate_token (JWT aud = API_IDENTIFIER). */
-    /** Must match FastAPI `api_identifier` / Logto API resource (see config.json). */
     financeApiResource: 'https://api.finance-ai.suite.com',
     /**
      * Optional. If set, signIn() uses this exact URL — it must match a Redirect URI in Logto Console.
@@ -64,7 +73,8 @@ const defaults = {
      */
     featureReceiptScanner: false,
     /** Full URL for dedicated OCR service (not financeApiBase). */
-    ocrScannerApiUrl: 'https://ocr-dev.mintraiq.com/ocr/scanner',
+    ocrScannerApiUrl: CUSTOM_DOMAINS.staging.scannerOcr,
+    ocrScannerApiUrlProd: CUSTOM_DOMAINS.production.scannerOcr,
     /** If set, Logto access token is requested for this API resource; otherwise financeApiResource is used. */
     ocrScannerApiResource: '',
     /**

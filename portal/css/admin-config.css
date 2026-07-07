@@ -488,6 +488,13 @@ code, .ac-code {
 }
 .ac-group-title.is-accent { color: var(--accent-green); }
 
+.ac-section-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
 .ac-group-progress {
     margin-left: auto;
     font-size: 0.78rem;

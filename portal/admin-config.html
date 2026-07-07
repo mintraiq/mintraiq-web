@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="turbo-cache-control" content="no-cache">
+    <title>MintrAIQ — Config &amp; Secrets</title>
+    <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="./css/portal-app.css">
+    <link rel="stylesheet" href="./css/admin-config.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="../config/runtime-env.js"></script>
+    <script src="./env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js"></script>
+    <meta name="view-transition" content="same-origin">
+</head>
+<body data-portal-nav="admin-config">
+    <div class="dashboard-container">
+        <div id="portal-sidebar-region" data-turbo-permanent>
+            <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+        </div>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <div class="main-wrap">
+            <div class="mobile-bar">
+                <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+                <span style="font-weight:600;color:var(--accent-green)">MintrAIQ</span>
+            </div>
+            <main class="main-content">
+                <header class="top-header">
+                    <div class="header-left">
+                        <h2 style="margin:0;font-size:1.75rem">Config &amp; secrets registry</h2>
+                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">
+                            Production Bible master checklist — all variables across GCP, GitHub, Vercel, Expo/EAS, Supabase, MongoDB, Brevo, Azure, Stripe, and more. Live status from finance-api where available.
+                        </p>
+                    </div>
+                </header>
+                <div id="adminConfigRoot" data-admin-config-root style="min-height:420px"></div>
+            </main>
+        </div>
+    </div>
+    <script type="module" src="./js/portal-nav.js"></script>
+    <script type="module" src="./js/portal-page-boot.js"></script>
+    <script type="module" src="./js/admin-config-page.js"></script>
+</body>
+</html>

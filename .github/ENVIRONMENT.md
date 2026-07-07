@@ -22,6 +22,8 @@ gh variable set -f .env.vars --env PROD
 
 See `.env.vars` — maps 1:1 to `PUBLIC_*` in `.github/workflows/cd.yml`.
 
-Deploy: **Actions → CD - Build & Deploy Portal**
+Deploy: **Vercel Git integration** (recommended — connect repo; each push runs `npm run build` per `vercel.json`).
 
-Or use Vercel git integration with the same `PUBLIC_*` vars in the Vercel dashboard.
+Optional: **Actions → CD - Build & Deploy Portal** when `DEPLOY_TO_VERCEL=true` and Vercel secrets are set.
+
+Set the same **`PUBLIC_*`** keys in **Vercel → Project → Settings → Environment Variables** (Production / Preview). See README **Deploy to Vercel** for the full Firebase custom-domain table.

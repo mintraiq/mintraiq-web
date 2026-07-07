@@ -51,6 +51,17 @@
         <p>Securely access your financial &ldquo;Game Plan.&rdquo; We use bank-grade authentication to keep your data encrypted and private. One tap to pick up exactly where you left off.</p>
         <p style="margin-top:-8px;font-size:0.86rem;color:#9edfc1;">Mintr Tip: I&rsquo;m standing by to help you crunch the numbers as soon as you&rsquo;re in! 🤖</p>
         <button type="button" id="signIn">Secure Sign In</button>
+        <!-- Passwordless email OTP — first-class option (no password stored). -->
+        <div id="otpBlock">
+            <div class="email-divider">or continue with email</div>
+            <input id="otpEmailInput" class="email-input" type="email" placeholder="Email" autocomplete="email" />
+            <button type="button" id="otpSendBtn">Email me a code</button>
+            <div id="otpCodeRow" style="display:none;">
+                <input id="otpCodeInput" class="email-input" type="text" inputmode="numeric" maxlength="6" placeholder="6-digit code" autocomplete="one-time-code" />
+                <button type="button" id="otpVerifyBtn">Verify &amp; sign in</button>
+                <p style="text-align:center;"><a href="#" id="otpResend">Resend code</a> &middot; <a href="#" id="otpChange">Use a different email</a></p>
+            </div>
+        </div>
         <!-- Email/password (feature-flagged: hidden unless authEmailPasswordEnabled). Revealed by index.js. -->
         <div id="emailAuthBlock" style="display:none;">
             <div class="email-divider">or</div>

@@ -2,7 +2,6 @@ import { createLogtoClient } from './logto-client.js';
 import { bootstrapSession } from './bootstrap.js';
 import { isBootstrapOnboardingComplete } from './config.js';
 import { visitWithTurbo } from './turbo-visit.js';
-import { claimPageScript } from './page-script-guard.js';
 import {
     agreeToLegalTerms,
     clearLegalContentState,
@@ -105,8 +104,15 @@ function goToNextSetupStep(bootstrap) {
     visitWithTurbo(target, { replace: true });
 }
 
-async function main() {
-    if (!claimPageScript('portal-onboarding-main')) return;
+let onboardingAbort = null;
+
+async function bootOnboardingPage() {
+    if (document.body?.dataset?.onboardingPage !== '1') return;
+    onboardingAbort?.abort();
+    const ac = new AbortController();
+    onboardingAbort = ac;
+    const { signal } = ac;
+
     const client = createLogtoClient();
     if (!(await client.isAuthenticated())) {
         window.location.replace('./index.html');
@@ -183,7 +189,7 @@ async function main() {
         btn.disabled = !cb.checked;
         btn.style.opacity = cb.checked ? '1' : '0.55';
     };
-    cb.addEventListener('change', syncBtn);
+    cb.addEventListener('change', syncBtn, { signal });
     syncBtn();
 
     btn.addEventListener('click', async () => {
@@ -208,10 +214,20 @@ async function main() {
             btn.disabled = !cb.checked;
             syncBtn();
         }
-    });
+    }, { signal });
 }
 
-main().catch((e) => {
+void bootOnboardingPage().catch((e) => {
     showTermsPhase(false);
     status(String(e?.message || 'Could not open onboarding. Please refresh and try again.'));
 });
+
+if (!window.__mintOnboardingTurboLoad) {
+    window.__mintOnboardingTurboLoad = true;
+    document.addEventListener('turbo:load', () => {
+        void bootOnboardingPage().catch((e) => {
+            showTermsPhase(false);
+            status(String(e?.message || 'Could not open onboarding. Please refresh and try again.'));
+        });
+    });
+}

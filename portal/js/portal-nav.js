@@ -51,7 +51,23 @@ async function resolveAdminNavVisible(client) {
     }
 }
 
-function workspaceNavItems(profile = null, adminVisible = false) {
+async function resolveSecurityNavVisible(client) {
+    if (!client) return false;
+    try {
+        const token = await getAccessTokenOrReauth(client, CONFIG.financeApiResource);
+        const base = CONFIG.financeApiBase.replace(/\/$/, '');
+        const res = await fetch(`${base}/v1/security/findings/access`, {
+            headers: { Accept: 'application/json', Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) return false;
+        const data = await res.json();
+        return Boolean(data.allowed);
+    } catch {
+        return false;
+    }
+}
+
+function workspaceNavItems(profile = null, adminVisible = false, securityVisible = false) {
     let items = WORKSPACE.filter(
         (item) => item.id !== 'receipt-scanner' || isFeatureReceiptScannerEnabled(),
     );
@@ -62,6 +78,12 @@ function workspaceNavItems(profile = null, adminVisible = false) {
         items = [
             ...items,
             { id: 'ml-admin', href: './ml-admin.html', icon: 'fa-microchip', label: 'ML admin' }
+        ];
+    }
+    if (securityVisible) {
+        items = [
+            ...items,
+            { id: 'security-findings', href: './security-findings.html', icon: 'fa-shield-virus', label: 'Security findings' }
         ];
     }
     return items;
@@ -183,11 +205,13 @@ export async function mountPortalNav() {
     }
 
     const profile = client ? await resolveEntitlementProfile(client) : null;
-    const adminVisible = client ? await resolveAdminNavVisible(client) : false;
-    const sig = `${portalNavSignature()}|tier:${profile?.effective_tier_id || 'unknown'}|admin:${adminVisible ? '1' : '0'}`;
+    const [adminVisible, securityVisible] = client
+        ? await Promise.all([resolveAdminNavVisible(client), resolveSecurityNavVisible(client)])
+        : [false, false];
+    const sig = `${portalNavSignature()}|tier:${profile?.effective_tier_id || 'unknown'}|admin:${adminVisible ? '1' : '0'}|sec:${securityVisible ? '1' : '0'}`;
     if (root.dataset.portalNavSig !== sig) {
         root.dataset.portalNavSig = sig;
-        const links = workspaceNavItems(profile, adminVisible)
+        const links = workspaceNavItems(profile, adminVisible, securityVisible)
             .map((item) => {
                 return `<a href="${escapeAttr(item.href)}" class="menu-item" data-nav-id="${escapeAttr(item.id)}"><i class="fas ${item.icon}"></i> ${item.label}</a>`;
             })

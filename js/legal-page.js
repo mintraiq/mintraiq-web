@@ -61,7 +61,15 @@ async function loadLegalPage() {
             metaDesc.setAttribute('content', `${pageTitle} for MintrAIQ — AI Financial Mentor (New Zealand).`);
         }
 
-        renderLegalFormatted(bodyEl, doc.content);
+        // The page already renders the document title as <h1>; drop a leading
+        // "# <title>" line from the body so it isn't shown twice.
+        let content = String(doc.content);
+        const firstLineMatch = /^#\s+(.+)\n?/.exec(content);
+        if (firstLineMatch && firstLineMatch[1].trim().toLowerCase() === pageTitle.trim().toLowerCase()) {
+            content = content.slice(firstLineMatch[0].length);
+        }
+
+        renderLegalFormatted(bodyEl, content);
         setStatus('');
     } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unable to load legal content.';

@@ -125,6 +125,17 @@ body {
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
 }
 
+.legal-body .legal-tos-heading {
+    color: var(--text-primary, #fff);
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 22px 0 10px;
+}
+
+.legal-body .legal-tos-heading:first-child {
+    margin-top: 0;
+}
+
 .legal-body .legal-tos-para {
     color: var(--text-secondary);
     font-size: 0.95rem;

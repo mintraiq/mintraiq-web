@@ -2411,6 +2411,16 @@ body[data-portal-nav="transactions"] .tx-action-btn--sync:hover {
     padding: 12px;
 }
 
+.legal-tos-host .legal-tos-heading {
+    margin: 18px 0 8px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.legal-tos-host .legal-tos-heading:first-child {
+    margin-top: 0;
+}
+
 .legal-tos-host .legal-tos-para {
     margin: 0 0 10px;
     line-height: 1.55;

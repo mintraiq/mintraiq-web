@@ -3,11 +3,34 @@
  * Handles multi-line text and single-line numbered clauses like "1. Foo 2. Bar".
  */
 
+/** Append text to el, rendering **bold** spans as <strong> (DOM APIs only). */
+function appendInlineText(el, text) {
+    const parts = String(text).split(/\*\*([^*]+)\*\*/);
+    for (let i = 0; i < parts.length; i += 1) {
+        if (!parts[i]) continue;
+        if (i % 2 === 1) {
+            const strong = document.createElement('strong');
+            strong.textContent = parts[i];
+            el.appendChild(strong);
+        } else {
+            el.appendChild(document.createTextNode(parts[i]));
+        }
+    }
+}
+
 function appendParagraph(container, text) {
     const p = document.createElement('p');
     p.className = 'legal-tos-para';
-    p.textContent = text;
+    appendInlineText(p, text);
     container.appendChild(p);
+}
+
+function appendHeading(container, level, text) {
+    // Body headings sit under the page <h1>, so "#" maps to <h2> and deeper levels to <h3>.
+    const h = document.createElement(level <= 1 ? 'h2' : 'h3');
+    h.className = 'legal-tos-heading';
+    appendInlineText(h, text);
+    container.appendChild(h);
 }
 
 function appendList(container, ordered, items) {
@@ -16,11 +39,11 @@ function appendList(container, ordered, items) {
     for (const item of items) {
         const li = document.createElement('li');
         if (item && typeof item === 'object') {
-            li.textContent = item.text;
+            appendInlineText(li, item.text);
             // Preserve the source number so isolated "N." headings don't reset to 1.
             if (item.value != null) li.value = item.value;
         } else {
-            li.textContent = item;
+            appendInlineText(li, item);
         }
         list.appendChild(li);
     }
@@ -62,6 +85,13 @@ export function renderLegalFormatted(container, text, emptyMessage) {
     while (i < lines.length) {
         const line = lines[i].trim();
         if (!line) {
+            i += 1;
+            continue;
+        }
+
+        const heading = /^(#{1,6})\s+(.+)$/.exec(line);
+        if (heading) {
+            appendHeading(container, heading[1].length, heading[2].trim());
             i += 1;
             continue;
         }

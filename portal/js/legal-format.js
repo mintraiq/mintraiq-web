@@ -15,7 +15,13 @@ function appendList(container, ordered, items) {
     list.className = ordered ? 'legal-tos-list legal-tos-list--ordered' : 'legal-tos-list';
     for (const item of items) {
         const li = document.createElement('li');
-        li.textContent = item;
+        if (item && typeof item === 'object') {
+            li.textContent = item.text;
+            // Preserve the source number so isolated "N." headings don't reset to 1.
+            if (item.value != null) li.value = item.value;
+        } else {
+            li.textContent = item;
+        }
         list.appendChild(li);
     }
     container.appendChild(list);
@@ -76,13 +82,13 @@ export function renderLegalFormatted(container, text, emptyMessage) {
             continue;
         }
         if (numLine) {
-            const items = [numLine[2].trim()];
+            const items = [{ value: Number(numLine[1]), text: numLine[2].trim() }];
             i += 1;
             while (i < lines.length) {
                 const t = lines[i].trim();
                 const n = /^(\d+)[\.)]\s+(.+)$/.exec(t);
                 if (!n) break;
-                items.push(n[2].trim());
+                items.push({ value: Number(n[1]), text: n[2].trim() });
                 i += 1;
             }
             appendList(container, true, items);

@@ -87,6 +87,9 @@
         }
 
         .nav-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
             font-size: 1.25rem;
             font-weight: 800;
             letter-spacing: -0.02em;
@@ -96,6 +99,12 @@
 
         .nav-brand span {
             font-weight: 800;
+        }
+
+        .brand-leaf {
+            height: 28px;
+            width: auto;
+            flex-shrink: 0;
         }
 
         .nav-links {
@@ -700,7 +709,10 @@
 
     <div class="wrap">
         <header class="nav">
-            <a href="intro.html" class="nav-brand">Mintr<span class="gradient-text">AIQ</span></a>
+            <a href="intro.html" class="nav-brand">
+                <img src="assets/mintr-leaf-mark.png" alt="" aria-hidden="true" class="brand-leaf" width="19" height="28">
+                <span>Mintr<span class="gradient-text">AIQ</span></span>
+            </a>
             <div class="nav-links">
                 <a href="#product">Product</a>
                 <a href="#insights">Insights</a>

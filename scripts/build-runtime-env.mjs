@@ -39,6 +39,8 @@ const DEFAULT_PUBLIC_ENV = {
     forecastApiBaseProd: 'https://forecasting.mintraiq.com',
     agentApiBaseStaging: 'https://staging-agent.mintraiq.com',
     agentApiBaseProd: 'https://agent.mintraiq.com',
+    /** Survey site this deploy links to. Marketing links fall back to the prod URL in markup. */
+    surveyUrl: 'https://survey.mintraiq.com',
     surveyUrlStaging: 'https://staging-survey.mintraiq.com',
     surveyUrlProd: 'https://survey.mintraiq.com',
     financeApiResource: 'https://api.finance-ai.suite.com',
@@ -70,6 +72,7 @@ const PUBLIC_TO_ENV = {
     PUBLIC_FORECAST_API_BASE_PROD: 'forecastApiBaseProd',
     PUBLIC_AGENT_API_BASE_STAGING: 'agentApiBaseStaging',
     PUBLIC_AGENT_API_BASE_PROD: 'agentApiBaseProd',
+    PUBLIC_SURVEY_URL: 'surveyUrl',
     PUBLIC_SURVEY_URL_STAGING: 'surveyUrlStaging',
     PUBLIC_SURVEY_URL_PROD: 'surveyUrlProd',
     PUBLIC_FINANCE_API_RESOURCE: 'financeApiResource',

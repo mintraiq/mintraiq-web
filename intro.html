@@ -705,6 +705,7 @@
     <meta name="view-transition" content="same-origin">
     <script src="config/runtime-env.js"></script>
     <script src="js/env-banner.js"></script>
+    <script src="js/survey-link.js"></script>
 </head>
 <body>
     <div class="page-bg" aria-hidden="true"></div>
@@ -718,7 +719,7 @@
             <div class="nav-links">
                 <a href="#product">Product</a>
                 <a href="#insights">Insights</a>
-                <a href="https://survey.mintraiq.com">Survey</a>
+                <a href="https://survey.mintraiq.com" data-survey-link>Survey</a>
                 <a href="coming-soon.html?from=google-play" title="Coming soon">Play</a>
                 <a href="coming-soon.html?from=app-store" title="Coming soon">iOS</a>
                 <a href="mock-dashboard.html" class="btn btn-ghost" style="padding: 10px 18px;">Dashboard</a>
@@ -739,7 +740,7 @@
                 </p>
                 <div class="hero-ctas">
                     <a href="portal/join.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Start your 60-second setup</a>
-                    <a href="https://survey.mintraiq.com" class="btn btn-survey"><i class="fas fa-comment-dots"></i> Help shape Mintr</a>
+                    <a href="https://survey.mintraiq.com" data-survey-link class="btn btn-survey"><i class="fas fa-comment-dots"></i> Help shape Mintr</a>
                 </div>
                 <p style="margin-top: 20px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; color: var(--text-secondary);">MOBILE APPS COMING SOON</p>
                 <div class="hero-ctas" style="margin-top: 12px;">
@@ -862,7 +863,7 @@
         <section class="cta-strip" aria-labelledby="cta-strip-heading">
             <h2 id="cta-strip-heading">We&rsquo;re building this <span class="gradient-text">with you</span></h2>
             <p>Mintr is in early access. Tell us how you manage money today&mdash;your answers decide what we build next.</p>
-            <a href="https://survey.mintraiq.com" class="btn btn-survey"><i class="fas fa-comment-dots"></i> Take the 60-second survey</a>
+            <a href="https://survey.mintraiq.com" data-survey-link class="btn btn-survey"><i class="fas fa-comment-dots"></i> Take the 60-second survey</a>
         </section>
 
         <div class="footer-pill">
@@ -873,7 +874,7 @@
                 ·
                 <a href="privacy.html" data-turbo="false" style="color: var(--text-secondary); text-decoration: none; font-weight: 600;">Privacy</a>
                 ·
-                <a href="https://survey.mintraiq.com" style="color: var(--accent-purple); text-decoration: none; font-weight: 600;">Survey</a>
+                <a href="https://survey.mintraiq.com" data-survey-link style="color: var(--accent-purple); text-decoration: none; font-weight: 600;">Survey</a>
                 ·
                 <a href="play-store.html" style="color: var(--accent-green); text-decoration: none; font-weight: 600;">Google Play</a>
                 ·

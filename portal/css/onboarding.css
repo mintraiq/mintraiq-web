@@ -1,0 +1,273 @@
+/**
+ * Onboarding surfaces (.onb-*).
+ *
+ * Consumes ONLY the canonical --mintr-* tokens from portal-app.css, so these
+ * pages match mobile rather than the drifted legacy portal palette. Never use
+ * --bg-base / --mintr-neon / --accent-green here: those are the legacy set and
+ * several of them resolve through hardcoded fallbacks (#00ff9d, #2f80ed) that
+ * are a different colour again.
+ *
+ * Mobile-first, one deliberate breakpoint scale (not the portal's ad-hoc
+ * 480/520/560/640/720/880/900/1024 mix): single column, then a centred card
+ * from 720px. Type is fluid via clamp() so nothing needs a second breakpoint.
+ */
+
+/* Scoped reset. These pages deliberately don't load legacy/static-app/css/shell.css
+   (they are not the dashboard shell), and shell.css is where the global
+   `* { box-sizing: border-box; font-family: ... }` lives. Without this, every
+   card blows past the viewport: width:100% + 24px padding under content-box. */
+.onb-page,
+.onb-page *,
+.onb-page *::before,
+.onb-page *::after {
+    box-sizing: border-box;
+}
+
+.onb-page {
+    min-height: 100dvh;
+    background: var(--mintr-canvas);
+    color: var(--mintr-text);
+    /* These pages don't load legacy/static-app/css/shell.css (they are not the
+       dashboard shell), and shell.css is what sets the site font via `*`.
+       Without this the whole flow renders in the browser's default serif. */
+    font-family: 'Montserrat', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--mintr-space-6) var(--mintr-space-4) var(--mintr-space-12);
+}
+
+.onb-shell {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--mintr-space-6);
+}
+
+/* --- Progress ------------------------------------------------------------ */
+
+.onb-progress {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mintr-space-2);
+}
+
+.onb-progress-track {
+    height: 8px;
+    border-radius: var(--mintr-radius-pill);
+    background: var(--mintr-surface);
+    overflow: hidden;
+}
+
+.onb-progress-fill {
+    height: 100%;
+    border-radius: var(--mintr-radius-pill);
+    background: var(--mintr-accent);
+    transition: width 240ms ease-out;
+}
+
+.onb-progress-caption {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mintr-text-muted);
+}
+
+/* --- Header -------------------------------------------------------------- */
+
+.onb-title {
+    /* portal-app.css styles every bare h1/h2/h3 with the legacy accent green
+       plus a neon text-shadow. On a dashboard heading that reads as branding;
+       on a question it reads as an alert. Opt out explicitly — the class beats
+       the element selector. */
+    color: var(--mintr-text);
+    text-shadow: none;
+    font-size: clamp(1.5rem, 1.1rem + 2vw, 2rem);
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.onb-title:focus-visible {
+    outline: 2px solid var(--mintr-accent);
+    outline-offset: 4px;
+    border-radius: var(--mintr-radius-control);
+}
+
+/* The one line that answers "why are you asking?" before we ask. */
+.onb-subtitle {
+    font-size: clamp(0.9375rem, 0.9rem + 0.3vw, 1rem);
+    line-height: 1.55;
+    color: var(--mintr-text-muted);
+    margin: var(--mintr-space-2) 0 0;
+}
+
+/* --- Tap cards (the intake questions) ------------------------------------ */
+
+.onb-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mintr-space-3);
+}
+
+.onb-card {
+    /* Fitts's law: full-width target, comfortably above the 44px minimum. */
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    gap: var(--mintr-space-4);
+    width: 100%;
+    padding: var(--mintr-space-4) var(--mintr-space-6);
+    border: 1px solid var(--mintr-border);
+    border-radius: var(--mintr-radius-card);
+    background: var(--mintr-surface);
+    color: var(--mintr-text);
+    font: inherit;
+    font-size: 1rem;
+    text-align: left;
+    cursor: pointer;
+    /* The connect paths are <a> (real links — middle-click, open in new tab),
+       so undo the portal's link styling rather than give up the semantics. */
+    text-decoration: none;
+    transition: transform 140ms ease-out, border-color 140ms ease-out, background 140ms ease-out;
+}
+
+.onb-card:hover {
+    border-color: var(--mintr-accent);
+    background: var(--mintr-surface-raised);
+}
+
+.onb-card:active {
+    transform: scale(0.985);
+}
+
+.onb-card:focus-visible {
+    outline: 2px solid var(--mintr-accent);
+    outline-offset: 3px;
+}
+
+.onb-card[aria-checked='true'] {
+    border-color: var(--mintr-accent);
+    background: var(--mintr-accent-wash);
+}
+
+.onb-card-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+    flex: none;
+}
+
+.onb-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    /* A flex item won't shrink below its content width without this, so long
+       hints push the card past the viewport instead of wrapping. */
+    min-width: 0;
+}
+
+.onb-card-label {
+    font-weight: 600;
+}
+
+.onb-card-hint {
+    font-size: 0.8125rem;
+    color: var(--mintr-text-muted);
+}
+
+/* --- Actions ------------------------------------------------------------- */
+
+.onb-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mintr-space-3);
+}
+
+/* Von Restorff: exactly one primary action per screen. */
+.onb-primary {
+    min-height: 52px;
+    padding: var(--mintr-space-4) var(--mintr-space-6);
+    border: 0;
+    border-radius: var(--mintr-radius-control);
+    background: var(--mintr-accent);
+    color: #04140D;
+    font: inherit;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.onb-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.onb-primary:focus-visible {
+    outline: 2px solid var(--mintr-accent-strong);
+    outline-offset: 3px;
+}
+
+/* The escape hatch: always reachable, never competing for attention. */
+.onb-skip {
+    align-self: center;
+    padding: var(--mintr-space-3);
+    border: 0;
+    background: none;
+    color: var(--mintr-text-muted);
+    font: inherit;
+    font-size: 0.875rem;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.onb-skip:focus-visible {
+    outline: 2px solid var(--mintr-accent);
+    outline-offset: 2px;
+    border-radius: var(--mintr-radius-control);
+}
+
+.onb-error {
+    color: var(--mintr-danger);
+    font-size: 0.875rem;
+    min-height: 1.25rem;
+}
+
+.onb-hidden {
+    display: none !important;
+}
+
+/* --- Wider viewports ----------------------------------------------------- */
+
+@media (min-width: 720px) {
+    .onb-page {
+        justify-content: center;
+        padding: var(--mintr-space-12) var(--mintr-space-6);
+    }
+
+    .onb-shell {
+        background: var(--mintr-surface);
+        border: 1px solid var(--mintr-border);
+        border-radius: var(--mintr-radius-card);
+        padding: var(--mintr-space-8);
+    }
+
+    /* Cards sit on the shell, so raise them a step to keep the edge readable. */
+    .onb-card {
+        background: var(--mintr-surface-raised);
+    }
+}
+
+/* --- Reduced motion ------------------------------------------------------ */
+
+/* Motion here only ever confirms an action, so removing it costs nothing. */
+@media (prefers-reduced-motion: reduce) {
+    .onb-progress-fill,
+    .onb-card {
+        transition: none;
+    }
+
+    .onb-card:active {
+        transform: none;
+    }
+}

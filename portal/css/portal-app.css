@@ -29,6 +29,43 @@
     --accent-green: var(--mintr-neon);
     --text-primary: var(--text-main);
     --text-secondary: var(--text-muted);
+
+    /**
+     * Canonical Mintr tokens — the mirror of mobile's constants/mintrTheme.ts.
+     *
+     * Web and mobile drifted: the legacy vars above are a different green
+     * (#34d399 vs #10B981), a different canvas (#0b1120 vs #0B0F19) and a
+     * different border (#273548 vs #334155), and web has no radius or spacing
+     * scale at all. These are added under new names rather than by changing the
+     * legacy values, so nothing that renders today shifts by a pixel.
+     *
+     * ONLY the new onboarding surfaces (.onb-* in onboarding.css) consume these.
+     * Migrating the rest of this stylesheet onto them is a separate change with
+     * its own ADR — it is a large visual-regression surface and does not belong
+     * in an onboarding PR.
+     */
+    --mintr-canvas: #0B0F19;
+    --mintr-surface: #1E293B;
+    --mintr-surface-raised: #273449;
+    --mintr-border: #334155;
+    --mintr-accent: #10B981;
+    --mintr-accent-strong: #34D399;
+    --mintr-accent-wash: rgba(16, 185, 129, 0.12);
+    --mintr-text: #F8FAFC;
+    --mintr-text-muted: #94A3B8;
+    --mintr-danger: #F87171;
+
+    --mintr-radius-card: 20px;
+    --mintr-radius-control: 12px;
+    --mintr-radius-pill: 999px;
+
+    --mintr-space-1: 4px;
+    --mintr-space-2: 8px;
+    --mintr-space-3: 12px;
+    --mintr-space-4: 16px;
+    --mintr-space-6: 24px;
+    --mintr-space-8: 32px;
+    --mintr-space-12: 48px;
 }
 
 /* Workspace depth: sidebar (deepest) vs main canvas — slate elevation */

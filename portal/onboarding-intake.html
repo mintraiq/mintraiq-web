@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>A few quick questions — Mintr</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/portal-app.css">
+    <link rel="stylesheet" href="./css/onboarding.css">
+    <script type="module" src="./env.js"></script>
+</head>
+<body class="onb-page" data-onboarding-intake="1">
+<main class="onb-shell">
+    <!--
+      One decision per screen. The three questions render into this same shell
+      rather than as a single form: answering feels like progress, and the
+      answers are what frame the connect ask on the next step.
+    -->
+    <div class="onb-progress">
+        <div class="onb-progress-track">
+            <div class="onb-progress-fill"
+                 id="intakeProgressFill"
+                 role="progressbar"
+                 aria-valuemin="1"
+                 aria-valuemax="3"
+                 aria-valuenow="1"
+                 aria-label="Question progress"></div>
+        </div>
+        <small class="onb-progress-caption" id="intakeProgressCaption">Question 1 of 3</small>
+    </div>
+
+    <header>
+        <!-- Focus moves here on each question so screen readers announce it. -->
+        <h1 class="onb-title" id="intakeTitle" tabindex="-1">Loading…</h1>
+        <p class="onb-subtitle" id="intakeSubtitle"></p>
+    </header>
+
+    <div class="onb-options" id="intakeOptions" role="radiogroup" aria-labelledby="intakeTitle"></div>
+
+    <p class="onb-error" id="intakeError" role="alert"></p>
+
+    <div class="onb-actions">
+        <button type="button" class="onb-skip" id="intakeSkip">Skip these questions</button>
+    </div>
+</main>
+<script type="module" src="./js/onboarding-intake.js"></script>
+</body>
+</html>

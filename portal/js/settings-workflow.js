@@ -5,24 +5,27 @@ import { selectSubscriptionPlan } from './billing-api.js';
 import { mountBillingPlanCompare, normalizeBillingTierValue, wireBillingPlanCompare } from './billing-plan-compare.js';
 import { visitWithTurbo } from './turbo-visit.js';
 import { resolveDisplayName } from './user-display.js';
+import {
+    DEFAULT_FLOW_STEP_IDS,
+    OPTIONAL_STEP_IDS,
+    canonicalStepId,
+    hrefForStep,
+    labelForStep
+} from './onboarding-steps.js';
 
 /**
- * Order must match finance_api bootstrap REQUIRED / save_workflow next_step:
- * profile → billing → security → banks → goals → categories → ai → notifications
+ * Fallback only — used when bootstrap carries no chapters. The real order comes
+ * from the server (finance_api ONBOARDING_CHAPTERS) via deriveFlowSteps below.
  * Backend CORS must include PUT in allow_methods or browser preflight fails (OPTIONS 400) and nothing persists.
  */
-const DEFAULT_FLOW_STEPS = [
-    { id: 'profile', href: './settings-profile.html', label: 'Personal profile', chapter: 'The Essentials' },
-    { id: 'billing', href: './settings-billing.html', label: 'Plan & billing', chapter: 'The Essentials' },
-    { id: 'security', href: './settings-security.html', label: 'Security', chapter: 'The Essentials' },
-    { id: 'banks', href: './settings-banks.html', label: 'Banks & income', chapter: 'The Data' },
-    { id: 'goals', href: './settings-goals.html', label: 'Savings goals', chapter: 'The Game Plan' },
-    { id: 'categories', href: './settings-categories.html', label: 'Custom categories', chapter: 'The Game Plan' },
-    { id: 'ai', href: './settings-ai.html', label: 'AI tuning', chapter: 'The Game Plan' },
-    { id: 'notifications', href: './settings-notifications.html', label: 'Notifications', chapter: 'The Game Plan' }
-];
+const DEFAULT_FLOW_STEPS = DEFAULT_FLOW_STEP_IDS.map((id) => ({
+    id,
+    href: hrefForStep(id),
+    label: labelForStep(id),
+    chapter: 'Setup'
+}));
 
-const OPTIONAL_STEPS = new Set(['goals', 'notifications', 'categories', 'ai']);
+const OPTIONAL_STEPS = OPTIONAL_STEP_IDS;
 const STEP_INTERSTITIAL = {
     banks: 'Saving your bank preferences…',
     billing: 'Saving your plan choice…',
@@ -168,20 +171,6 @@ function scopedStorageKey(base) {
     return `${base}:${uid}`;
 }
 
-function titleFromStep(stepId) {
-    const byId = {
-        profile: 'Personal profile',
-        security: 'Security',
-        billing: 'Plan & billing',
-        banks: 'Banks & income',
-        goals: 'Savings goals',
-        categories: 'Custom categories',
-        ai: 'AI advisor settings',
-        notifications: 'Alerts & nudges'
-    };
-    return byId[stepId] || String(stepId || '');
-}
-
 function deriveFlowSteps(bootstrap) {
     const chapters = bootstrap?.onboarding?.chapters;
     if (!Array.isArray(chapters) || !chapters.length) return DEFAULT_FLOW_STEPS;
@@ -190,14 +179,16 @@ function deriveFlowSteps(bootstrap) {
         const chapterTitle = String(chapter?.title || chapter?.id || 'Setup');
         const steps = Array.isArray(chapter?.steps) ? chapter.steps : [];
         steps.forEach((stepIdRaw) => {
-            const stepId = String(stepIdRaw || '').trim();
+            const stepId = canonicalStepId(stepIdRaw);
             if (!stepId) return;
-            out.push({
-                id: stepId,
-                href: `./settings-${stepId}.html`,
-                label: titleFromStep(stepId),
-                chapter: chapterTitle
-            });
+            const href = hrefForStep(stepId);
+            if (!href) {
+                // Server is ahead of this build. Drop the step from the strip
+                // rather than linking to a page that 404s, and say why.
+                console.error(`[workflow] unknown onboarding step "${stepId}" — no page for it in this build`);
+                return;
+            }
+            out.push({ id: stepId, href, label: labelForStep(stepId), chapter: chapterTitle });
         });
     });
     return out.length ? out : DEFAULT_FLOW_STEPS;

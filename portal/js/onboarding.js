@@ -2,23 +2,13 @@ import { createLogtoClient } from './logto-client.js';
 import { bootstrapSession } from './bootstrap.js';
 import { isBootstrapOnboardingComplete } from './config.js';
 import { visitWithTurbo } from './turbo-visit.js';
+import { hrefForStep, isKnownStep } from './onboarding-steps.js';
 import {
     agreeToLegalTerms,
     clearLegalContentState,
     loadLegalContent,
     userStatusFromBootstrapPayload
 } from './legal-store.js';
-
-const STEP_TO_PAGE = {
-    profile: './settings-profile.html?setup=1',
-    billing: './settings-billing.html?setup=1',
-    security: './settings-security.html?setup=1',
-    banks: './settings-banks.html?setup=1',
-    goals: './settings-goals.html?setup=1',
-    categories: './settings-categories.html?setup=1',
-    ai: './settings-ai.html?setup=1',
-    notifications: './settings-notifications.html?setup=1'
-};
 
 function status(msg) {
     const node = document.getElementById('onboardingStatus');
@@ -99,7 +89,18 @@ function goToNextSetupStep(bootstrap) {
         visitWithTurbo('./dashboard.html', { replace: true });
         return;
     }
-    const target = STEP_TO_PAGE[step] || STEP_TO_PAGE.profile;
+
+    // An unrecognised step means the server is ahead of this build (a step was
+    // added before the page shipped). This used to fall back to profile, which
+    // silently dropped the user on the wrong screen with no error — the failure
+    // looked identical to working software. Say so instead.
+    const target = hrefForStep(step, { setup: true });
+    if (!target) {
+        console.error(`[onboarding] server requested unknown step "${step}" — no page for it in this build`);
+        status('This setup step is not available in this version. Please refresh, or contact support if it persists.');
+        return;
+    }
+
     status('Onward — your next setup step is ready.');
     visitWithTurbo(target, { replace: true });
 }

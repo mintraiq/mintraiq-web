@@ -13,7 +13,8 @@ import { installPortalTransitions } from './turbo-transitions.js';
 import { loadLegalContent } from './legal-store.js';
 import { syncWorkspaceBanner } from './workspace-banner.js';
 
-const BRAND_TEXT_MARKUP = 'Mintr<span class="gradient-text">AIQ</span>';
+const BRAND_LEAF_MARKUP = '<img src="../assets/mintr-leaf-mark.png" alt="" aria-hidden="true" class="brand-leaf" width="16" height="24">';
+const BRAND_TEXT_MARKUP = BRAND_LEAF_MARKUP + '<span>Mintr<span class="gradient-text">AIQ</span></span>';
 
 const WORKSPACE = [
     { id: 'dashboard', href: './dashboard.html', icon: 'fa-chart-line', label: 'Dashboard' },
@@ -77,7 +78,8 @@ function workspaceNavItems(profile = null, adminVisible = false, securityVisible
     if (adminVisible) {
         items = [
             ...items,
-            { id: 'ml-admin', href: './ml-admin.html', icon: 'fa-microchip', label: 'ML admin' }
+            { id: 'ml-admin', href: './ml-admin.html', icon: 'fa-microchip', label: 'ML admin' },
+            { id: 'admin-config', href: './admin-config.html', icon: 'fa-shield-halved', label: 'Config & secrets' }
         ];
     }
     if (securityVisible) {
@@ -236,7 +238,7 @@ function syncMobileBarBrand() {
     document.querySelectorAll('.mobile-bar').forEach((bar) => {
         const existing = bar.querySelector('.mobile-bar-brand');
         if (existing) {
-            if (!existing.querySelector('.gradient-text')) {
+            if (!existing.querySelector('.brand-leaf')) {
                 existing.innerHTML = BRAND_TEXT_MARKUP;
             }
             return;

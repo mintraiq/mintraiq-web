@@ -4,22 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="turbo-cache-control" content="no-cache">
-    <title>MintrAIQ — Profile</title>
+    <title>MintrAIQ — Config &amp; Secrets</title>
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
     <link rel="stylesheet" href="../legacy/static-app/css/shell.css">
     <link rel="stylesheet" href="./css/portal-app.css">
+    <link rel="stylesheet" href="./css/admin-config.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="../config/runtime-env.js"></script>
     <script src="./env.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js"></script>
     <meta name="view-transition" content="same-origin">
 </head>
-<body data-portal-nav="profile">
+<body data-portal-nav="admin-config">
     <div class="dashboard-container">
         <div id="portal-sidebar-region" data-turbo-permanent>
-        <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
+            <aside class="sidebar" id="app-sidebar"><div id="portal-nav-root"></div></aside>
         </div>
         <div class="sidebar-overlay" id="sidebar-overlay"></div>
         <div class="main-wrap">
@@ -30,32 +31,18 @@
             <main class="main-content">
                 <header class="top-header">
                     <div class="header-left">
-                        <h2 style="margin:0;font-size:1.75rem">Profile</h2>
-                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">Your account in the MintrAIQ portal</p>
-                    </div>
-                    <div class="header-right">
-                        <a href="./profile.html" class="user-avatar" id="userAvatar" title="Profile">?</a>
+                        <h2 style="margin:0;font-size:1.75rem">Config &amp; secrets registry</h2>
+                        <p style="margin:6px 0 0;color:var(--text-secondary);font-size:0.95rem">
+                            Production Bible master checklist — all variables across GCP, GitHub, Vercel, Expo/EAS, Supabase, MongoDB, Brevo, Azure, Stripe, and more. Live status from finance-api where available.
+                        </p>
                     </div>
                 </header>
-                <div class="card">
-                    <div class="card-header"><span class="card-title"><i class="far fa-id-card"></i> Identity</span></div>
-                    <form id="profileForm">
-                        <div class="form-group">
-                            <label for="profileName">Display name</label>
-                            <input type="text" id="profileName" class="form-control" autocomplete="name" />
-                        </div>
-                        <div class="form-group">
-                            <label for="profileEmail">Email</label>
-                            <input type="email" id="profileEmail" class="form-control" disabled style="opacity:0.65" />
-                        </div>
-                        <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px">Profile sync with your backend is coming soon. Values shown here come from your last sign-in.</p>
-                        <button type="submit" class="btn-save">Save (preview)</button>
-                    </form>
-                </div>
+                <div id="adminConfigRoot" data-admin-config-root style="min-height:420px"></div>
             </main>
         </div>
     </div>
     <script type="module" src="./js/portal-nav.js"></script>
-    <script type="module" src="./profile.js"></script>
+    <script type="module" src="./js/portal-page-boot.js"></script>
+    <script type="module" src="./js/admin-config-page.js"></script>
 </body>
 </html>

@@ -123,6 +123,22 @@ export function createLogtoClient() {
             return data;
         },
 
+        /** Passwordless: email the user a one-time code / magic link. Creates the user if new. */
+        async signInWithOtp(email) {
+            const { error } = await sb.auth.signInWithOtp({
+                email,
+                options: { shouldCreateUser: true },
+            });
+            if (error) throw error;
+        },
+
+        /** Passwordless: verify the emailed 6-digit code and establish the session. */
+        async verifyOtp(email, token) {
+            const { data, error } = await sb.auth.verifyOtp({ email, token, type: 'email' });
+            if (error) throw error;
+            return data;
+        },
+
         /** Complete the PKCE flow from the callback URL (?code=...). */
         async handleSignInCallback(url) {
             const code = new URL(url).searchParams.get('code');

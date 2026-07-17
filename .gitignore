@@ -18,6 +18,10 @@ expense_loader.py
 # Local copy of env.public.example for build:env (tunnels, localhost)
 env.public
 
+# OS + editor cruft
+.DS_Store
+.cursor/
+
 # Playwright E2E artifacts
 e2e/report/
 e2e/test-results/

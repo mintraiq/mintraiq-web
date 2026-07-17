@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MintrAIQ — AI Financial Mentor</title>
     <meta name="description" content="Stop guessing. Start Minting. MintrAIQ is the AI Financial Mentor for New Zealanders to track, save, and plan smarter.">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
     <link rel="canonical" href="https://mintraiq.com/intro.html">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -84,6 +87,9 @@
         }
 
         .nav-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
             font-size: 1.25rem;
             font-weight: 800;
             letter-spacing: -0.02em;
@@ -93,6 +99,12 @@
 
         .nav-brand span {
             font-weight: 800;
+        }
+
+        .brand-leaf {
+            height: 28px;
+            width: auto;
+            flex-shrink: 0;
         }
 
         .nav-links {
@@ -152,6 +164,112 @@
         .btn-ghost:hover {
             color: var(--text-primary);
             border-color: rgba(255, 255, 255, 0.22);
+        }
+
+        .btn-survey {
+            background: linear-gradient(135deg, rgba(187, 107, 217, 0.2), rgba(47, 128, 237, 0.22));
+            color: var(--text-primary);
+            border: 1px solid rgba(187, 107, 217, 0.45);
+            box-shadow: 0 0 30px rgba(187, 107, 217, 0.12);
+        }
+
+        .btn-survey:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(187, 107, 217, 0.22), var(--glow-blue);
+        }
+
+        /* Live demo frame */
+        .demo-frame {
+            display: block;
+            margin-top: 26px;
+            border-radius: 16px;
+            border: 1px solid rgba(122, 152, 205, 0.25);
+            overflow: hidden;
+            text-decoration: none;
+            background: var(--bg-card);
+            box-shadow: 0 14px 44px rgba(0, 0, 0, 0.4);
+            animation: fadeUp 0.6s ease 0.15s backwards;
+        }
+
+        .demo-frame-bar {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .demo-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .demo-frame-title {
+            margin-left: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.04em;
+        }
+
+        .demo-frame-viewport {
+            position: relative;
+            height: 420px;
+            overflow: hidden;
+        }
+
+        .demo-frame-viewport iframe {
+            width: 200%;
+            height: 840px;
+            border: 0;
+            transform: scale(0.5);
+            transform-origin: top left;
+            pointer-events: none;
+        }
+
+        .demo-frame-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, transparent 30%, rgba(4, 9, 19, 0.85) 100%);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .demo-frame:hover .demo-frame-overlay,
+        .demo-frame:focus-visible .demo-frame-overlay {
+            opacity: 1;
+        }
+
+        /* Survey CTA strip */
+        .cta-strip {
+            text-align: center;
+            padding: 44px 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(187, 107, 217, 0.25);
+            background: radial-gradient(ellipse at center, rgba(187, 107, 217, 0.08) 0%, transparent 65%),
+                var(--bg-card);
+            animation: fadeUp 0.6s ease backwards;
+        }
+
+        .cta-strip h2 {
+            font-size: clamp(1.3rem, 3vw, 1.7rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 10px;
+        }
+
+        .cta-strip p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+            max-width: 520px;
+            margin: 0 auto 22px;
         }
 
         /* Hero */
@@ -565,6 +683,16 @@
             .pillar:not(:last-child) {
                 border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             }
+
+            .demo-frame-viewport {
+                height: 300px;
+            }
+
+            .demo-frame-viewport iframe {
+                width: 280%;
+                height: 840px;
+                transform: scale(0.357);
+            }
         }
     </style>
     <script>
@@ -581,10 +709,14 @@
 
     <div class="wrap">
         <header class="nav">
-            <a href="intro.html" class="nav-brand">Mintr<span class="gradient-text">AIQ</span></a>
+            <a href="intro.html" class="nav-brand">
+                <img src="assets/mintr-leaf-mark.png" alt="" aria-hidden="true" class="brand-leaf" width="19" height="28">
+                <span>Mintr<span class="gradient-text">AIQ</span></span>
+            </a>
             <div class="nav-links">
                 <a href="#product">Product</a>
                 <a href="#insights">Insights</a>
+                <a href="https://survey.mintraiq.com">Survey</a>
                 <a href="coming-soon.html?from=google-play" title="Coming soon">Play</a>
                 <a href="coming-soon.html?from=app-store" title="Coming soon">iOS</a>
                 <a href="mock-dashboard.html" class="btn btn-ghost" style="padding: 10px 18px;">Dashboard</a>
@@ -598,19 +730,16 @@
                 <p class="hero-eyebrow">Your AI financial mentor</p>
                 <h1>Stop guessing. Start Minting.</h1>
                 <p class="hero-lead">
-                    Your bank statements, turned into intelligent growth insights.
-                </p>
-                <p class="hero-lead">
-                    Built for New Zealanders who want a smarter way to track, save, and plan&mdash;powered by AI, secured by bank-grade encryption.
+                    Bank statements and receipts in. Clear insights, forecasts, and better habits out. Built for New Zealanders, secured by bank-grade encryption.
                 </p>
                 <p class="tagline">
                     Smart Money. <span class="gradient-text">Stronger You.</span>
                 </p>
                 <div class="hero-ctas">
                     <a href="portal/join.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Start your 60-second setup</a>
-                    <a href="mock-dashboard.html" class="btn btn-ghost"><i class="fas fa-chart-line"></i> View dashboard</a>
+                    <a href="https://survey.mintraiq.com" class="btn btn-survey"><i class="fas fa-comment-dots"></i> Help shape Mintr</a>
                 </div>
-                <p style="margin-top: 20px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; color: var(--text-secondary);">MOBILE APPS · STUB UNTIL LAUNCH</p>
+                <p style="margin-top: 20px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; color: var(--text-secondary);">MOBILE APPS COMING SOON</p>
                 <div class="hero-ctas" style="margin-top: 12px;">
                     <a href="coming-soon.html?from=google-play" class="btn btn-ghost" style="border-color: rgba(0, 255, 157, 0.35); color: var(--accent-green);"><i class="fab fa-google-play"></i> Google Play</a>
                     <a href="coming-soon.html?from=app-store" class="btn btn-ghost" style="border-color: rgba(47, 128, 237, 0.45); color: var(--accent-blue);"><i class="fab fa-apple"></i> App Store</a>
@@ -622,27 +751,27 @@
             <div class="pillar" role="listitem">
                 <div class="pillar-icon"><i class="fas fa-file-invoice-dollar"></i></div>
                 <h3>Track</h3>
-                <p>Every transaction</p>
+                <p>Every transaction, sorted for you</p>
             </div>
             <div class="pillar" role="listitem">
                 <div class="pillar-icon"><i class="fas fa-chart-pie"></i></div>
                 <h3>Analyze</h3>
-                <p>AI-powered insights</p>
+                <p>Spot the patterns and leaks</p>
             </div>
             <div class="pillar" role="listitem">
                 <div class="pillar-icon"><i class="fas fa-bullseye"></i></div>
                 <h3>Discipline</h3>
-                <p>Build better habits</p>
+                <p>Nudges that build real habits</p>
             </div>
             <div class="pillar" role="listitem">
                 <div class="pillar-icon"><i class="fas fa-shield-halved"></i></div>
                 <h3>Plan</h3>
-                <p>Smarter financial future</p>
+                <p>Forecasts months ahead</p>
             </div>
             <div class="pillar" role="listitem">
                 <div class="pillar-icon"><i class="fas fa-arrow-trend-up"></i></div>
                 <h3>Grow</h3>
-                <p>Wealth with confidence</p>
+                <p>Savings goals within reach</p>
             </div>
         </div>
 
@@ -650,7 +779,7 @@
             <div class="section-head">
                 <h2>Take control of your financial future</h2>
                 <p>
-                    An AI-powered dashboard designed to simplify, guide, and optimize your money habits—from automatic categorization to forecasts that show where your money is headed.
+                    One dashboard that simplifies, guides, and optimizes your money habits&mdash;from automatic categorization to forecasts that show where your money is headed.
                 </p>
             </div>
             <div class="card-grid">
@@ -683,6 +812,17 @@
                     </p>
                 </article>
             </div>
+
+            <a href="mock-dashboard.html" class="demo-frame" aria-label="Open the live demo dashboard">
+                <div class="demo-frame-bar" aria-hidden="true">
+                    <span class="demo-dot"></span><span class="demo-dot"></span><span class="demo-dot"></span>
+                    <span class="demo-frame-title">mintraiq.com/dashboard — live demo</span>
+                </div>
+                <div class="demo-frame-viewport">
+                    <iframe src="mock-dashboard.html" title="MintrAIQ demo dashboard preview" loading="lazy" tabindex="-1" scrolling="no"></iframe>
+                    <div class="demo-frame-overlay"><span class="btn btn-primary"><i class="fas fa-play"></i> Explore the live demo</span></div>
+                </div>
+            </a>
         </section>
 
         <section id="insights">
@@ -717,13 +857,21 @@
             </p>
         </section>
 
+        <section class="cta-strip" aria-labelledby="cta-strip-heading">
+            <h2 id="cta-strip-heading">We&rsquo;re building this <span class="gradient-text">with you</span></h2>
+            <p>Mintr is in early access. Tell us how you manage money today&mdash;your answers decide what we build next.</p>
+            <a href="https://survey.mintraiq.com" class="btn btn-survey"><i class="fas fa-comment-dots"></i> Take the 60-second survey</a>
+        </section>
+
         <div class="footer-pill">
             <div class="footer-pill-inner">AI-powered financial intelligence for a better tomorrow</div>
             <p class="footer-note">
                 © MintrAIQ ·
-                <a href="terms.html" style="color: var(--text-secondary); text-decoration: none; font-weight: 600;">Terms</a>
+                <a href="terms.html" data-turbo="false" style="color: var(--text-secondary); text-decoration: none; font-weight: 600;">Terms</a>
                 ·
-                <a href="privacy.html" style="color: var(--text-secondary); text-decoration: none; font-weight: 600;">Privacy</a>
+                <a href="privacy.html" data-turbo="false" style="color: var(--text-secondary); text-decoration: none; font-weight: 600;">Privacy</a>
+                ·
+                <a href="https://survey.mintraiq.com" style="color: var(--accent-purple); text-decoration: none; font-weight: 600;">Survey</a>
                 ·
                 <a href="play-store.html" style="color: var(--accent-green); text-decoration: none; font-weight: 600;">Google Play</a>
                 ·

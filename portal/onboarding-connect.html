@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Connect your money — Mintr</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/portal-app.css">
+    <link rel="stylesheet" href="./css/onboarding.css">
+    <script type="module" src="./env.js"></script>
+</head>
+<body class="onb-page" data-onboarding-connect="1">
+<main class="onb-shell">
+    <div class="onb-progress">
+        <div class="onb-progress-track">
+            <div class="onb-progress-fill"
+                 id="connectProgressFill"
+                 role="progressbar"
+                 aria-valuemin="0"
+                 aria-valuemax="3"
+                 aria-valuenow="3"
+                 aria-label="Setup progress"
+                 style="width: 100%"></div>
+        </div>
+        <small class="onb-progress-caption">Step 3 of 3 — last one</small>
+    </div>
+
+    <header>
+        <h1 class="onb-title" id="connectTitle" tabindex="-1">Connect your money</h1>
+        <!-- Filled from the user's stated goal, so the ask is in their terms. -->
+        <p class="onb-subtitle" id="connectSubtitle">
+            Pick whichever fits. You can add the others later.
+        </p>
+    </header>
+
+    <!--
+      Four paths, reordered by the intake tracking_style answer. Any one of them
+      satisfies the `connect` step — the server derives it from the data itself,
+      so there is nothing to keep in sync here.
+    -->
+    <div class="onb-options" id="connectOptions"></div>
+
+    <p class="onb-error" id="connectError" role="alert"></p>
+
+    <div class="onb-actions">
+        <button type="button" class="onb-skip" id="connectSkip">I'll do this later</button>
+    </div>
+</main>
+<script type="module" src="./js/onboarding-connect.js"></script>
+</body>
+</html>

@@ -118,7 +118,12 @@ export function createLogtoClient() {
 
         /** Email/password sign-up (feature-flagged). `data.session` is null when email confirmation is required. */
         async signUpWithPassword(email, password) {
-            const { data, error } = await sb.auth.signUp({ email, password });
+            const { data, error } = await sb.auth.signUp({
+                email,
+                password,
+                // Confirm-email link must land on callback.html (allowlisted in Supabase Redirect URLs).
+                options: { emailRedirectTo: getSignInRedirectUri() },
+            });
             if (error) throw error;
             return data;
         },
@@ -127,7 +132,10 @@ export function createLogtoClient() {
         async signInWithOtp(email) {
             const { error } = await sb.auth.signInWithOtp({
                 email,
-                options: { shouldCreateUser: true },
+                options: {
+                    shouldCreateUser: true,
+                    emailRedirectTo: getSignInRedirectUri(),
+                },
             });
             if (error) throw error;
         },
@@ -139,12 +147,34 @@ export function createLogtoClient() {
             return data;
         },
 
-        /** Complete the PKCE flow from the callback URL (?code=...). */
+        /**
+         * Complete auth from the callback URL:
+         * - OAuth / PKCE email confirm: `?code=...` → exchangeCodeForSession
+         * - Email confirm / magic-link templates: `?token_hash=...&type=signup|email|...` → verifyOtp
+         */
         async handleSignInCallback(url) {
-            const code = new URL(url).searchParams.get('code');
-            if (!code) throw new Error('Sign-in callback is missing the authorization code.');
-            const { error } = await sb.auth.exchangeCodeForSession(code);
-            if (error) throw error;
+            const parsed = new URL(url);
+            const code = parsed.searchParams.get('code');
+            if (code) {
+                const { error } = await sb.auth.exchangeCodeForSession(code);
+                if (error) throw error;
+                return;
+            }
+
+            const tokenHash = parsed.searchParams.get('token_hash');
+            const type = parsed.searchParams.get('type');
+            if (tokenHash && type) {
+                const { error } = await sb.auth.verifyOtp({
+                    token_hash: tokenHash,
+                    type,
+                });
+                if (error) throw error;
+                return;
+            }
+
+            throw new Error(
+                'Sign-in callback is missing an authorization code or email confirmation token.'
+            );
         },
 
         /** Current access token (Supabase JWT). `resource` is ignored — Supabase tokens are not resource-scoped. */

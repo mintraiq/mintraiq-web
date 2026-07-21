@@ -1,5 +1,5 @@
 ---
-description: "Triggers when developing user interface components, views, or charts inside the mintraiq-web React project."
+description: "Triggers when developing user interface components, views, charts, or Supabase auth/email login flows inside the mintraiq-web project."
 globs: ["mintraiq-web/**/*"]
 alwaysApply: false
 ---
@@ -28,3 +28,43 @@ Implement individual view managers to intercept the incoming payload state param
 
 ## 3. Styling Guidelines
 - Maintain crisp design patterns with dark-mode optimized canvas frames, using clean semantic dividers over complex structural multi-page routes.
+
+## 4. Supabase Auth — Email provider + Custom SMTP
+Enabling **Authentication → Providers → Email** alone is not enough for production delivery. Configure **Authentication → Emails → SMTP Settings** (Custom SMTP) using Brevo (same stack as dashboard / lead-agent transactional mail).
+
+### SMTP fields (Supabase Dashboard — never commit real values)
+| Field | Value source |
+| --- | --- |
+| Host | `smtp-relay.brevo.com` |
+| Port | `587` (STARTTLS) |
+| **Username** | Brevo **SMTP login** (from Brevo → SMTP & API → SMTP). Usually the account / SMTP login email — **not** an app user email. |
+| **Password** | Brevo **SMTP key** (generate under SMTP & API). Do **not** reuse `BREVO_API_KEY` (HTTP API) here. |
+| Sender email | Verified Brevo domain sender (e.g. `BREVO_SENDER_EMAIL`) |
+| Sender name | e.g. `MintrAIQ` / `BREVO_SENDER_NAME` |
+
+- Store the SMTP password only in the Supabase project (or a secrets manager). **Never** put Username/Password into git, `runtime-env.js`, or this rules file.
+- After SMTP is live, raise Auth rate limits if OTP / confirm traffic will exceed the default ~30/hour.
+
+### Email/password login UI (feature-flagged)
+- Web: `PUBLIC_AUTH_EMAIL_PASSWORD_ENABLED` / `CONFIG.authEmailPasswordEnabled` → reveals `#emailAuthBlock` (`#emailInput` + `#passwordInput`) in `portal/index.html` via `isEmailPasswordAuthEnabled()` in `portal/index.js`.
+- Mobile: `EXPO_PUBLIC_AUTH_EMAIL_PASSWORD_ENABLED=true` → email/password block in `app/login.tsx`.
+- Default remains social + passwordless OTP until the flag is flipped **and** Email provider + Custom SMTP are configured.
+
+## 5. Verify-user email flows (web + mobile)
+Two distinct paths — do not conflate them:
+
+### A. Passwordless OTP (primary, always on login)
+1. `signInWithOtp({ email, options: { shouldCreateUser: true } })` — Supabase emails a 6-digit code (needs Custom SMTP in prod).
+2. User enters code → `verifyOtp({ email, token, type: 'email' })` → session.
+3. Web: `portal/index.js` + `logto-client.js` (`signInWithOtp` / `verifyOtp`) → `openWorkspace` / bootstrap.
+4. Mobile: `app/login.tsx` `sendOtp` / `verifyOtp` → `login(access_token, refresh_token)`.
+
+### B. Email/password sign-up confirmation (web)
+1. `signUp({ email, password, options: { emailRedirectTo: callback.html } })`. When “Confirm email” is on, `data.session` is `null`.
+2. Portal shows: *“Check your email and open the confirmation link…”* then flips to Sign in.
+3. Confirm link lands on `portal/callback.html`. `handleSignInCallback` accepts:
+   - `?code=…` → `exchangeCodeForSession` (OAuth + PKCE email confirm)
+   - `?token_hash=…&type=signup|email|…` → `verifyOtp({ token_hash, type })`
+4. Then bootstrap + workspace redirect (same as OAuth).
+5. **Supabase Console:** add `…/portal/callback.html` under Authentication → URL Configuration → Redirect URLs. Prefer Confirm template `{{ .ConfirmationURL }}` or a link that includes `token_hash` + `type`.
+6. **Mobile:** leave as-is (no confirm-link deep-link handler).

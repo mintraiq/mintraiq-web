@@ -174,8 +174,11 @@ async function main() {
                 if (isSignUp) {
                     const data = await c.signUpWithPassword(email, password);
                     if (!data.session) {
-                        // Email confirmation required (no session yet).
-                        if (statusEl) statusEl.textContent = 'Check your email to confirm your account, then sign in.';
+                        // Email confirmation required (no session yet). Link opens portal/callback.html.
+                        if (statusEl) {
+                            statusEl.textContent =
+                                'Check your email and open the confirmation link to finish signing up.';
+                        }
                         isSignUp = false;
                         emailSubmit.textContent = 'Sign in';
                         emailModeToggle.textContent = 'New here? Create an account';

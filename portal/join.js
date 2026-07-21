@@ -6,7 +6,7 @@ import {
     redirectToSignIn,
     resetLogtoClient
 } from './js/logto-client.js';
-import { getSignInRedirectUri, isBootstrapOnboardingComplete, resolveDashboardEntry } from './js/config.js';
+import { getSignInRedirectUri, isBootstrapOnboardingComplete, isEmailPasswordAuthEnabled, resolveDashboardEntry } from './js/config.js';
 import { bootstrapSession } from './js/bootstrap.js';
 import { visitWithTurbo } from './js/turbo-visit.js';
 import { claimPageScript } from './js/page-script-guard.js';
@@ -81,7 +81,7 @@ async function main() {
         oauthNavLock = true;
         joinBtn.disabled = true;
         const redirectUri = getSignInRedirectUri();
-        if (statusEl) statusEl.textContent = 'Opening secure registration…';
+        if (statusEl) statusEl.textContent = 'Redirecting to Google…';
         clearPendingLogtoOAuthSession();
         resetLogtoClient();
         void createLogtoClient().signIn({
@@ -89,6 +89,96 @@ async function main() {
             interactionMode: 'signUp'
         });
     });
+
+    // Passwordless email OTP (first-class — creates account if new).
+    const otpEmailInput = document.getElementById('otpEmailInput');
+    const otpSendBtn = document.getElementById('otpSendBtn');
+    const otpCodeRow = document.getElementById('otpCodeRow');
+    const otpCodeInput = document.getElementById('otpCodeInput');
+    const otpVerifyBtn = document.getElementById('otpVerifyBtn');
+    const otpResend = document.getElementById('otpResend');
+    const otpChange = document.getElementById('otpChange');
+
+    async function sendOtp() {
+        const email = (otpEmailInput.value || '').trim().toLowerCase();
+        if (!email) {
+            if (statusEl) statusEl.textContent = 'Enter your email address.';
+            return;
+        }
+        otpSendBtn.disabled = true;
+        if (statusEl) statusEl.textContent = 'Sending your code…';
+        try {
+            await createLogtoClient().signInWithOtp(email);
+            otpCodeRow.style.display = 'block';
+            if (statusEl) statusEl.textContent = `We emailed a 6-digit code to ${email}. Enter it below.`;
+        } catch (err) {
+            if (statusEl) statusEl.textContent = String((err && err.message) || err);
+        } finally {
+            otpSendBtn.disabled = false;
+        }
+    }
+
+    otpSendBtn?.addEventListener('click', sendOtp);
+    otpResend?.addEventListener('click', (e) => {
+        e.preventDefault();
+        sendOtp();
+    });
+    otpChange?.addEventListener('click', (e) => {
+        e.preventDefault();
+        otpCodeRow.style.display = 'none';
+        otpCodeInput.value = '';
+        if (statusEl) statusEl.textContent = '';
+    });
+
+    otpVerifyBtn?.addEventListener('click', async () => {
+        const email = (otpEmailInput.value || '').trim().toLowerCase();
+        const token = (otpCodeInput.value || '').trim();
+        if (token.length < 6) {
+            if (statusEl) statusEl.textContent = 'Enter the 6-digit code from your email.';
+            return;
+        }
+        otpVerifyBtn.disabled = true;
+        if (statusEl) statusEl.textContent = 'Verifying…';
+        try {
+            const c = createLogtoClient();
+            await c.verifyOtp(email, token);
+            await openWorkspace(c);
+        } catch (err) {
+            if (statusEl) statusEl.textContent = String((err && err.message) || err);
+            otpVerifyBtn.disabled = false;
+        }
+    });
+
+    // Email/password sign-up (feature-flagged: social + OTP by default).
+    if (isEmailPasswordAuthEnabled()) {
+        const emailBlock = document.getElementById('emailAuthBlock');
+        if (emailBlock) emailBlock.style.display = 'block';
+        const emailSubmit = document.getElementById('emailSubmit');
+
+        emailSubmit?.addEventListener('click', async () => {
+            const email = document.getElementById('emailInput').value.trim();
+            const password = document.getElementById('passwordInput').value;
+            if (!email || !password) {
+                if (statusEl) statusEl.textContent = 'Enter your email and password.';
+                return;
+            }
+            emailSubmit.disabled = true;
+            if (statusEl) statusEl.textContent = 'Creating your account…';
+            try {
+                const c = createLogtoClient();
+                const data = await c.signUpWithPassword(email, password);
+                if (!data.session) {
+                    if (statusEl) statusEl.textContent = 'Check your email to confirm your account, then sign in.';
+                    emailSubmit.disabled = false;
+                    return;
+                }
+                await openWorkspace(c);
+            } catch (err) {
+                if (statusEl) statusEl.textContent = String((err && err.message) || err);
+                emailSubmit.disabled = false;
+            }
+        });
+    }
 }
 
 main();

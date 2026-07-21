@@ -192,7 +192,8 @@ export function isBootstrapOnboardingComplete(bootstrap) {
 
 /**
  * Builds a hosted `/register?app_id=…` URL (e.g. for docs or emails).
- * The portal join page uses `LogtoClient.signIn({ interactionMode: 'signUp' })` instead of navigating here directly, so OIDC state exists and Logto does not show `/unknown-session`.
+ * The portal join page (`join.html`) is the marketing sign-up entry. Google OAuth is opt-in via
+ * “Continue with Google”; email OTP (and flagged email/password) stay on-page. Do not auto-start OAuth on load.
  * @returns {string} HTTPS URL or empty if configuration is incomplete
  */
 export function resolveLogtoRegisterUrl() {

@@ -191,8 +191,117 @@ body {
     text-decoration: underline;
 }
 
+/* Account deletion page */
+.delete-account-card .delete-section {
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+}
+
+.delete-account-card .delete-section-last {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.delete-account-card .legal-tos-heading {
+    margin-top: 0;
+}
+
+.delete-inline-link {
+    color: var(--accent-green);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.delete-inline-link:hover {
+    text-decoration: underline;
+}
+
+.deletion-form {
+    margin-top: 18px;
+}
+
+.deletion-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.deletion-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.deletion-input {
+    flex: 1 1 220px;
+    min-width: 0;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: rgba(4, 9, 19, 0.65);
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.deletion-input::placeholder {
+    color: var(--text-muted);
+}
+
+.deletion-input:focus {
+    border-color: rgba(0, 255, 157, 0.45);
+    box-shadow: 0 0 0 3px rgba(0, 255, 157, 0.12);
+}
+
+.deletion-submit {
+    flex: 0 0 auto;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 12px;
+    background: var(--accent-green);
+    color: #04120c;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.deletion-submit:hover {
+    filter: brightness(1.05);
+}
+
+.deletion-submit:active {
+    transform: translateY(1px);
+}
+
+.deletion-status {
+    margin-top: 12px;
+    min-height: 1.2em;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.deletion-status.is-error {
+    color: #ff6b6b;
+}
+
+.deletion-status.is-success {
+    color: var(--accent-green);
+}
+
 @media (max-width: 560px) {
     .legal-card {
         padding: 20px 16px;
+    }
+
+    .deletion-submit {
+        width: 100%;
     }
 }

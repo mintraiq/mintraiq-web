@@ -3,6 +3,12 @@
   "installCommand": "npm install",
   "framework": null,
   "outputDirectory": ".",
+  "rewrites": [
+    {
+      "source": "/delete-account",
+      "destination": "/delete-account.html"
+    }
+  ],
   "headers": [
     {
       "source": "/portal/callback.html",

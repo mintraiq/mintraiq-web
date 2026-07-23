@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — Account &amp; Data Deletion</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+    <meta name="description" content="Request account and data deletion for MintrAIQ. Delete in the app, or submit a web request if you no longer have the app installed.">
+    <link rel="canonical" href="https://mintraiq.com/delete-account">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/legal-public.css">
+    <script>
+        window.va = window.va || function () {
+            (window.vaq = window.vaq || []).push(arguments);
+        };
+    </script>
+    <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
+    <script src="config/runtime-env.js"></script>
+    <script src="js/env-banner.js"></script>
+</head>
+<body>
+    <div class="page-bg" aria-hidden="true"></div>
+    <div class="wrap">
+        <header class="legal-nav">
+            <a class="brand" href="intro.html">
+                <img src="assets/mintr-leaf-mark.png" alt="" aria-hidden="true" class="brand-leaf" width="16" height="24">
+                <span>Mintr<span class="gradient-text">AIQ</span></span>
+            </a>
+            <nav class="legal-nav-links" aria-label="Legal">
+                <a href="terms.html">Terms</a>
+                <a href="privacy.html">Privacy</a>
+                <a href="delete-account.html" class="is-active" aria-current="page">Delete Account</a>
+                <a href="intro.html" class="back-home">Home</a>
+            </nav>
+        </header>
+
+        <main class="legal-main">
+            <h1>Account &amp; Data Deletion for MintrAIQ</h1>
+
+            <article class="legal-card delete-account-card">
+                <section class="delete-section">
+                    <h2 class="legal-tos-heading">Delete in the app</h2>
+                    <p class="legal-tos-para">
+                        Open MintrAIQ → Go to Settings → Tap &lsquo;Delete Account&rsquo;.
+                    </p>
+                </section>
+
+                <section class="delete-section">
+                    <h2 class="legal-tos-heading">Request without the app</h2>
+                    <p class="legal-tos-para">
+                        If you no longer have the app installed, enter your registered email address below
+                        (or email
+                        <a class="delete-inline-link" href="mailto:support@mintraiq.com?subject=Account%20Deletion%20Request">support@mintraiq.com</a>
+                        with the subject &lsquo;Account Deletion Request&rsquo;).
+                    </p>
+
+                    <form id="deletion-form" class="deletion-form" novalidate>
+                        <label class="deletion-label" for="registered-email">Registered email address</label>
+                        <div class="deletion-row">
+                            <input
+                                id="registered-email"
+                                name="email"
+                                type="email"
+                                class="deletion-input"
+                                autocomplete="email"
+                                inputmode="email"
+                                required
+                                placeholder="you@example.com"
+                                aria-describedby="deletion-status"
+                            >
+                            <button type="submit" class="deletion-submit">Request deletion</button>
+                        </div>
+                        <p id="deletion-status" class="deletion-status" role="status" aria-live="polite"></p>
+                    </form>
+                </section>
+
+                <section class="delete-section delete-section-last">
+                    <h2 class="legal-tos-heading">What gets deleted</h2>
+                    <p class="legal-tos-para">
+                        Upon processing your request, MintrAIQ will permanently purge your user profile,
+                        stored receipt images, parsed transaction history, and subscription links from our
+                        database within 30 days.
+                    </p>
+                </section>
+            </article>
+        </main>
+
+        <footer class="legal-footer">
+            <p>
+                © MintrAIQ ·
+                <a href="privacy.html">Privacy Policy</a>
+                ·
+                <a href="terms.html">Terms and Conditions</a>
+                ·
+                <a href="intro.html">Back to home</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        (function () {
+            var form = document.getElementById('deletion-form');
+            var emailInput = document.getElementById('registered-email');
+            var statusEl = document.getElementById('deletion-status');
+
+            if (!form || !emailInput || !statusEl) return;
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                var email = (emailInput.value || '').trim();
+                statusEl.classList.remove('is-error', 'is-success');
+
+                if (!email || !emailInput.checkValidity()) {
+                    statusEl.textContent = 'Please enter a valid registered email address.';
+                    statusEl.classList.add('is-error');
+                    emailInput.focus();
+                    return;
+                }
+
+                var subject = encodeURIComponent('Account Deletion Request');
+                var body = encodeURIComponent(
+                    'Please delete my MintrAIQ account and associated data.\n\nRegistered email: ' + email + '\n'
+                );
+                var mailto = 'mailto:support@mintraiq.com?subject=' + subject + '&body=' + body;
+
+                statusEl.textContent = 'Opening your email app to send the deletion request…';
+                statusEl.classList.add('is-success');
+                window.location.href = mailto;
+            });
+        })();
+    </script>
+</body>
+</html>

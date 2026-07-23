@@ -46,6 +46,15 @@ async function main() {
         showOAuthRedirectError(params);
         return;
     }
+    const isEmailConfirm =
+        Boolean(params.get('token_hash') && params.get('type')) ||
+        (Boolean(params.get('code')) &&
+            ['signup', 'invite', 'recovery', 'email_change', 'email'].includes(
+                String(params.get('type') || '').toLowerCase()
+            ));
+    if (isEmailConfirm && statusEl) {
+        statusEl.textContent = 'Confirming your email…';
+    }
     const client = createLogtoClient();
     try {
         await client.handleSignInCallback(window.location.href);

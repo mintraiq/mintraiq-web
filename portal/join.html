@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="turbo-cache-control" content="no-cache">
-    <title>MintrAIQ — Join securely</title>
+    <title>MintrAIQ — Sign up</title>
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
@@ -31,8 +31,15 @@
         }
         button:hover { filter: brightness(1.05); }
         #status { margin-top: 14px; font-size: 0.85rem; color: var(--m); min-height: 1.2em; }
+        a { color: #7ee8ff; font-size: 0.85rem; }
+        .email-divider { text-align: center; color: var(--m); font-size: 0.8rem; margin: 16px 0 12px; }
+        .email-input {
+            width: 100%; padding: 13px 14px; margin-bottom: 12px; border-radius: 12px;
+            border: 1px solid rgba(122,152,205,0.25); background: #0f1626; color: #fff; font-size: 0.92rem;
+        }
+        .email-input::placeholder { color: #6b7686; }
+        #emailModeToggle { display: inline-block; margin-top: 12px; cursor: pointer; }
         .links { margin-top: 16px; font-size: 0.85rem; }
-        .links a { color: #7ee8ff; }
         .links a + a { margin-left: 12px; }
     </style>
     <script>
@@ -46,10 +53,29 @@
 </head>
 <body>
     <div class="card">
-        <h1>Your Money, Your Data, Your Terms</h1>
-        <p>Welcome to a smarter way to track and grow. Your security is our priority&mdash;we use industry-leading encryption to keep your financial life private and under your control.</p>
+        <h1>Create your MintrAIQ account</h1>
+        <p>Start your 60-second setup. Your security is our priority&mdash;we use industry-leading encryption to keep your financial life private and under your control.</p>
         <p class="tip">Mintr Tip: &ldquo;Think of me as your personal vault assistant. Only you have the keys! 🔐&rdquo;</p>
-        <button type="button" id="joinMintraiq">Join MintrAIQ Securely</button>
+        <button type="button" id="joinMintraiq">Continue with Google</button>
+        <!-- Passwordless email OTP — first-class option (creates account if new). -->
+        <div id="otpBlock">
+            <div class="email-divider">or continue with email</div>
+            <input id="otpEmailInput" class="email-input" type="email" placeholder="Email" autocomplete="email" />
+            <button type="button" id="otpSendBtn">Email me a code</button>
+            <div id="otpCodeRow" style="display:none;">
+                <input id="otpCodeInput" class="email-input" type="text" inputmode="numeric" maxlength="6" placeholder="6-digit code" autocomplete="one-time-code" />
+                <button type="button" id="otpVerifyBtn">Verify &amp; create account</button>
+                <p style="text-align:center;"><a href="#" id="otpResend">Resend code</a> &middot; <a href="#" id="otpChange">Use a different email</a></p>
+            </div>
+        </div>
+        <!-- Email/password (feature-flagged: hidden unless authEmailPasswordEnabled). Revealed by join.js. -->
+        <div id="emailAuthBlock" style="display:none;">
+            <div class="email-divider">or</div>
+            <input id="emailInput" class="email-input" type="email" placeholder="Email" autocomplete="email" />
+            <input id="passwordInput" class="email-input" type="password" placeholder="Password" autocomplete="new-password" />
+            <button type="button" id="emailSubmit">Create account</button>
+            <p style="text-align:center;"><a href="./index.html" id="emailModeToggle">Have an account? Sign in</a></p>
+        </div>
         <p id="status"></p>
         <p class="links">
             <a href="./index.html">Already have an account? Sign in</a>

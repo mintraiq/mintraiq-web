@@ -158,7 +158,6 @@ export function renderMetrics(data) {
     setMasked('current_income', data.metrics.income.current, STEALTH_FIELD.INCOME);
     setPlain('current_expense', data.metrics.expenses.current);
     setPlain('current_savings', data.metrics.savings.current);
-    setMasked('current_investments', data.metrics.investments.current, STEALTH_FIELD.INVESTMENTS);
 
     if (data.ai_status === 'Online' && data.forecast && data.forecast.next_month) {
         const nm = data.forecast.next_month;

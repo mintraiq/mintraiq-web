@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E2E — Entitlement error harness</title>
+    <link rel="stylesheet" href="../../legacy/static-app/css/shell.css">
+    <link rel="stylesheet" href="../css/portal-app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-green);
+            color: #0a0a0a;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body data-portal-nav="dashboard" data-e2e-harness="true">
+    <main class="main-content">
+        <h1 style="font-size:1.25rem;margin:0 0 12px">Entitlement error harness</h1>
+        <p id="harnessMode" data-testid="harness-mode" style="color:var(--text-secondary);margin:0 0 16px"></p>
+        <div class="grid-container"></div>
+        <pre id="harnessError" hidden style="color:var(--accent-red)"></pre>
+    </main>
+    <script type="module" src="./entitlement-error-harness.js"></script>
+</body>
+</html>

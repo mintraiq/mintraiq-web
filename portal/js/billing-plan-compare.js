@@ -36,10 +36,10 @@ const LIMIT_LINES = {
         'Generous receipt & statement limits',
         '150 AI chat messages / month',
     ],
+    // Pilot is feature- and limit-identical to Forecast Pro for its 90 days.
     pilot: [
-        '50 receipt scans / month',
-        '5 statement uploads / month',
-        '30 AI chat messages / month',
+        'Generous receipt & statement limits',
+        '150 AI chat messages / month',
     ],
 };
 
@@ -116,11 +116,18 @@ const PLANS = {
         period: ' pilot',
         badge: 'PILOT',
         featured: false,
-        features: ['3m_dashboard', 'lstm_forecast', 'basic_planners'],
+        features: [
+            '3m_dashboard',
+            'lstm_forecast',
+            'basic_planners',
+            'unlimited_planners',
+            'email_connector',
+            'product_analytics',
+        ],
         limitsKey: 'pilot',
         insight:
-            'Limited-time pilot access: forecasting and planners with mid-tier usage caps. Redeem a promo code in billing settings.',
-        ctaHint: 'Apply a pilot code under Payment details when checkout is connected.',
+            'Every feature of Forecast Pro, free for 90 days from the day you join. When the 90 days end your account moves to the free Insight Starter plan — nothing is charged and nothing happens automatically.',
+        ctaHint: 'Applied automatically when you create your account during the pilot.',
     },
 };
 

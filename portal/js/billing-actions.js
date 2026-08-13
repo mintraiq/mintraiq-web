@@ -15,6 +15,7 @@ import { createLogtoClient } from './logto-client.js';
 import { financeApiFetch } from './api.js';
 import { CONFIG, isBillingPaywallRequired } from './config.js';
 import { loadEntitlementProfile } from './entitlements.js';
+import { renderPilotBanner } from './pilot-banner.js';
 
 const STRIPE_JS_SRC = 'https://js.stripe.com/v3/';
 const PAID_PLAN_KEYS = new Set(['basic', 'premium']);
@@ -177,6 +178,19 @@ export function bootBillingActions() {
     wireButton(upgradeBtn, () => startCheckout(client));
     wireButton(manageBtn, () => openCustomerPortal(client));
     handlePaymentReturn(client);
+    showPilotWindow(client);
+}
+
+/** Surface the pilot end date. Best-effort — never blocks the billing page. */
+async function showPilotWindow(client) {
+    const host = document.getElementById('pilotWindowBanner');
+    if (!host) return;
+    try {
+        const profile = await loadEntitlementProfile(client, financeApiFetch);
+        renderPilotBanner(profile, host);
+    } catch {
+        host.hidden = true;
+    }
 }
 
 if (document.body?.dataset?.settingsNav === 'billing') {

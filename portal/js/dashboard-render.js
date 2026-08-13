@@ -234,6 +234,45 @@ export function showDataMissingState() {
         </div>`;
 }
 
+export function showUpgradeRequired(message) {
+    const grid = document.querySelector('.grid-container');
+    if (!grid) return;
+    grid.innerHTML = `
+        <div class="card" style="grid-column:1/-1;text-align:center;padding:40px;">
+            <i class="fas fa-lock fa-3x" style="color:var(--accent-purple)"></i>
+            <h3 style="margin-top:16px">Your plan does not include this dashboard</h3>
+            <p style="color:var(--text-secondary);margin-top:8px;font-size:0.9rem">${escapeHtml(String(message || 'Feature not available on current plan.'))}</p>
+            <a class="btn-primary" href="./settings-billing.html" style="text-decoration:none;display:inline-block;margin-top:16px">
+                View plans
+            </a>
+        </div>`;
+}
+
+const LIMIT_LABELS = {
+    receipt_scans: 'receipt scans',
+    chat_messages: 'AI chat messages',
+    statement_uploads: 'statement uploads',
+};
+
+export function showLimitReached({ limitKey, limit, usage } = {}) {
+    const grid = document.querySelector('.grid-container');
+    if (!grid) return;
+    const label = LIMIT_LABELS[limitKey] || 'requests';
+    const detail =
+        Number.isFinite(limit)
+            ? `You have used ${usage ?? limit} of your ${limit} ${label} for this month. The count resets at the start of next month.`
+            : `You have used all of your ${label} for this month. The count resets at the start of next month.`;
+    grid.innerHTML = `
+        <div class="card" style="grid-column:1/-1;text-align:center;padding:40px;">
+            <i class="fas fa-gauge-high fa-3x" style="color:var(--accent-purple)"></i>
+            <h3 style="margin-top:16px">You have reached this month's limit</h3>
+            <p style="color:var(--text-secondary);margin-top:8px;font-size:0.9rem">${escapeHtml(detail)}</p>
+            <a class="btn-primary" href="./settings-billing.html" style="text-decoration:none;display:inline-block;margin-top:16px">
+                View plans
+            </a>
+        </div>`;
+}
+
 export function showLoadError(message) {
     const grid = document.querySelector('.grid-container');
     if (!grid) return;

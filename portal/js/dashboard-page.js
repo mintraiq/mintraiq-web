@@ -132,6 +132,14 @@ export async function bootDashboardPage(opts = {}) {
             window.location.replace('./index.html');
             return;
         }
+        if (e.errorCode === 'UPGRADE_REQUIRED') {
+            render.showUpgradeRequired(e.message);
+            return;
+        }
+        if (e.errorCode === 'LIMIT_EXCEEDED') {
+            render.showLimitReached({ limitKey: e.limitKey, limit: e.limit, usage: e.usage });
+            return;
+        }
         render.showLoadError(e.message || e);
     }
 }

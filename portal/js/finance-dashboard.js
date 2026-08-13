@@ -39,11 +39,30 @@ export async function fetchFinanceDashboardJson(logtoClient, startDate, endDate)
     }
 
     if (!res.ok) {
+        // Entitlement failures send `detail` as an object ({error_code, message,
+        // feature}), not a string. Reading only the string form turned every
+        // upgrade/limit response into "Request failed (403)" with nothing the
+        // user could act on.
+        const detail = data.detail;
+        const isObjectDetail = detail && typeof detail === 'object';
         const msg =
-            typeof data.detail === 'string'
-                ? data.detail
-                : data.message || `Request failed (${res.status})`;
-        throw new Error(msg);
+            (typeof detail === 'string' && detail) ||
+            (isObjectDetail && detail.message) ||
+            data.message ||
+            `Request failed (${res.status})`;
+
+        const err = new Error(msg);
+        err.status = res.status;
+        if (isObjectDetail) {
+            err.errorCode = detail.error_code;
+            err.feature = detail.feature;
+            // check_limit sends no `message` — only the numbers — so the caller
+            // has to phrase it from these.
+            err.limitKey = detail.limit_key;
+            err.limit = detail.limit;
+            err.usage = detail.usage;
+        }
+        throw err;
     }
 
     return data;

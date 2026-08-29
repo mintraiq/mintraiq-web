@@ -21,6 +21,7 @@ const counterEl = document.getElementById('message-counter');
 
 let widgetId = null;
 let hasAttemptedSubmit = false;
+let isSubmitting = false;
 let pendingResolve = null;
 let pendingReject = null;
 
@@ -121,6 +122,14 @@ function showSuccess(reference) {
 async function handleSubmit(event) {
     event.preventDefault();
     hasAttemptedSubmit = true;
+
+    // The button stays enabled on purpose, so a second click is expected rather
+    // than prevented. Without this guard the second attempt resets the shared
+    // Turnstile widget and overwrites the first attempt's promise handles, so
+    // the first submit never settles and reports a false security-check failure
+    // twenty seconds later.
+    if (isSubmitting) return;
+
     setStatus('');
 
     if (!validate()) return;
@@ -130,6 +139,7 @@ async function handleSubmit(event) {
         return;
     }
 
+    isSubmitting = true;
     submitButton.textContent = 'Sending…';
     setStatus('Sending your message…');
 
@@ -137,6 +147,7 @@ async function handleSubmit(event) {
     try {
         captchaToken = await requestCaptchaToken();
     } catch (error) {
+        isSubmitting = false;
         submitButton.textContent = 'Send message';
         setStatus(
             'We could not complete the security check. Refresh the page and try again, or email ram@mintraiq.com.',
@@ -187,6 +198,7 @@ async function handleSubmit(event) {
         );
     }
 
+    isSubmitting = false;
     submitButton.textContent = 'Send message';
 }
 

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MintrAIQ — Contact us</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+    <meta name="description" content="Contact MintrAIQ — questions, problems and privacy requests (New Zealand).">
+    <link rel="canonical" href="https://mintraiq.com/contact.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/legal-public.css">
+    <link rel="stylesheet" href="css/contact-page.css">
+    <script>
+        window.va = window.va || function () {
+            (window.vaq = window.vaq || []).push(arguments);
+        };
+    </script>
+    <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
+    <script src="config/runtime-env.js"></script>
+    <script src="js/env-banner.js"></script>
+</head>
+<body>
+    <div class="page-bg" aria-hidden="true"></div>
+    <div class="wrap">
+        <header class="legal-nav">
+            <a class="brand" href="intro.html">
+                <img src="assets/mintr-leaf-mark.png" alt="" aria-hidden="true" class="brand-leaf" width="16" height="24">
+                <span>Mintr<span class="gradient-text">AIQ</span></span>
+            </a>
+            <nav class="legal-nav-links" aria-label="Legal">
+                <a href="terms.html">Terms</a>
+                <a href="privacy.html">Privacy</a>
+                <a href="support.html">Support</a>
+                <a href="contact.html" class="is-active" aria-current="page">Contact</a>
+                <a href="intro.html" class="back-home">Home</a>
+            </nav>
+        </header>
+        <main class="legal-main">
+            <h1>Contact us</h1>
+            <article class="legal-card">
+                <p class="contact-intro">
+                    Send us a question, tell us something is broken, or ask about your data.
+                    A real person reads every message.
+                </p>
+
+                <form id="contact-form" class="contact-form" novalidate>
+                    <div class="contact-field">
+                        <label class="contact-label" for="contact-reason">What&rsquo;s this about?</label>
+                        <select id="contact-reason" name="reason" class="contact-input" required
+                                aria-describedby="reason-error">
+                            <option value="" disabled selected>Choose one&hellip;</option>
+                            <option value="app_problem">A problem with the app</option>
+                            <option value="presale_question">A question before I sign up</option>
+                            <option value="billing">Billing or subscription</option>
+                            <option value="privacy">Privacy or my data</option>
+                            <option value="other">Something else</option>
+                        </select>
+                        <p class="contact-error" id="reason-error" role="alert"></p>
+                    </div>
+
+                    <div class="contact-field">
+                        <label class="contact-label" for="contact-name">Your name</label>
+                        <input type="text" id="contact-name" name="name" class="contact-input" required
+                               maxlength="80" autocomplete="name" placeholder="First name is fine"
+                               aria-describedby="name-error">
+                        <p class="contact-error" id="name-error" role="alert"></p>
+                    </div>
+
+                    <div class="contact-field">
+                        <label class="contact-label" for="contact-email">Your email address</label>
+                        <p class="contact-help" id="email-help">
+                            If you already have a MintrAIQ account, use the address on the account &mdash;
+                            it helps us find you.
+                        </p>
+                        <input type="email" id="contact-email" name="email" class="contact-input" required
+                               maxlength="254" autocomplete="email" inputmode="email"
+                               placeholder="you@example.com" aria-describedby="email-help email-error">
+                        <p class="contact-error" id="email-error" role="alert"></p>
+                    </div>
+
+                    <div class="contact-field">
+                        <label class="contact-label" for="contact-screen">
+                            Which screen or page were you on? (optional)
+                        </label>
+                        <p class="contact-help" id="screen-help">
+                            Leave this blank if it isn&rsquo;t about a specific screen.
+                        </p>
+                        <input type="text" id="contact-screen" name="screen" class="contact-input"
+                               maxlength="120" placeholder="e.g. Dashboard, Receipt scanner, mintraiq.com/terms"
+                               aria-describedby="screen-help">
+                    </div>
+
+                    <div class="contact-field">
+                        <label class="contact-label" for="contact-message">
+                            What happened, and what did you expect?
+                        </label>
+                        <textarea id="contact-message" name="message" class="contact-input contact-textarea"
+                                  required maxlength="2000" rows="6"
+                                  placeholder="Tell us what you did, what happened, and what you expected instead."
+                                  aria-describedby="message-counter message-error"></textarea>
+                        <p class="contact-counter" id="message-counter" aria-live="polite">0/2000</p>
+                        <p class="contact-error" id="message-error" role="alert"></p>
+                    </div>
+
+                    <!--
+                      Honeypot. Hidden from sight and from assistive technology, and
+                      taken out of the tab order — a real person never reaches it.
+                    -->
+                    <div class="contact-honeypot" aria-hidden="true">
+                        <label for="contact-website">Leave this field empty</label>
+                        <input type="text" id="contact-website" name="website" tabindex="-1" autocomplete="off">
+                    </div>
+
+                    <p class="contact-notice">
+                        We use your name, email and message to answer you, and we keep the message so we
+                        can pick up the thread if you write to us again.
+                        <strong>This form does not sign you up to anything</strong> &mdash; we won&rsquo;t add
+                        you to a mailing list and we don&rsquo;t share what you send with anyone outside
+                        MintrAIQ. See our <a href="privacy.html">Privacy Policy</a>.
+                    </p>
+
+                    <div id="turnstile-container" class="contact-captcha"></div>
+
+                    <button type="submit" id="contact-submit" class="deletion-submit contact-submit">
+                        Send message
+                    </button>
+
+                    <p class="contact-status" id="contact-status" role="status" aria-live="polite"></p>
+                </form>
+
+                <div id="contact-success" class="contact-success" hidden>
+                    <h2 class="contact-success-title">Thanks &mdash; we&rsquo;ve got it</h2>
+                    <p>
+                        We aim to reply within 2 business days (New Zealand time). We&rsquo;ve sent a copy
+                        to your email address.
+                    </p>
+                    <p class="contact-reference">
+                        Your reference: <strong id="contact-reference-value"></strong>
+                    </p>
+                </div>
+
+                <p class="contact-fallback">
+                    Prefer email? Write to <a href="mailto:ram@mintraiq.com">ram@mintraiq.com</a>.
+                </p>
+
+                <p class="contact-turnstile-note">
+                    Protected by Cloudflare Turnstile (invisible). See the
+                    <a href="https://www.cloudflare.com/turnstile-privacy-policy/" target="_blank"
+                       rel="noopener noreferrer">Turnstile Privacy Addendum</a>.
+                </p>
+            </article>
+        </main>
+        <footer class="legal-footer">
+            <p>
+                © MintrAIQ ·
+                <a href="privacy.html">Privacy Policy</a>
+                ·
+                <a href="terms.html">Terms and Conditions</a>
+                ·
+                <a href="intro.html">Back to home</a>
+            </p>
+        </footer>
+    </div>
+    <noscript>
+        <p style="max-width:640px;margin:0 auto 40px;padding:0 20px;color:#b8c2d4;text-align:center;">
+            This form needs JavaScript. Email <a href="mailto:ram@mintraiq.com">ram@mintraiq.com</a> instead —
+            tell us the address on your account, the screen you were on, and what you expected to happen.
+        </p>
+    </noscript>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+    <script type="module" src="js/contact-form.js"></script>
+</body>
+</html>

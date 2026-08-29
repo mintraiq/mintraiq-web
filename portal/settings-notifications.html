@@ -63,6 +63,23 @@
                                     </label>
                                 </div>
                             </form>
+
+                            <!-- Deliberately a separate section from the delivery
+                                 channel above. That one routes alerts and nudges
+                                 about the user's own money — product messaging
+                                 they asked for. This one is commercial email and
+                                 needs consent. Two switches that look alike is
+                                 itself a Fair Trading Act problem, so they are
+                                 divided and each is labelled for what it does. -->
+                            <div class="settings-marketing-consent" id="marketingConsentSection" hidden>
+                                <h4 style="margin:0 0 6px;font-size:1rem">Email from Mintr</h4>
+                                <p class="settings-marketing-body" id="marketingConsentBody"></p>
+                                <label>
+                                    <input type="checkbox" id="marketingConsentToggle" autocomplete="off" />
+                                    <span id="marketingConsentLabel"></span>
+                                </label>
+                                <p class="onboarding-terms-error" id="marketingConsentError" role="alert"></p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -72,5 +89,6 @@
     <script type="module" src="./js/portal-page-boot.js"></script>
     <script type="module" src="./js/portal-nav.js"></script>
     <script type="module" src="./js/portal-settings-nav.js"></script>
+    <script type="module" src="./js/settings-marketing-consent.js"></script>
 </body>
 </html>

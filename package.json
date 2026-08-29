@@ -7,14 +7,15 @@
     "build:react": "npm install --prefix apps/ninja-react && npm run build --prefix apps/ninja-react",
     "build": "npm run build:env && npm run build:react",
     "vercel-build": "npm run build",
-    "test:legal": "node --test scripts/legal-dates.test.mjs scripts/analytics-config.test.mjs",
+    "test:legal": "node --test scripts/legal-dates.test.mjs scripts/analytics-config.test.mjs scripts/marketing-consent-copy.test.mjs",
     "test:bank-sync": "node --test scripts/bank-sync-copy.test.mjs",
     "test:copy": "npm run test:legal && npm run test:bank-sync && npm run test:price-overlay",
     "test:e2e": "playwright test --config=e2e/playwright.config.js",
     "test:e2e:ui": "playwright test --config=e2e/playwright.config.js --ui",
     "test:e2e:install": "playwright install chromium",
     "test:analytics-config": "node --test scripts/analytics-config.test.mjs",
-    "test:price-overlay": "node --test scripts/price-overlay-copy.test.mjs"
+    "test:price-overlay": "node --test scripts/price-overlay-copy.test.mjs",
+    "test:consent-copy": "node --test scripts/marketing-consent-copy.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.51.0"

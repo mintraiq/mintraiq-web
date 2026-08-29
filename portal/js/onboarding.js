@@ -4,6 +4,13 @@ import { isBootstrapOnboardingComplete } from './config.js';
 import { visitWithTurbo } from './turbo-visit.js';
 import { hrefForStep, isKnownStep } from './onboarding-steps.js';
 import {
+    MARKETING_CONSENT_BODY,
+    MARKETING_CONSENT_DECLINE_NOTE,
+    MARKETING_CONSENT_LABEL,
+    MARKETING_CONSENT_SAVE_FAILED,
+    saveMarketingConsent
+} from './marketing-consent.js';
+import {
     agreeToLegalTerms,
     clearLegalContentState,
     loadLegalContent,
@@ -186,6 +193,23 @@ async function bootOnboardingPage() {
     const err = document.getElementById('onboardingTermsError');
     if (!cb || !btn) return;
 
+    // Rendered from the shared constants rather than written into the markup,
+    // so the wording has exactly one source per repo and the guard test has
+    // something to assert against.
+    const marketingCb = document.getElementById('onboardingMarketingCheckbox');
+    const marketingErr = document.getElementById('onboardingMarketingError');
+    const setText = (id, text) => {
+        const node = document.getElementById(id);
+        if (node) node.textContent = text;
+    };
+    setText('onboardingMarketingLabel', MARKETING_CONSENT_LABEL);
+    setText('onboardingMarketingBody', MARKETING_CONSENT_BODY);
+    setText('onboardingMarketingDecline', MARKETING_CONSENT_DECLINE_NOTE);
+    // Never carried over from a previous visit or a restored form state. A
+    // pre-ticked box is not consent under the Unsolicited Electronic Messages
+    // Act 2007, and bfcache restores a checked box on a back-navigation.
+    if (marketingCb) marketingCb.checked = false;
+
     const syncBtn = () => {
         btn.disabled = !cb.checked;
         btn.style.opacity = cb.checked ? '1' : '0.55';
@@ -197,7 +221,32 @@ async function bootOnboardingPage() {
         if (!cb.checked || err) err.textContent = '';
         btn.disabled = true;
         btn.textContent = 'Saving…';
+        if (marketingErr) marketingErr.textContent = '';
         try {
+            // Saved before the agreement, and a failure unticks the box and
+            // stops this press rather than continuing. The alternative is
+            // navigating away while showing a notice nobody can read, which is
+            // how a dropped consent comes to look exactly like a recorded one.
+            // It cannot lock anyone out: the box is unticked now, so the next
+            // press attempts nothing and proceeds.
+            if (marketingCb && marketingCb.checked) {
+                const token = await client.getAccessToken();
+                const stored = await saveMarketingConsent({
+                    consented: true,
+                    source: 'onboarding_legal',
+                    token,
+                    // The version the user was actually shown, not a guess.
+                    policyVersion: version
+                });
+                if (!stored) {
+                    marketingCb.checked = false;
+                    if (marketingErr) marketingErr.textContent = MARKETING_CONSENT_SAVE_FAILED;
+                    btn.textContent = 'Agree and continue to setup';
+                    syncBtn();
+                    return;
+                }
+            }
+
             await agreeToLegalTerms(client, version);
             clearLegalContentState();
             try {

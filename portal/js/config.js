@@ -53,6 +53,15 @@ const defaults = {
     agentApiBaseProd: CUSTOM_DOMAINS.production.agent,
     surveyUrlStaging: CUSTOM_DOMAINS.staging.survey,
     surveyUrlProd: CUSTOM_DOMAINS.production.survey,
+    /**
+     * Lead-capture API (mintraiq-lead-agent). Only the signup marketing-consent
+     * preference calls it. Empty is a supported state, not a misconfiguration:
+     * the endpoint sits behind a server flag, and with no URL the preference
+     * degrades to an inline notice rather than blocking onboarding. Set via
+     * PUBLIC_LEAD_API_BASE at build. No default domain is guessed here — a
+     * wrong host would send an access token somewhere it does not belong.
+     */
+    leadApiBase: '',
     legacyFlaskBase: 'http://127.0.0.1:5000',
     fastApiDocsUrl: 'http://localhost:5000/api/docs',
     /**

@@ -53,7 +53,10 @@ const REQUIRED_INIT_OPTIONS = [
     ['mask_all_text: true', 'masking must already be in place if replay is ever enabled'],
     ["capture_pageview: 'history_change'", 'the portal navigates with Turbo (pushState)'],
     ['cross_subdomain_cookie: false', 'the identifier stays on this host'],
-    ['secure_cookie: true', 'the site is HTTPS-only']
+    ['secure_cookie: true', 'the site is HTTPS-only'],
+    ['capture_performance: false', 'undefined here means PostHog remote config decides'],
+    ['capture_dead_clicks: false', 'dead clicks capture element information'],
+    ['capture_heatmaps: false', 'heatmaps capture clicks, mouse movement and scrolling']
 ];
 
 const FORBIDDEN_CALLS = ['identify', 'alias', 'setPersonProperties', 'createPersonProfile'];

@@ -19,6 +19,14 @@
  *     never receives a MintrAIQ `user_id`, email or provider `sub`.
  *   - `cross_subdomain_cookie: false` keeps the identifier on this host instead
  *     of sharing it with app./agent./survey.mintraiq.com.
+ *   - `capture_performance`, `capture_dead_clicks` and `capture_heatmaps` are set
+ *     explicitly even though they look redundant next to `autocapture: false`.
+ *     They are not. Left undefined, posthog-js falls back to **remote config from
+ *     the PostHog dashboard**, which arrives CDN-cached and is not visible in this
+ *     repo. On 2 Sep 2026 the first preview deploy loaded the web-vitals and
+ *     dead-clicks bundles and sent `Web vitals` events that nothing in this file
+ *     asked for. A dashboard toggle nobody can review is not a guardrail; these
+ *     lines are, because `scripts/analytics-config.test.mjs` pins them.
  *
  * This file must never load on `portal/callback.html`. That page's URL carries a
  * single-use sign-in credential (`?code=` for PKCE, `?token_hash=` for a magic
@@ -67,6 +75,9 @@
             disable_session_recording: true,
             mask_all_text: true,
             disable_surveys: true,
+            capture_performance: false,
+            capture_dead_clicks: false,
+            capture_heatmaps: false,
             capture_pageview: 'history_change',
             cross_subdomain_cookie: false,
             secure_cookie: true

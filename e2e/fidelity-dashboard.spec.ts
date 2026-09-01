@@ -40,8 +40,8 @@ test.describe('Multi-fidelity dashboard layouts', () => {
         await waitHarnessReady(page);
 
         await expect(page.getByTestId('harness-mode')).toContainText('HYBRID_STANDARD');
-        await expect(page.locator('#current_income')).toContainText('$9200');
-        await expect(page.locator('#current_expense')).toContainText('$7100');
+        await expect(page.locator('#current_income')).toContainText('$9,200.00');
+        await expect(page.locator('#current_expense')).toContainText('$7,100.00');
         await expect(page.locator('#liteForecastLock')).toHaveAttribute('hidden', '');
         await expect(page.locator('#receiptBankBanner')).toHaveAttribute('hidden', '');
         await expect(page.locator('#trendChart')).toBeVisible();

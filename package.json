@@ -8,6 +8,8 @@
     "build": "npm run build:env && npm run build:react",
     "vercel-build": "npm run build",
     "test:legal": "node --test scripts/legal-dates.test.mjs",
+    "test:bank-sync": "node --test scripts/bank-sync-copy.test.mjs",
+    "test:copy": "npm run test:legal && npm run test:bank-sync",
     "test:e2e": "playwright test --config=e2e/playwright.config.js",
     "test:e2e:ui": "playwright test --config=e2e/playwright.config.js --ui",
     "test:e2e:install": "playwright install chromium"

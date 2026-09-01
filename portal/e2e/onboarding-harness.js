@@ -12,6 +12,7 @@
  */
 import { QUESTIONS } from '../js/onboarding-intake.js';
 import { PATHS } from '../js/onboarding-connect.js';
+import { ENABLE_BANK_SYNC, connectGoalFraming } from '../js/bank-sync-copy.js';
 
 const params = new URLSearchParams(window.location.search);
 const view = params.get('view') || 'intake';
@@ -76,14 +77,15 @@ function renderConnect() {
     $('harnessProgressFill').setAttribute('aria-valuemin', '0');
     $('harnessProgressCaption').textContent = 'Step 3 of 3 — last one';
     $('harnessTitle').textContent = 'Connect your money';
-    $('harnessSubtitle').textContent =
-        'Connect once and I can track your emergency fund without you lifting a finger.';
+    $('harnessSubtitle').textContent = connectGoalFraming(ENABLE_BANK_SYNC, 'emergency_fund');
     $('harnessSkip').textContent = "I'll do this later";
 
     const wrap = $('harnessOptions');
     wrap.removeAttribute('role');
     wrap.textContent = '';
-    PATHS.forEach((p) => wrap.append(card(p)));
+    // Same filter the real screen applies — a harness that renders a gated
+    // path shows copy no user can reach, on a URL any user can.
+    PATHS.filter((p) => p.enabled !== false).forEach((p) => wrap.append(card(p)));
 }
 
 if (view === 'connect') renderConnect();

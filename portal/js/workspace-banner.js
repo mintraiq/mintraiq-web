@@ -13,7 +13,7 @@ const PORTAL_PAGE_COPY = {
     dashboard: { title: 'Dashboard', subtitle: null },
     transactions: {
         title: 'Transactions',
-        subtitle: 'Review your latest activity, sync your bank, and tag categories.'
+        subtitle: 'Review your latest activity and tag categories.'
     },
     'upload-statement': {
         title: 'Upload statement',

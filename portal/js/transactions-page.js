@@ -998,40 +998,6 @@ async function loadTransactions(client, opts = {}) {
     }
 }
 
-async function syncAkahu(client) {
-    const btn = document.getElementById('txSyncAkahu');
-    const hint = document.getElementById('txSyncHint');
-    if (btn) btn.disabled = true;
-    if (hint) hint.textContent = 'Syncing…';
-    try {
-        const res = await financeApiFetch(client, '/akahu/sync', { method: 'POST' });
-        const text = await res.text();
-        let data;
-        try {
-            data = text ? JSON.parse(text) : {};
-        } catch {
-            data = {};
-        }
-        if (!res.ok) {
-            const detail = data.detail;
-            const msg =
-                typeof detail === 'string'
-                    ? detail
-                    : Array.isArray(detail)
-                      ? detail.map((d) => d.msg || JSON.stringify(d)).join('; ')
-                      : data.message || `Sync failed (${res.status})`;
-            throw new Error(msg);
-        }
-        const msg = data.message || `OK (${data.count ?? 0} items)`;
-        if (hint) hint.textContent = msg;
-        await loadTransactions(client);
-    } catch (e) {
-        if (hint) hint.textContent = String(e.message || e);
-    } finally {
-        if (btn) btn.disabled = false;
-    }
-}
-
 /**
  * @param {AbortSignal} [signal]
  */
@@ -1229,7 +1195,6 @@ export async function bootTransactionsPage(opts = {}) {
     currentClient = client;
 
     document.getElementById('txReload')?.addEventListener('click', () => void loadTransactions(client), { signal });
-    document.getElementById('txSyncAkahu')?.addEventListener('click', () => void syncAkahu(client), { signal });
     setDefaultDateRange();
     wireFilters(signal);
     wirePagination(signal);

@@ -975,12 +975,7 @@ body[data-portal-nav="transactions"] .tx-action-btn--reload {
     background: var(--accent-green, #00ff9d);
     color: #0a0a0a;
 }
-body[data-portal-nav="transactions"] .tx-action-btn--sync {
-    background: linear-gradient(135deg, var(--accent-purple, #bb6bd9), var(--accent-blue, #2f80ed));
-    color: #fff;
-}
-body[data-portal-nav="transactions"] .tx-action-btn--reload:hover,
-body[data-portal-nav="transactions"] .tx-action-btn--sync:hover {
+body[data-portal-nav="transactions"] .tx-action-btn--reload:hover {
     filter: brightness(1.06);
 }
 @media (min-width: 640px) {

@@ -19,7 +19,7 @@ Implement individual view managers to intercept the incoming payload state param
 - Swap out the 12-month chart container. In its place, render a blurred, locked vector silhouette of a graph.
 - Overlay a high-conversion call-to-action (CTA) glassmorphism modal card directly over the container utilizing the payload's `influence_hooks` configuration values:
   * Display: "Unlock your 12-month forecast. You have completed {unlock_percentage}% of your profile history tracker."
-  * Action Button: "Drop Statement PDF or Connect Akahu Feed."
+  * Action Button: "Upload a bank statement" (there is no bank aggregation — see portal/js/bank-sync-copy.js)
 
 ### Case C: `RECEIPT_ONLY_INSIGHTS`
 - Re-orient the workspace viewport to prioritize the `receipt_summary` data objects.

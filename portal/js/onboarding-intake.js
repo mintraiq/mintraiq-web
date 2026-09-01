@@ -7,8 +7,7 @@ import { hrefForStep } from './onboarding-steps.js';
  * The intake step: three tap-card questions asked BEFORE any friction.
  *
  * The point is not the data alone — answering three cheap questions is itself
- * momentum, and it earns the right to ask for a bank connection on the next
- * screen. Each answer has a real consumer, so this is not a survey:
+ * momentum, and it earns the right to ask for their data on the next screen. Each answer has a real consumer, so this is not a survey:
  *   motivation      -> Mintor's coaching tone
  *   primary_goal    -> seeds the goals step, and is quoted on the connect screen
  *   tracking_style  -> orders the connect screen's options

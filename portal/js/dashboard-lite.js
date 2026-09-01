@@ -3,6 +3,7 @@
  */
 import { shouldShowHungryMintrBucket } from './data-level-progress.js';
 import { mountHungryMintrBucket } from './hungry-mintr-bucket.js';
+import { ENABLE_BANK_SYNC, safeCopy, safeHref, unlockForecastCta } from './bank-sync-copy.js';
 
 /**
  * @param {Record<string, unknown>} data
@@ -38,8 +39,12 @@ export function renderLiteMinimum(data, render) {
     if (msgEl) msgEl.textContent = message;
     if (pctEl) pctEl.textContent = `${pct}%`;
     if (cta) {
-        cta.textContent = hooks.cta_label || 'Drop Statement PDF or Connect Akahu Feed.';
-        if (hooks.cta_href) cta.setAttribute('href', hooks.cta_href);
+        // finance-ai-dashboard still sends a bank-feed CTA label here. Painting
+        // it would advertise an integration that does not exist, so a
+        // claim-bearing label is dropped for the local wording.
+        const fallbackHref = './upload-statement.html';
+        cta.textContent = safeCopy(hooks.cta_label, unlockForecastCta(ENABLE_BANK_SYNC));
+        cta.setAttribute('href', safeHref(hooks.cta_href, fallbackHref));
     }
     if (avgExp) {
         avgExp.textContent = formatMoney(monthly.historical_avg_expense);

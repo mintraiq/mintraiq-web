@@ -18,10 +18,12 @@
         #status { max-width: 560px; text-align: center; color: var(--m); }
         pre { text-align: left; background: #111827; padding: 12px; border-radius: 8px; overflow: auto; }
     </style>
-    <script>
-        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-    </script>
-    <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
+    <!--
+        No web analytics on this page. The auth callback URL carries a single-use credential
+        in its query string (`?code=` for PKCE, `?token_hash=` for the email/magic-link flow),
+        and the Vercel Analytics script POSTs the full `location.href` — query string included —
+        to Vercel on every page view. See docs/privacy-data-flow-matrix.md §1.6.
+    -->
     <script src="../config/runtime-env.js"></script>
     <script src="./env.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js"></script>

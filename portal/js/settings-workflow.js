@@ -27,7 +27,7 @@ const DEFAULT_FLOW_STEPS = DEFAULT_FLOW_STEP_IDS.map((id) => ({
 
 const OPTIONAL_STEPS = OPTIONAL_STEP_IDS;
 const STEP_INTERSTITIAL = {
-    banks: 'Saving your bank preferences…',
+    banks: 'Saving your statement preferences…',
     billing: 'Saving your plan choice…',
     goals: 'Saving your goals…',
     categories: 'Saving your category picks…',
@@ -40,7 +40,7 @@ const STEP_BENEFIT_COPY = {
     security:
         'A quick safety check so you feel confident before anything sensitive connects. You can tighten this further whenever you like.',
     banks:
-        'Tell us whether you prefer a bank link or uploading statements on your own schedule. Either way helps us spot patterns and traps — no wrong answer.',
+        'Statements you upload and receipts you scan are what we read to spot patterns and traps. Add them on your own schedule — there is no wrong pace.',
     billing:
         "MintrAIQ works hard so you don't have to, but we're not high-maintenance. Stay on Free for as long as you like. We're just happy to be here.",
     goals:
@@ -75,7 +75,7 @@ const MINTR_COACH_COPY = {
     },
     banks: {
         dialogue: () =>
-            'Time to connect the dots. Linking your bank gives me the read-only data I need to find your hidden savings and spot trends. It is fast, secure, and fully under your control.',
+            'Time to connect the dots. Upload a statement and I get the raw material I need to find your hidden savings and spot trends. Keep adding them and the picture keeps sharpening.',
         tip: 'This is the highest-friction step — and the one that unlocks the clearest picture of your money.'
     },
     goals: {
@@ -109,7 +109,7 @@ const MINTR_TIP_INTRO = {
     billing:
         'Choose your path — compare what each license includes. You can change later; Free stays on the table.',
     security: 'A calm checkpoint so your financial space stays yours. Adjust stricter controls whenever you like.',
-    banks: 'This is the heart of clearer insights: with a bit of real context we can highlight behaviour and traps. Connect when it feels right — you can add more later.',
+    banks: 'This is the heart of clearer insights: with a bit of real context we can highlight behaviour and traps. Upload when it feels right — you can add more later.',
     goals: 'No perfect answer needed — even a rough aim helps us steer nudges toward what you care about. Skip or come back when you are ready.',
     categories:
         'Optional: tap what matters so coaching sounds like your life, not a spreadsheet. Fine to skip — we learn as you go.',
@@ -125,7 +125,7 @@ const MINTR_TIP_LINE = {
     billing:
         'Stay on Free as long as you like — choose a paid plan only when you want premium AI features.',
     security: 'Multi-factor sign-in is the digital guard dog: quick for you, hard for strangers.',
-    banks: 'Read-only bank links or uploads are how I spot trends and hidden savings — always your call.',
+    banks: 'The statements you upload are how I spot trends and hidden savings — always your call.',
     goals: 'A concrete target turns tracking into a roadmap toward what you actually want.',
     categories: 'A few category hints teach me your vocabulary so corrections drop over time.',
     ai: 'Pick a tone that feels supportive — strict coach or chill friend, you stay in charge.',
@@ -250,24 +250,18 @@ function sanitizeInput(v) {
     return String(v ?? '').trim().slice(0, 512);
 }
 
-function syncBanksStatementPanels(form) {
+/**
+ * Pin `statement_source` to manual_upload.
+ *
+ * The connector choice is gone — there is no bank aggregation — but a user who
+ * picked "connector" before 1 Sep 2026 still has it stored server-side, and
+ * hydration would put it straight back into the hidden input and re-submit it.
+ * Normalising on hydrate repairs that value the next time they open the step.
+ */
+function pinStatementSourceToManual(form) {
     if (!form) return;
     const hidden = form.querySelector('input[name="statement_source"]');
-    const raw = String(hidden?.value || '').trim();
-    const mode = raw === 'connector' ? 'connector' : 'manual_upload';
-    if (hidden) hidden.value = mode;
-    const connectorSec = form.querySelector('#banksConnectorSection');
-    const manualSec = form.querySelector('#banksManualSection');
-    if (connectorSec) connectorSec.hidden = mode !== 'connector';
-    if (manualSec) manualSec.hidden = mode !== 'manual_upload';
-    form.querySelectorAll('[data-banks-connector-field]').forEach((el) => {
-        el.disabled = mode !== 'connector';
-    });
-    form.querySelectorAll('[data-statement-source]').forEach((btn) => {
-        const v = String(btn.getAttribute('data-statement-source') || '');
-        btn.classList.toggle('is-selected', v === mode);
-        btn.setAttribute('aria-pressed', v === mode ? 'true' : 'false');
-    });
+    if (hidden) hidden.value = 'manual_upload';
 }
 
 function serializeForm(form) {
@@ -321,7 +315,7 @@ function hydrateLowFrictionWidgets(stepId, form, data) {
         }
     }
     if (stepId === 'banks') {
-        syncBanksStatementPanels(form);
+        pinStatementSourceToManual(form);
     }
     if (stepId === 'billing') {
         const tierEl = form.querySelector('#billingTier');
@@ -401,17 +395,7 @@ function wireLowFrictionWidgets(stepId, form, onDirty) {
         }
     }
     if (stepId === 'banks') {
-        const hidden = form.querySelector('input[name="statement_source"]');
-        const buttons = [...form.querySelectorAll('[data-statement-source]')];
-        buttons.forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const v = String(btn.getAttribute('data-statement-source') || 'manual_upload');
-                if (hidden) hidden.value = v === 'connector' ? 'connector' : 'manual_upload';
-                syncBanksStatementPanels(form);
-                onDirty();
-            });
-        });
-        syncBanksStatementPanels(form);
+        pinStatementSourceToManual(form);
     }
 }
 

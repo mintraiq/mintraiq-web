@@ -2,6 +2,53 @@ import type { DashboardSample } from '../schemas/samples';
 
 type Props = { data: DashboardSample };
 
+/**
+ * There is no bank aggregation (founder decision 13 Aug 2026), so no string
+ * rendered here may offer or imply one — Fair Trading Act 1986 ss 9/10/13.
+ *
+ * The canonical wording lives in `portal/js/bank-sync-copy.js` and, across
+ * repos, in `finance-ai-mobile/lib/bankSyncCopy.ts`. This embed cannot import
+ * either (it bundles from `apps/ninja-react/src` only), so the strings are
+ * restated here and `scripts/bank-sync-copy.test.mjs` asserts this file carries
+ * no claim phrase.
+ *
+ * The API is the live source of the offending copy, not this file: it still
+ * sends bank-feed wording for both the unlock CTA and the expansion prompt, so
+ * server values are checked rather than painted.
+ */
+const BANK_SYNC_CLAIMS = [
+    'connect your bank',
+    'connect a bank',
+    'connect my bank',
+    'connect bank',
+    'link your bank',
+    'bank sync',
+    'auto-sync',
+    'akahu',
+    'lifting a finger',
+    // Sent by the API, not by mobile — see API_BANK_SYNC_CLAIMS in the portal
+    // module. "Pair receipts with your bank feed" trips none of the above.
+    'bank feed',
+    'banking portal',
+    'linked banking',
+    'bank connection'
+];
+
+const BANK_SYNC_HREF = /settings-banks|bank[-_]?sync|akahu/i;
+
+/** A server string, or the local fallback when it claims a bank connection. */
+function safeCopy(value: string | undefined, fallback: string): string {
+    if (!value || !value.trim()) return fallback;
+    const haystack = value.toLowerCase();
+    return BANK_SYNC_CLAIMS.some((claim) => haystack.includes(claim)) ? fallback : value;
+}
+
+/** A server href, or the local fallback when it points at a bank-connect page. */
+function safeHref(value: string | undefined, fallback: string): string {
+    if (!value || !value.trim()) return fallback;
+    return BANK_SYNC_HREF.test(value) ? fallback : value;
+}
+
 function formatMoney(value?: number) {
     if (value == null || !Number.isFinite(value)) return '—';
     return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
@@ -40,8 +87,12 @@ export function LiteMinimumView({ data }: Props) {
                         `Unlock your 12-month forecast. You have completed ${pct}% of your profile history tracker.`}
                 </p>
                 <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--accent-green)' }}>{pct}%</div>
-                <a className="btn-primary" href={hooks?.cta_href ?? './upload-statement.html'} style={{ marginTop: 16, display: 'inline-block' }}>
-                    {hooks?.cta_label ?? 'Drop Statement PDF or Connect Akahu Feed.'}
+                <a
+                    className="btn-primary"
+                    href={safeHref(hooks?.cta_href, './upload-statement.html')}
+                    style={{ marginTop: 16, display: 'inline-block' }}
+                >
+                    {safeCopy(hooks?.cta_label, 'Upload a bank statement')}
                 </a>
             </div>
             <div className="grid-container" style={{ marginTop: 16, position: 'relative', zIndex: 1 }}>
@@ -86,10 +137,12 @@ export function ReceiptOnlyView({ data }: Props) {
                     background: 'rgba(47,128,237,0.08)'
                 }}
             >
-                <strong>{prompt?.title ?? 'Pair receipts with your bank feed'}</strong>
-                <p style={{ color: 'var(--text-secondary)', margin: '8px 0 12px' }}>{prompt?.message}</p>
-                <a className="btn-primary" href={prompt?.cta_href ?? './settings-banks.html'}>
-                    {prompt?.cta_label ?? 'Connect bank account'}
+                <strong>{safeCopy(prompt?.title, 'Add a statement to unlock forecasts')}</strong>
+                <p style={{ color: 'var(--text-secondary)', margin: '8px 0 12px' }}>
+                    {safeCopy(prompt?.message, 'Import a bank statement or scan a receipt to start tracking spending.')}
+                </p>
+                <a className="btn-primary" href={safeHref(prompt?.cta_href, './upload-statement.html')}>
+                    {safeCopy(prompt?.cta_label, 'Upload a bank statement')}
                 </a>
             </div>
         </>

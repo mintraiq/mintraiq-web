@@ -1,6 +1,7 @@
 /**
  * RECEIPT_ONLY_INSIGHTS + COLD_START onboarding layouts.
  */
+import { ENABLE_BANK_SYNC, expansionPrompt, safeCopy, safeHref } from './bank-sync-copy.js';
 
 /** Primary actions for new users (no duplicate bank-connect CTAs on dashboard). */
 const COLD_START_ACTIONS = [
@@ -35,14 +36,19 @@ export function renderReceiptOnly(data, render) {
 
     if (banner) {
         banner.hidden = false;
+        // The API still sends aggregation wording for all four of these fields.
+        // Every one is checked rather than painted: the claim lives in the
+        // server's copy, not in our markup, so a sweep of this file's own
+        // strings would never have caught it.
+        const local = expansionPrompt(ENABLE_BANK_SYNC);
         const title = banner.querySelector('[data-receipt-banner-title]');
         const body = banner.querySelector('[data-receipt-banner-body]');
         const link = banner.querySelector('[data-receipt-banner-cta]');
-        if (title) title.textContent = prompt.title || 'Connect your bank';
-        if (body) body.textContent = prompt.message || '';
+        if (title) title.textContent = safeCopy(prompt.title, local.title);
+        if (body) body.textContent = safeCopy(prompt.message, local.body);
         if (link) {
-            link.textContent = prompt.cta_label || 'Connect bank account';
-            if (prompt.cta_href) link.setAttribute('href', prompt.cta_href);
+            link.textContent = safeCopy(prompt.cta_label, local.ctaLabel);
+            link.setAttribute('href', safeHref(prompt.cta_href, local.href));
         }
     }
 

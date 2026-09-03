@@ -49,9 +49,9 @@ const CHAPTERS = [
     {
         id: 'data',
         label: 'The Data',
-        summary: 'Bank link or statements — your call',
+        summary: 'Statements, receipts and email — your call',
         items: [
-            { id: 'banks', href: './settings-banks.html', icon: 'fa-university', label: 'Banks & income' },
+            { id: 'banks', href: './settings-banks.html', icon: 'fa-file-import', label: 'Statements & income' },
             { id: 'email', href: './settings-email.html', icon: 'fa-envelope', label: 'Email connector' }
         ]
     },

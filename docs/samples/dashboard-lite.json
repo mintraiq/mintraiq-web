@@ -20,7 +20,7 @@
   },
   "influence_hooks": {
     "unlock_percentage": 50,
-    "cta_label": "Drop Statement PDF or Connect Akahu Feed.",
+    "cta_label": "Upload a bank statement",
     "cta_href": "./upload-statement.html",
     "message": "Unlock your 12-month forecast. You have completed 50% of your profile history tracker."
   },

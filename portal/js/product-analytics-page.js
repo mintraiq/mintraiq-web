@@ -6,6 +6,11 @@ import {
     hasFeature,
     loadEntitlementProfile,
 } from './entitlements.js';
+import {
+    CPI_LEGEND_LABEL,
+    STATS_NZ_ATTRIBUTION,
+    overlayCaption,
+} from './price-overlay-copy.js';
 
 const DEBOUNCE_MS = 300;
 const DAYS_3M = 90;
@@ -236,7 +241,7 @@ function buildChartPayload(data) {
     return { labels, storeDatasets, cpiData, showCpi: data.show_cpi_overlay !== false };
 }
 
-function renderLegend(storeDatasets, showCpi = true, unitLabel = '$/unit') {
+function renderLegend(storeDatasets, showCpi = true) {
     const root = document.getElementById('pptLegend');
     if (!root) return;
     const items = [
@@ -248,7 +253,7 @@ function renderLegend(storeDatasets, showCpi = true, unitLabel = '$/unit') {
         ...(showCpi
             ? [
                   {
-                      label: `National CPI (${unitLabel})`,
+                      label: CPI_LEGEND_LABEL,
                       color: CPI_COLOR,
                       dashed: true,
                   },
@@ -287,9 +292,18 @@ function renderChart(data) {
         subtitle.textContent =
             (data.canonical_name || data.query_string) +
             ` · ${data.days_window}-day window · ${unitLabel}`;
-        if (payload.showCpi && data.cpi_product_name) {
-            subtitle.textContent += ` · CPI: ${data.cpi_product_name}`;
+        if (payload.showCpi) {
+            subtitle.textContent +=
+                ` · ${overlayCaption(data.cpi_product_name, data.cpi_latest_period)}`;
         }
+    }
+
+    // A licence condition: it is shown whenever their data is on screen, and
+    // hidden when it is not, rather than sitting on the page unconditionally.
+    const attribution = document.getElementById('pptChartAttribution');
+    if (attribution) {
+        attribution.textContent = STATS_NZ_ATTRIBUTION;
+        attribution.hidden = !payload.showCpi;
     }
 
     const displayLabels = payload.labels;
@@ -308,7 +322,7 @@ function renderChart(data) {
         ...(payload.showCpi
             ? [
                   {
-                      label: `National CPI (${unitLabel})`,
+                      label: CPI_LEGEND_LABEL,
                       data: payload.cpiData,
                       borderColor: CPI_COLOR,
                       backgroundColor: CPI_COLOR,
@@ -362,7 +376,7 @@ function renderChart(data) {
         },
     });
 
-    renderLegend(payload.storeDatasets, payload.showCpi, unitLabel);
+    renderLegend(payload.storeDatasets, payload.showCpi);
     setStatus(`${data.match_count} purchases · ${data.window_start} → ${data.window_end}`);
 }
 

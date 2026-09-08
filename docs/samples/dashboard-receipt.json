@@ -15,10 +15,10 @@
     "projected_tax_deductions": 310.13
   },
   "expansion_prompt": {
-    "title": "Pair receipts with your bank feed",
-    "message": "Connect a primary banking portal to reconcile receipt line-items against statement transactions and unlock full spending forecasts.",
-    "cta_label": "Connect bank account",
-    "cta_href": "./settings-banks.html"
+    "title": "Add a statement to unlock forecasts",
+    "message": "Import a bank statement or scan a receipt to start tracking spending.",
+    "cta_label": "Upload a bank statement",
+    "cta_href": "./upload-statement.html"
   },
   "recommendations": []
 }

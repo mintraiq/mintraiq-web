@@ -8,7 +8,7 @@ The live dashboard (`portal/dashboard.html`) switches layout based on `fidelity_
 |-----------------|---------------|-----|
 | `NORMAL`, `HYBRID_STANDARD`, `LSTM_FULL` | `dashboard-fidelity.js` → full render | Standard metrics, charts, forecast |
 | `LITE_MINIMUM` | `dashboard-lite.js` | Blurred forecast lock + `influence_hooks` CTA |
-| `RECEIPT_ONLY_INSIGHTS` | `dashboard-receipt.js` | Receipt ledger cards + bank-connect banner |
+| `RECEIPT_ONLY_INSIGHTS` | `dashboard-receipt.js` | Receipt ledger cards + upload-a-statement banner |
 | `COLD_START_ONBOARDING` | `dashboard-receipt.js` (`renderColdStart`) | Onboarding flow buttons |
 
 ## Files

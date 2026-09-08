@@ -16,14 +16,14 @@ test.describe('Multi-fidelity dashboard layouts', () => {
         await expect(page.getByTestId('harness-mode')).toContainText('LITE_MINIMUM');
         await expect(page.locator('#liteForecastLock')).toBeVisible();
         await expect(page.locator('#liteUnlockPct')).toHaveText('50%');
-        await expect(page.locator('#liteUnlockCta')).toContainText('Drop Statement PDF');
+        await expect(page.locator('#liteUnlockCta')).toContainText('Upload a bank statement');
         await expect(page.locator('#liteAvgExpense')).toContainText('$2,841');
 
         const incomeCard = page.locator('.card.metric-card.income[data-fidelity-view="full"]');
         await expect(incomeCard).toHaveAttribute('hidden', '');
     });
 
-    test('RECEIPT_ONLY_INSIGHTS shows receipt ledger and bank banner', async ({ page }) => {
+    test('RECEIPT_ONLY_INSIGHTS shows receipt ledger and statement prompt', async ({ page }) => {
         await page.goto(`${HARNESS}?fixture=receipt`);
         await waitHarnessReady(page);
 
@@ -32,7 +32,7 @@ test.describe('Multi-fidelity dashboard layouts', () => {
         await expect(page.locator('#receiptTotalSpend')).toContainText('$1,240.5');
         await expect(page.locator('#receiptTaxDeductions')).toContainText('$310.13');
         await expect(page.locator('#receiptBankBanner')).toBeVisible();
-        await expect(page.locator('[data-receipt-banner-title]')).toContainText('Pair receipts');
+        await expect(page.locator('[data-receipt-banner-title]')).toContainText('Add a statement');
     });
 
     test('HYBRID_STANDARD full layout shows income metrics and charts', async ({ page }) => {

@@ -3,15 +3,16 @@ import { financeApiFetch } from './api.js';
 import { visitWithTurbo } from './turbo-visit.js';
 import { hrefForStep } from './onboarding-steps.js';
 import { FEAT_EMAIL_CONNECTOR, getEntitlementProfile, hasFeature, loadEntitlementProfile } from './entitlements.js';
+import { ENABLE_BANK_SYNC, connectGoalFraming } from './bank-sync-copy.js';
 
 /**
  * The connect step: the one ask that makes the product work.
  *
  * Soft-mandatory by design — always shown, always the last core step, but
  * satisfied by ANY path. The server derives `connect` from the data itself
- * (Akahu token, transactions, receipts, email credentials), so none of these
- * routes need to report back here; landing on the destination and doing the
- * thing is what completes the step.
+ * (transactions, receipts, email credentials), so none of these routes need to
+ * report back here; landing on the destination and doing the thing is what
+ * completes the step.
  *
  * The escape hatch is real but quiet: it records skipped:true so the skip rate
  * is measurable, and it must mark the step complete or current_step would hand
@@ -23,7 +24,8 @@ export const PATHS = [
         href: './settings-banks.html?setup=1',
         icon: '🏦',
         label: 'Connect my bank',
-        hint: 'Read-only via Akahu. ASB, ANZ, BNZ, Westpac, Kiwibank.'
+        hint: 'Read-only via Akahu. ASB, ANZ, BNZ, Westpac, Kiwibank.',
+        enabled: ENABLE_BANK_SYNC
     },
     {
         id: 'receipts',
@@ -37,7 +39,10 @@ export const PATHS = [
         href: './upload-statement.html?setup=1',
         icon: '📄',
         label: 'Upload a statement',
-        hint: 'A PDF or CSV export from your bank.'
+        hint: 'A PDF or CSV export from your bank.',
+        // Without a bank feed this is the only way to bring history in, so it
+        // takes the emphasis the bank card would have had.
+        highlight: !ENABLE_BANK_SYNC
     },
     {
         id: 'email',
@@ -48,17 +53,6 @@ export const PATHS = [
         feature: FEAT_EMAIL_CONNECTOR
     }
 ];
-
-/** Quote the user's own goal back at them, so the ask is in their terms. */
-const GOAL_FRAMING = {
-    emergency_fund: 'Connect once and I can track your emergency fund without you lifting a finger.',
-    debt_payoff: 'Connect once and I can watch your debt come down without you doing the maths.',
-    big_purchase: 'Connect once and I can tell you when your big purchase is actually within reach.',
-    retirement: 'Connect once and I can show you what today’s spending does to the long game.',
-    just_visibility: 'Connect once and the whole picture shows up on its own — no spreadsheets.'
-};
-
-const DEFAULT_FRAMING = 'Pick whichever fits. You can add the others later.';
 
 let client = null;
 
@@ -90,9 +84,13 @@ async function visiblePaths() {
             profile = null;
         }
     }
-    // Only hide a gated path when we know the entitlement is absent; if the
-    // profile failed to load, show it rather than silently narrowing options.
-    return PATHS.filter((p) => !p.feature || !profile || hasFeature(profile, p.feature));
+    // Only hide an entitlement-gated path when we know the entitlement is
+    // absent; if the profile failed to load, show it rather than silently
+    // narrowing options. `enabled: false` is different — that is a capability
+    // the product does not have, so it is never shown on a failed load.
+    return PATHS.filter(
+        (p) => p.enabled !== false && (!p.feature || !profile || hasFeature(profile, p.feature))
+    );
 }
 
 /** Put the path matching their stated habit first — the rest keep their order. */
@@ -105,11 +103,15 @@ function orderPaths(paths, trackingStyle) {
 function renderPaths(paths) {
     const wrap = $('connectOptions');
     wrap.textContent = '';
+    // A path may claim the emphasis outright; otherwise it falls to whatever
+    // the user's stated habit floated to the top.
+    const declared = paths.findIndex((p) => p.highlight);
+    const recommended = declared >= 0 ? declared : 0;
     paths.forEach((path, i) => {
         const a = document.createElement('a');
         a.className = 'onb-card';
         a.href = path.href;
-        if (i === 0) a.dataset.recommended = '1';
+        if (i === recommended) a.dataset.recommended = '1';
 
         const icon = document.createElement('span');
         icon.className = 'onb-card-icon';
@@ -173,7 +175,7 @@ async function boot() {
 
     const intake = await loadIntake();
     const subtitle = $('connectSubtitle');
-    if (subtitle) subtitle.textContent = GOAL_FRAMING[intake.primary_goal] || DEFAULT_FRAMING;
+    if (subtitle) subtitle.textContent = connectGoalFraming(ENABLE_BANK_SYNC, intake.primary_goal);
 
     renderPaths(orderPaths(await visiblePaths(), intake.tracking_style));
 }

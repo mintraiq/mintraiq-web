@@ -54,6 +54,12 @@ const DEFAULT_PUBLIC_ENV = {
     ocrScannerApiResource: '',
     /** Stripe publishable key (pk_… — browser-safe). Enables stripe-js redirectToCheckout. */
     stripePublishableKey: '',
+    /** PostHog project API key (phc_… — browser-safe). Empty disables analytics site-wide. */
+    posthogKey: '',
+    /** PostHog ingestion host: https://us.i.posthog.com or https://eu.i.posthog.com.
+     *  No AU/NZ region exists, so which one is a cross-border disclosure decision —
+     *  it is set per environment in Vercel, never defaulted here. */
+    posthogHost: '',
     /** Billing kill switch mirror — "0"/"false" hides upgrade CTAs (UI renders as premium). */
     requireBillingPaywall: true
 };
@@ -84,6 +90,8 @@ const PUBLIC_TO_ENV = {
     PUBLIC_OCR_SCANNER_API_URL_PROD: 'ocrScannerApiUrlProd',
     PUBLIC_OCR_SCANNER_API_RESOURCE: 'ocrScannerApiResource',
     PUBLIC_STRIPE_PUBLISHABLE_KEY: 'stripePublishableKey',
+    PUBLIC_POSTHOG_KEY: 'posthogKey',
+    PUBLIC_POSTHOG_HOST: 'posthogHost',
     PUBLIC_REQUIRE_BILLING_PAYWALL: 'requireBillingPaywall'
 };
 

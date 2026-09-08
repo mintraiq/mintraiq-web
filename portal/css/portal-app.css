@@ -1019,12 +1019,7 @@ body[data-portal-nav="transactions"] .tx-action-btn--reload {
     background: var(--accent-green, #00ff9d);
     color: #0a0a0a;
 }
-body[data-portal-nav="transactions"] .tx-action-btn--sync {
-    background: linear-gradient(135deg, var(--accent-purple, #bb6bd9), var(--accent-blue, #2f80ed));
-    color: #fff;
-}
-body[data-portal-nav="transactions"] .tx-action-btn--reload:hover,
-body[data-portal-nav="transactions"] .tx-action-btn--sync:hover {
+body[data-portal-nav="transactions"] .tx-action-btn--reload:hover {
     filter: brightness(1.06);
 }
 @media (min-width: 640px) {
@@ -1222,76 +1217,6 @@ body[data-portal-nav="transactions"] .tx-action-btn--sync:hover {
 .tx-inline-title {
     font-weight: 700;
     margin-bottom: 10px;
-}
-.tx-enquire-head {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    align-items: flex-start;
-    margin-bottom: 10px;
-}
-.tx-enquire-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.tx-enquire-brand h4 {
-    margin: 0 0 2px;
-    font-size: 1.08rem;
-}
-.tx-enquire-brand p {
-    margin: 0;
-    color: var(--text-secondary, #a0a0a0);
-    font-size: 0.9rem;
-}
-.tx-enquire-logo,
-.tx-enquire-logo-fallback {
-    width: 42px;
-    height: 42px;
-    border-radius: 8px;
-}
-.tx-enquire-logo {
-    object-fit: cover;
-    background: #fff;
-}
-.tx-enquire-logo-fallback {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(47, 128, 237, 0.2);
-    color: #7ee8ff;
-}
-.tx-confidence {
-    font-size: 0.8rem;
-    color: var(--accent-green, #00ff9d);
-    border: 1px solid rgba(0, 255, 157, 0.3);
-    border-radius: 999px;
-    padding: 4px 9px;
-}
-.tx-enquire-meta p {
-    margin: 0 0 8px;
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
-}
-.tx-enquire-meta i {
-    margin-top: 3px;
-    color: var(--text-secondary, #a0a0a0);
-}
-.tx-enquire-meta a {
-    color: #7ee8ff;
-}
-.tx-map {
-    width: 100%;
-    height: 220px;
-    border: 0;
-    border-radius: 10px;
-    margin-top: 10px;
-}
-.tx-sample-note {
-    margin: 10px 0 0;
-    color: var(--text-secondary, #a0a0a0);
-    font-size: 0.82rem;
 }
 .tx-review-grid {
     display: flex;

@@ -21,8 +21,11 @@ const MODAL_COPY = {
         showError: false
     },
     'enquire-modal': {
+        // The enquiry feature itself was removed under ADR 0005; this state
+        // survives only as a generic modal-dismiss fixture, so its body must
+        // not name an integration that does not exist.
         title: 'Transaction enrichment',
-        body: 'Fetching merchant details from Akahu…',
+        body: 'Looking up merchant details…',
         showError: false
     }
 };

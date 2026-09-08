@@ -535,7 +535,6 @@ function renderExpandedRow(r) {
         '</div>' +
         '<div class="tx-detail-actions">' +
         '<button type="button" class="btn-primary" id="txReviewBtn"><i class="fas fa-check-circle"></i> Review</button>' +
-        '<button type="button" class="btn-primary" id="txEnquireBtn" style="background:linear-gradient(135deg,#bb6bd9,#2f80ed);color:#fff"><i class="fas fa-magnifying-glass"></i> Enquire</button>' +
         (r.receipt_id
             ? '<button type="button" class="btn-primary" id="txReceiptBtn" style="background:rgba(0,255,157,0.15);color:var(--accent-green);border:1px solid rgba(0,255,157,0.35)"><i class="fas fa-receipt"></i> Receipt items</button>'
             : '') +
@@ -797,74 +796,6 @@ async function persistCustomCategory(client, name) {
     return trimmed;
 }
 
-async function readEnquireSample() {
-    const res = await fetch('../docs/samples/enquire_transaction.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error('Failed to load enquire sample.');
-    const text = await res.text();
-    if (!text.trim()) return { success: false, items: [] };
-    try {
-        return JSON.parse(text);
-    } catch {
-        return { success: false, items: [] };
-    }
-}
-
-async function fetchEnrichment(tx) {
-    if (!currentClient) throw new Error('Not authenticated.');
-    const payload = { transaction_id: tx.id, source: 'ANZ', query: tx.description };
-    const attempts = ['/transactions/enquiry', '/transactions/enquiry'];
-    for (const path of attempts) {
-        try {
-            const res = await financeApiFetch(currentClient, path, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const text = await res.text();
-            const data = text ? JSON.parse(text) : {};
-            if (res.ok) return { data, fromSample: false };
-        } catch {
-            // continue to fallback
-        }
-    }
-    const sample = await readEnquireSample();
-    return { data: sample, fromSample: true };
-}
-
-function renderEnquireResult(data, fromSample) {
-    const firstItem = Array.isArray(data.items) ? data.items[0] : null;
-    const best = firstItem && Array.isArray(firstItem.results) ? firstItem.results[0] : null;
-    if (!best) return '<p style="color:var(--text-secondary)">No enrichment data found.</p>';
-
-    const merchant = best.merchant || {};
-    const outlet = best.outlet || {};
-    const loc = (outlet.location || merchant.location || {});
-    const coords = loc.coordinates || {};
-    const lat = Number(coords.lat);
-    const lon = Number(coords.lon);
-    const mapEmbed =
-        Number.isFinite(lat) && Number.isFinite(lon)
-            ? `<iframe title="Location map" class="tx-map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.01}%2C${lat - 0.01}%2C${lon + 0.01}%2C${lat + 0.01}&layer=mapnik&marker=${lat}%2C${lon}"></iframe>`
-            : '';
-
-    return (
-        `<div class="tx-enquire-head">` +
-        `<div class="tx-enquire-brand">` +
-        `${merchant.logo ? `<img src="${escapeHtml(merchant.logo)}" alt="" class="tx-enquire-logo">` : '<span class="tx-enquire-logo-fallback"><i class="fas fa-store"></i></span>'}` +
-        `<div><h4>${escapeHtml(outlet.name || merchant.name || 'Merchant')}</h4><p>${escapeHtml(best.category?.name || 'Uncategorized')}</p></div>` +
-        `</div>` +
-        `<span class="tx-confidence">confidence ${(Number(best.confidence || 0) * 100).toFixed(0)}%</span>` +
-        `</div>` +
-        `<div class="tx-enquire-meta">` +
-        `${merchant.website ? `<p><i class="fas fa-globe"></i> <a href="${escapeHtml(merchant.website)}" target="_blank" rel="noopener">${escapeHtml(merchant.website)}</a></p>` : ''}` +
-        `${outlet.phone || merchant.phone ? `<p><i class="fas fa-phone"></i> ${escapeHtml(outlet.phone || merchant.phone)}</p>` : ''}` +
-        `${loc.formatted ? `<p><i class="fas fa-location-dot"></i> ${escapeHtml(loc.formatted)}</p>` : ''}` +
-        `</div>` +
-        mapEmbed +
-        `${fromSample ? '<p class="tx-sample-note">Showing sample Akahu response (API fallback).</p>' : ''}`
-    );
-}
-
 function collapseSelectedRow() {
     if (!selected) return;
     const wrap = document.querySelector('.tx-expand-wrap');
@@ -912,19 +843,6 @@ async function openReceiptPanel() {
         inlinePanel.innerHTML = `<div class="tx-inline-title">Linked receipt</div>${renderReceiptLineItemsPanel(data)}`;
     } catch (e) {
         inlinePanel.innerHTML = `<p style="color:#ffb4b4" data-testid="receipt-panel-error">${escapeHtml(String(e.message || e))}</p>`;
-    }
-}
-
-async function openEnquirePanel() {
-    const inlinePanel = getInlinePanel();
-    if (!inlinePanel || !selected) return;
-    inlinePanel.style.display = 'block';
-    inlinePanel.innerHTML = '<p style="color:var(--text-secondary)">Fetching Akahu enrichment…</p>';
-    try {
-        const { data, fromSample } = await fetchEnrichment(selected);
-        inlinePanel.innerHTML = `<div class="tx-inline-title">Transaction enrichment</div>${renderEnquireResult(data, fromSample)}`;
-    } catch (e) {
-        inlinePanel.innerHTML = `<p style="color:#ffb4b4">${escapeHtml(String(e.message || e))}</p>`;
     }
 }
 
@@ -1080,40 +998,6 @@ async function loadTransactions(client, opts = {}) {
     }
 }
 
-async function syncAkahu(client) {
-    const btn = document.getElementById('txSyncAkahu');
-    const hint = document.getElementById('txSyncHint');
-    if (btn) btn.disabled = true;
-    if (hint) hint.textContent = 'Syncing…';
-    try {
-        const res = await financeApiFetch(client, '/akahu/sync', { method: 'POST' });
-        const text = await res.text();
-        let data;
-        try {
-            data = text ? JSON.parse(text) : {};
-        } catch {
-            data = {};
-        }
-        if (!res.ok) {
-            const detail = data.detail;
-            const msg =
-                typeof detail === 'string'
-                    ? detail
-                    : Array.isArray(detail)
-                      ? detail.map((d) => d.msg || JSON.stringify(d)).join('; ')
-                      : data.message || `Sync failed (${res.status})`;
-            throw new Error(msg);
-        }
-        const msg = data.message || `OK (${data.count ?? 0} items)`;
-        if (hint) hint.textContent = msg;
-        await loadTransactions(client);
-    } catch (e) {
-        if (hint) hint.textContent = String(e.message || e);
-    } finally {
-        if (btn) btn.disabled = false;
-    }
-}
-
 /**
  * @param {AbortSignal} [signal]
  */
@@ -1252,11 +1136,6 @@ function wireTableInteractions(signal) {
             openReviewPanel();
             return;
         }
-        if (t.closest('#txEnquireBtn')) {
-            e.preventDefault();
-            await openEnquirePanel();
-            return;
-        }
         if (t.closest('#txReceiptBtn')) {
             e.preventDefault();
             await openReceiptPanel();
@@ -1316,7 +1195,6 @@ export async function bootTransactionsPage(opts = {}) {
     currentClient = client;
 
     document.getElementById('txReload')?.addEventListener('click', () => void loadTransactions(client), { signal });
-    document.getElementById('txSyncAkahu')?.addEventListener('click', () => void syncAkahu(client), { signal });
     setDefaultDateRange();
     wireFilters(signal);
     wirePagination(signal);

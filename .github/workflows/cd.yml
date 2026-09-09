@@ -1,4 +1,8 @@
 name: CD - Build & Deploy Portal
+# The run title, not the workflow title. Without this every run reads
+# "...#100: Manually run by <actor>" and nothing on the list says where it
+# went — STAGING and PROD deploys are indistinguishable at a glance.
+run-name: CD - Deploy Portal - ${{ inputs.target_env }} · by @${{ github.actor }}
 
 on:
   workflow_dispatch:

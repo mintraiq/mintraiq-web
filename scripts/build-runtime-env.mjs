@@ -43,8 +43,15 @@ const DEFAULT_PUBLIC_ENV = {
     surveyUrl: 'https://survey.mintraiq.com',
     surveyUrlStaging: 'https://staging-survey.mintraiq.com',
     surveyUrlProd: 'https://survey.mintraiq.com',
+    /**
+     * Lead-capture API (mintraiq-lead-agent). Empty is a supported state:
+     * marketing consent degrades to an inline notice rather than blocking
+     * onboarding. Set via PUBLIC_LEAD_API_BASE — never guess a host, because
+     * the request carries a user access token.
+     */
     leadApiBase: '',
     turnstileSiteKey: '',
+
     financeApiResource: 'https://api.finance-ai.suite.com',
     signInRedirectUri: '',
     legacyFlaskBase: 'http://127.0.0.1:5000',
@@ -85,6 +92,7 @@ const PUBLIC_TO_ENV = {
     PUBLIC_SURVEY_URL_PROD: 'surveyUrlProd',
     PUBLIC_LEAD_API_BASE: 'leadApiBase',
     PUBLIC_TURNSTILE_SITE_KEY: 'turnstileSiteKey',
+
     PUBLIC_FINANCE_API_RESOURCE: 'financeApiResource',
     PUBLIC_SIGN_IN_REDIRECT_URI: 'signInRedirectUri',
     PUBLIC_LEGACY_FLASK_BASE: 'legacyFlaskBase',

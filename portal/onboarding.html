@@ -88,6 +88,22 @@
                             <span>I have read and agree to the Terms and Disclaimer. I understand MintrAIQ does not provide regulated financial advice.</span>
                         </label>
                         <p id="onboardingTermsError" class="onboarding-terms-error" role="alert"></p>
+
+                        <!-- A separate decision, and it has to look like one. The
+                             rule above divides it from the terms clickwrap; it is
+                             never pre-ticked, and it does not gate the button — a
+                             consent that blocks progress is not freely given. -->
+                        <hr class="onboarding-consent-divider" />
+                        <label class="onboarding-consent-label onboarding-marketing-label">
+                            <input type="checkbox" id="onboardingMarketingCheckbox" autocomplete="off" />
+                            <span>
+                                <strong id="onboardingMarketingLabel"></strong>
+                                <span class="onboarding-marketing-body" id="onboardingMarketingBody"></span>
+                                <span class="onboarding-marketing-body" id="onboardingMarketingDecline"></span>
+                            </span>
+                        </label>
+                        <p id="onboardingMarketingError" class="onboarding-terms-error" role="alert"></p>
+
                         <div class="onboarding-consent-actions">
                             <button type="button" class="btn-save" id="onboardingAgreeContinue" disabled>Agree and continue to setup</button>
                         </div>

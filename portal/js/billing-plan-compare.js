@@ -24,7 +24,7 @@ const FEATURE_LABELS = {
 const LIMIT_LINES = {
     free: [
         '3 statement uploads / month',
-        '0 receipt scans / month',
+        '3 receipt scans / month',
         '0 AI chat messages / month',
     ],
     basic: [
@@ -60,7 +60,7 @@ const PLANS = {
         tierId: 'FREE',
         title: 'Insight Starter',
         tagline: 'Free · core visibility',
-        price: '$0',
+        price: 'NZ$0',
         period: '/mo',
         badge: null,
         featured: false,
@@ -75,7 +75,7 @@ const PLANS = {
         tierId: 'BASIC',
         title: 'Cashflow Essential',
         tagline: 'Basic · planners & scans',
-        price: '$4.99',
+        price: 'NZ$3.99',
         period: '/mo',
         badge: null,
         featured: false,
@@ -90,7 +90,7 @@ const PLANS = {
         tierId: 'PRO',
         title: 'Forecast Pro',
         tagline: 'Pro · full AI stack',
-        price: '$7.99',
+        price: 'NZ$6.99',
         period: '/mo',
         badge: 'PRO',
         featured: true,
@@ -112,7 +112,7 @@ const PLANS = {
         tierId: 'PILOT_3MONTH',
         title: 'Pilot Analyst',
         tagline: 'Promo · 90-day pilot',
-        price: '$0',
+        price: 'NZ$0',
         period: ' pilot',
         badge: 'PILOT',
         featured: false,
@@ -148,9 +148,6 @@ function planExcludedLines(planKey) {
     if (!mine.has('product_analytics')) excluded.push('Product price analytics');
     if (!mine.has('basic_planners') && !mine.has('unlimited_planners')) {
         excluded.push('Budget & weekly planners');
-    }
-    if (planKey === 'free') {
-        excluded.push('Receipt scanning & statement uploads');
     }
     return excluded.filter((line, i, arr) => arr.indexOf(line) === i);
 }

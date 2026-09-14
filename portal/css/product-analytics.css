@@ -195,6 +195,14 @@ body[data-portal-nav="product-analytics"] .ppt-chart-sub {
     margin: 0 0 12px;
 }
 
+body[data-portal-nav="product-analytics"] .ppt-chart-attribution {
+    color: var(--text-secondary);
+    /* A licence condition rendered illegibly is not attribution. */
+    font-size: 0.72rem;
+    line-height: 1.4;
+    margin: 8px 0 0;
+}
+
 body[data-portal-nav="product-analytics"] .ppt-chart-wrap {
     position: relative;
     height: 280px;

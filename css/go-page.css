@@ -1,0 +1,72 @@
+/* Link-in-bio landing — extends css/legal-public.css, reusing its tokens.
+   Instagram captions cannot carry clickable links, so this page is the single
+   destination the bio points at. Keep it to one screen and three choices. */
+
+.go-main {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 72px 0 48px;
+    text-align: center;
+}
+
+.go-mark {
+    display: block;
+    margin: 0 auto 20px;
+}
+
+.go-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    margin: 0 0 10px;
+    color: var(--text-primary);
+}
+
+.go-tagline {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    line-height: 1.5;
+    margin: 0 0 36px;
+}
+
+.go-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.go-btn {
+    display: block;
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.go-btn:hover,
+.go-btn:focus-visible {
+    transform: translateY(-1px);
+    border-color: var(--accent-green);
+}
+
+.go-btn-primary {
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+.go-btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 480px) {
+    .go-main {
+        padding: 48px 0 32px;
+    }
+
+    .go-title {
+        font-size: 1.9rem;
+    }
+}

@@ -15,7 +15,6 @@ function escapeHtml(s) {
 const FEATURE_LABELS = {
     '3m_dashboard': '3-month insight dashboard',
     basic_planners: 'Monthly & weekly planners',
-    unlimited_planners: 'Unlimited planner depth',
     lstm_forecast: 'LSTM AI forecasting & CPI outlook',
     email_connector: 'Email bill connector',
     product_analytics: 'Product price analytics',
@@ -24,12 +23,12 @@ const FEATURE_LABELS = {
 const LIMIT_LINES = {
     free: [
         '3 statement uploads / month',
-        '0 receipt scans / month',
+        '3 receipt scans / month',
         '0 AI chat messages / month',
     ],
     basic: [
         '15 receipt scans / month',
-        '2 statement uploads / month',
+        '5 statement uploads / month',
         '5 AI chat messages / month',
     ],
     premium: [
@@ -60,7 +59,7 @@ const PLANS = {
         tierId: 'FREE',
         title: 'Insight Starter',
         tagline: 'Free · core visibility',
-        price: '$0',
+        price: 'NZ$0',
         period: '/mo',
         badge: null,
         featured: false,
@@ -75,7 +74,7 @@ const PLANS = {
         tierId: 'BASIC',
         title: 'Cashflow Essential',
         tagline: 'Basic · planners & scans',
-        price: '$4.99',
+        price: 'NZ$3.99',
         period: '/mo',
         badge: null,
         featured: false,
@@ -90,7 +89,7 @@ const PLANS = {
         tierId: 'PRO',
         title: 'Forecast Pro',
         tagline: 'Pro · full AI stack',
-        price: '$7.99',
+        price: 'NZ$6.99',
         period: '/mo',
         badge: 'PRO',
         featured: true,
@@ -98,13 +97,12 @@ const PLANS = {
             '3m_dashboard',
             'lstm_forecast',
             'basic_planners',
-            'unlimited_planners',
             'email_connector',
             'product_analytics',
         ],
         limitsKey: 'premium',
         insight:
-            'Unlock LSTM forecasting, CPI outlook, email connector, product price analytics, and unlimited planners.',
+            'Unlock LSTM forecasting, CPI outlook, email connector, and product price analytics.',
         ctaHint: 'For power users who want the complete MintrAIQ intelligence layer.',
     },
     pilot: {
@@ -112,7 +110,7 @@ const PLANS = {
         tierId: 'PILOT_3MONTH',
         title: 'Pilot Analyst',
         tagline: 'Promo · 90-day pilot',
-        price: '$0',
+        price: 'NZ$0',
         period: ' pilot',
         badge: 'PILOT',
         featured: false,
@@ -120,7 +118,6 @@ const PLANS = {
             '3m_dashboard',
             'lstm_forecast',
             'basic_planners',
-            'unlimited_planners',
             'email_connector',
             'product_analytics',
         ],
@@ -148,9 +145,6 @@ function planExcludedLines(planKey) {
     if (!mine.has('product_analytics')) excluded.push('Product price analytics');
     if (!mine.has('basic_planners') && !mine.has('unlimited_planners')) {
         excluded.push('Budget & weekly planners');
-    }
-    if (planKey === 'free') {
-        excluded.push('Receipt scanning & statement uploads');
     }
     return excluded.filter((line, i, arr) => arr.indexOf(line) === i);
 }

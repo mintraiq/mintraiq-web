@@ -7,6 +7,10 @@
     {
       "source": "/delete-account",
       "destination": "/delete-account.html"
+    },
+    {
+      "source": "/go",
+      "destination": "/go.html"
     }
   ],
   "headers": [

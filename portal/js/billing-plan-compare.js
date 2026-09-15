@@ -15,7 +15,6 @@ function escapeHtml(s) {
 const FEATURE_LABELS = {
     '3m_dashboard': '3-month insight dashboard',
     basic_planners: 'Monthly & weekly planners',
-    unlimited_planners: 'Unlimited planner depth',
     lstm_forecast: 'LSTM AI forecasting & CPI outlook',
     email_connector: 'Email bill connector',
     product_analytics: 'Product price analytics',
@@ -29,7 +28,7 @@ const LIMIT_LINES = {
     ],
     basic: [
         '15 receipt scans / month',
-        '2 statement uploads / month',
+        '5 statement uploads / month',
         '5 AI chat messages / month',
     ],
     premium: [
@@ -98,13 +97,12 @@ const PLANS = {
             '3m_dashboard',
             'lstm_forecast',
             'basic_planners',
-            'unlimited_planners',
             'email_connector',
             'product_analytics',
         ],
         limitsKey: 'premium',
         insight:
-            'Unlock LSTM forecasting, CPI outlook, email connector, product price analytics, and unlimited planners.',
+            'Unlock LSTM forecasting, CPI outlook, email connector, and product price analytics.',
         ctaHint: 'For power users who want the complete MintrAIQ intelligence layer.',
     },
     pilot: {
@@ -120,7 +118,6 @@ const PLANS = {
             '3m_dashboard',
             'lstm_forecast',
             'basic_planners',
-            'unlimited_planners',
             'email_connector',
             'product_analytics',
         ],

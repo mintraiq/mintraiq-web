@@ -41,6 +41,7 @@ import {
 } from './social-copy-rules.mjs';
 
 const REELS_DIR = join(import.meta.dirname, '..', 'marketing', 'reels');
+const PROFILES_FILE = join(import.meta.dirname, '..', 'marketing', 'social-profiles.md');
 
 /** One phrase per rule id that must be caught. */
 const FIXTURES = {
@@ -122,4 +123,17 @@ test('scans every package under marketing/reels', (t) => {
         assert.ok(captions.includes(IOS_URL), `${name}: captions must carry the App Store URL`);
         assert.ok(captions.includes(ANDROID_URL), `${name}: captions must carry the Play Store URL`);
     }
+});
+
+test('the profile bio makes no claim the gate would reject', () => {
+    // The bio outlives every post that scrolls past it, so it is guarded like
+    // a caption rather than treated as a one-off decision.
+    assert.ok(existsSync(PROFILES_FILE), 'marketing/social-profiles.md is missing');
+
+    const profiles = readFileSync(PROFILES_FILE, 'utf8');
+    assert.ok(profiles.length > 0, 'social-profiles.md is empty');
+    assert.deepEqual(findViolations(profiles), []);
+
+    // The bio's only route to the app is the link beneath it.
+    assert.ok(profiles.includes(GO_URL), `profile copy must point at ${GO_URL}`);
 });

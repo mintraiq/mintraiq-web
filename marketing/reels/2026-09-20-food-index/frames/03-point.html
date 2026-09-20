@@ -1,9 +1,29 @@
 <!doctype html>
 <meta charset="utf-8">
 <link rel="stylesheet" href="/Users/ram/.claude/plugins/cache/mintraiq/mintraiq-toolkit/0.10.0/skills/marketing-reel/templates/frame.css">
-<body class="frame feed glow">
-  <div class="lockup"><img src="/Users/ram/.claude/plugins/cache/mintraiq/mintraiq-toolkit/0.10.0/skills/marketing-reel/templates/assets/wordmark.png" alt="Mintr"></div>
+<style>
+  /* Full lockup: leaf + wordmark, both from transparent sources so they
+     composite on the dark canvas. Leaf runs taller than the wordmark, matching
+     the brand lockup proportions. */
+  .lockup { display: flex; align-items: center; gap: calc(16px * var(--u)); }
+  .lockup .leafmark { height: calc(92px * var(--u)); width: auto; }
+  .lockup .word     { height: calc(44px * var(--u)); width: auto; }
+  .hook { font-size: calc(112px * var(--u)); }
+  .headline { font-size: calc(78px * var(--u)); }
+  .body { font-size: calc(44px * var(--u)); max-width: 26ch; }
+  /* Anchors the bottom of the frame. Without it the header holds the top and
+     the lower third reads as unfinished rather than as deliberate space. */
+  .foot { position: absolute; left: var(--pad); right: var(--pad);
+          bottom: var(--pad); display: flex; align-items: center;
+          justify-content: space-between;
+          font-size: calc(30px * var(--u)); color: var(--text-muted);
+          border-top: 1px solid var(--border); padding-top: calc(20px * var(--u)); }
+  .foot .swipe { color: var(--mint); font-weight: 700; }
+</style>
+<body class="frame feed glow is-centered">
+  <div class="lockup"><img class="leafmark" src="/Users/ram/Desktop/Ram/mintraiq-web/assets/mintr-leaf-mark.png" alt=""><img class="word" src="/Users/ram/.claude/plugins/cache/mintraiq/mintraiq-toolkit/0.10.0/skills/marketing-reel/templates/assets/wordmark.png" alt="Mintr"></div>
   <span class="label">Five points, top to bottom</span>
   <h1 class="hook">An average <em>isn't a basket</em></h1>
   <p class="body">One number covers the shelf that rose and the shelf that fell. Yours only holds some of it.</p>
+  <div class="foot"><span></span><span class="swipe">Swipe →</span></div>
 </body>

@@ -93,7 +93,7 @@ vegetables minus 1.6 percent, shown in red. Source: Stats NZ food price index."
 average isn't a basket. Below: one number covers the shelf that rose and the
 shelf that fell; yours only holds some of it."
 
-**Slide 4** — "Dark card with the MintrAIQ mascot. Text: see what your own
+**Slide 4** — "Dark card with the MintrAIQ leaf mark, half green leaf and half blue circuit board. Text: see what your own
 basket did. Mintr charts your grocery items against the Stats NZ food price
 index average. Link: mintraiq.com/go. Followed by the Stats NZ Creative Commons
 attribution notice."

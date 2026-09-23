@@ -1,7 +1,14 @@
 # WhatsApp templates
 
-Meta Business Message Template format — paste into WhatsApp Manager for approval.
-Variables are `{{1}}`; a sample is required at submission.
+Built for **Brevo** → Marketing > Templates > WhatsApp > Create a template.
+
+Brevo's editor has three parts — **Header** (optional), **Body**, **Buttons**
+(optional). There is no footer field, so the opt-out line sits at the end of the
+body instead. Category is **Marketing** for both (Brevo offers Marketing or
+Utility only).
+
+Variables below are written as Meta's `{{1}}`. In Brevo you insert a **contact
+attribute** instead — pick `FIRSTNAME` where `{{1}}` appears.
 
 ---
 
@@ -23,11 +30,8 @@ You're using a product that's still being built, and the survey is where you get
 About two minutes, and no question about your balances or your bank.
 
 Your answers decide what we build next. That's not a figure of speech — the last three things we shipped came straight off it.
-```
 
-**Footer**
-```
-Reply STOP to stop these messages
+Don't want these? Tap "Stop these messages" below.
 ```
 
 **Buttons**
@@ -58,11 +62,8 @@ MintrAIQ sorts your transactions into categories on its own, and it doesn't alwa
 When you correct one in the app, we keep the corrected description and the category you chose. Nothing that identifies you goes with it: card and reference numbers are stripped, and your account ID isn't stored alongside it.
 
 If you've got five minutes, going through a month and fixing what's wrong is the single most useful thing you can do for the product right now.
-```
 
-**Footer**
-```
-Reply STOP to stop these messages
+Don't want these? Tap "Stop these messages" below.
 ```
 
 **Buttons**
@@ -80,12 +81,28 @@ Reply STOP to stop these messages
 | | Meta max | 1 | 2 |
 |---|---|---|---|
 | Header | 60 | 40 | 28 |
-| Body | 1024 | 442 | 552 |
-| Footer | 60 | 33 | 33 |
+| Body | 1024 | 494 | 604 |
 | Button text | 25 | 15 / 19 | 13 / 19 |
+| Template name | 60 (Brevo) | 16 | 26 |
 
 Neither body starts or ends with a variable, and there are no consecutive
 variables — both are rejection reasons at review.
+
+## Before you can send these from Brevo
+
+1. **Link a WhatsApp Business account** to Brevo and connect the number. Once
+   Meta approves a template, only the number it was submitted under can send it.
+2. **Build them inside Brevo.** Templates created directly in your WhatsApp
+   Business account cannot be migrated across — Brevo can only send what Brevo
+   created.
+3. **Get the WABA verified**, otherwise there is a daily sending limit.
+4. **Fill the `WHATSAPP` contact attribute.** Brevo will not deliver to a
+   contact without it, and MintrAIQ does not collect phone numbers today.
+5. **Check NZ in Brevo's supported-countries and pricing list** at the time you
+   set this up. Unrelated but worth knowing: Meta suspended marketing templates
+   to US numbers from 1 April 2025, so that list does move.
+6. Approval is usually minutes, up to 24 hours if a human reviews it. An
+   unapproved template cannot be scheduled.
 
 ## Two things that are deliberate
 

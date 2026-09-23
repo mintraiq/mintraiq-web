@@ -7,7 +7,7 @@
     "build:react": "npm install --prefix apps/ninja-react && npm run build --prefix apps/ninja-react",
     "build": "npm run build:env && npm run build:react",
     "vercel-build": "npm run build",
-    "test:legal": "node --test scripts/legal-dates.test.mjs scripts/analytics-config.test.mjs scripts/marketing-consent-copy.test.mjs",
+    "test:legal": "node --test scripts/legal-dates.test.mjs scripts/analytics-config.test.mjs scripts/marketing-consent-copy.test.mjs scripts/categorisation-learning-copy.test.mjs",
     "test:bank-sync": "node --test scripts/bank-sync-copy.test.mjs",
     "test:copy": "npm run test:legal && npm run test:bank-sync && npm run test:price-overlay && npm run test:social-copy && npm run test:site-claims",
     "test:e2e": "playwright test --config=e2e/playwright.config.js",
@@ -17,6 +17,7 @@
     "test:price-overlay": "node --test scripts/price-overlay-copy.test.mjs",
     "test:consent-copy": "node --test scripts/marketing-consent-copy.test.mjs",
     "test:social-copy": "node --test scripts/social-copy.test.mjs",
+    "test:categorisation-copy": "node --test scripts/categorisation-learning-copy.test.mjs",
     "test:site-claims": "node --test scripts/site-claims.test.mjs"
   },
   "devDependencies": {

@@ -8,10 +8,13 @@ Generate the social package for the next unposted Sunday.
 ## 1 — Find the week
 
 Read `marketing/calendar.md`. Take the **first row whose status is `planned`**
-and whose posting date is in the future. That row is the brief: its pillar, beat
-and format are decided, not yours to change. If the first planned row's date has
-already passed, say so and stop — a missed week is a decision for Ram, not
-something to quietly backfill.
+and whose posting date is **today or later**. That row is the brief: its pillar,
+beat and format are decided, not yours to change. If the first planned row's
+date is already in the past, say so and stop — a missed week is a decision for
+Ram, not something to quietly backfill.
+
+Today counts. The job runs on a Thursday for the Sunday three days later, but a
+manual run on the posting day itself is a legitimate catch-up, not a backfill.
 
 Read `marketing/pillars.md` for what that pillar may and may not say.
 

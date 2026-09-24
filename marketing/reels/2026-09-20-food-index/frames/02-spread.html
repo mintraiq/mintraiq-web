@@ -1,0 +1,56 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/Users/ram/.claude/plugins/cache/mintraiq/mintraiq-toolkit/0.10.0/skills/marketing-reel/templates/frame.css">
+<style>
+  .cmp { display: flex; flex-direction: column; gap: calc(22px * var(--u)); width: 100%; }
+  .cmp .line { display: flex; align-items: baseline; gap: 20px; }
+  .cmp .name { font-size: calc(36px * var(--u)); color: var(--text); font-weight: 500; }
+  .cmp .rule { flex: 1; border-bottom: 1px dashed var(--border); }
+  .cmp .val  { font-size: calc(46px * var(--u)); font-weight: 800;
+               font-variant-numeric: tabular-nums; color: var(--text); }
+  .cmp .up   { color: var(--text); }
+  .cmp .down { color: var(--danger); }
+  .hook { font-size: calc(112px * var(--u)); }
+  .headline { font-size: calc(78px * var(--u)); }
+  .body { font-size: calc(44px * var(--u)); max-width: 26ch; }
+  /* Anchors the bottom of the frame. Without it the header holds the top and
+     the lower third reads as unfinished rather than as deliberate space. */
+  .foot { position: absolute; left: var(--pad); right: var(--pad);
+          bottom: var(--pad); display: flex; align-items: center;
+          justify-content: space-between;
+          font-size: calc(30px * var(--u)); color: var(--text-muted);
+          border-top: 1px solid var(--border); padding-top: calc(20px * var(--u)); }
+  .foot .swipe { color: var(--mint); font-weight: 700; }
+</style>
+<style>
+  /* Full lockup: leaf + wordmark, both from transparent sources so they
+     composite on the dark canvas. Leaf runs taller than the wordmark, matching
+     the brand lockup proportions. */
+  .lockup { display: flex; align-items: center; gap: calc(16px * var(--u)); }
+  .lockup .leafmark { height: calc(92px * var(--u)); width: auto; }
+  .lockup .word     { height: calc(44px * var(--u)); width: auto; }
+  .hook { font-size: calc(112px * var(--u)); }
+  .headline { font-size: calc(78px * var(--u)); }
+  .body { font-size: calc(44px * var(--u)); max-width: 26ch; }
+  /* Anchors the bottom of the frame. Without it the header holds the top and
+     the lower third reads as unfinished rather than as deliberate space. */
+  .foot { position: absolute; left: var(--pad); right: var(--pad);
+          bottom: var(--pad); display: flex; align-items: center;
+          justify-content: space-between;
+          font-size: calc(30px * var(--u)); color: var(--text-muted);
+          border-top: 1px solid var(--border); padding-top: calc(20px * var(--u)); }
+  .foot .swipe { color: var(--mint); font-weight: 700; }
+</style>
+<body class="frame feed glow is-centered">
+  <div class="lockup"><img class="leafmark" src="/Users/ram/Desktop/Ram/mintraiq-web/assets/mintr-leaf-mark.png" alt=""><img class="word" src="/Users/ram/.claude/plugins/cache/mintraiq/mintraiq-toolkit/0.10.0/skills/marketing-reel/templates/assets/wordmark.png" alt="Mintr"></div>
+  <span class="label">Annual change to August 2026</span>
+  <h1 class="headline">The average <em>hid this</em></h1>
+  <div class="cmp">
+    <div class="line"><span class="name">Meat, poultry and fish</span><span class="rule"></span><span class="val up">+3.4%</span></div>
+    <div class="line"><span class="name">Restaurant meals</span><span class="rule"></span><span class="val up">+3.2%</span></div>
+    <div class="line"><span class="name">Grocery food</span><span class="rule"></span><span class="val up">+1.7%</span></div>
+    <div class="line"><span class="name">Fruit and vegetables</span><span class="rule"></span><span class="val down">−1.6%</span></div>
+  </div>
+  <p class="body" style="max-width:100%">Source: Stats NZ food price index</p>
+  <div class="foot"><span></span><span class="swipe">Swipe →</span></div>
+</body>

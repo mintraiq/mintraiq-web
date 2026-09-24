@@ -12,7 +12,7 @@ See [pillars.md](pillars.md) for what each one may and may not say.
 
 | # | Posts | Generated | Pillar | Beat | Assets | Status |
 |---|---|---|---|---|---|---|
-| 1 | 2026-09-20 | Thu 09-17 | number | Latest NZ food price index move, reported straight | images `feed` | planned |
+| 1 | 2026-09-20 | Thu 09-17 | number | Latest NZ food price index move, reported straight | images `feed` | **generated** → `marketing/reels/2026-09-20-food-index/` |
 | 2 | 2026-09-27 | Thu 09-24 | where-it-went | The subscription you forgot you had | **+ reel** | planned |
 | 3 | 2026-10-04 | Thu 10-01 | plain-english | What "fixed vs variable cost" actually means | images `square` | planned |
 | 4 | 2026-10-11 | Thu 10-08 | product | Receipt scan → categories, in one shot | **+ reel** | planned |

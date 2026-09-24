@@ -77,6 +77,32 @@ for (const [id, phrase] of Object.entries(FIXTURES)) {
     });
 }
 
+/**
+ * One fixture per rule is not enough for a rule that is an alternation.
+ *
+ * `data-sharing` covers five distinct claim shapes, and the single fixture
+ * above trips on `stays with us` — so the third-party half of the pattern was
+ * never executed by any test, and a boundary bug in it sat unnoticed: `no
+ * third[- ]part` followed by `\b` does not match "no third-party access",
+ * because the boundary falls inside the word. The fixture passed the whole time.
+ *
+ * Every wording below has to be caught by the rule, not by a sibling
+ * alternative, so each is asserted on its own.
+ */
+test('catches every wording of the sharing claim, not just the fixture', () => {
+    for (const phrase of [
+        'We never share your data',
+        "We don't share your data",
+        'Your data stays with us',
+        'No third-party access',
+        'No third parties, ever',
+        'Third parties: none'
+    ]) {
+        const hits = findViolations(phrase).map((v) => v.id);
+        assert.ok(hits.includes('data-sharing'), `"${phrase}" should trip data-sharing, got: ${hits.join(', ') || 'nothing'}`);
+    }
+});
+
 test('passes copy that keeps the verb on understanding', () => {
     assert.deepEqual(findViolations(SAFE_COPY), []);
 });

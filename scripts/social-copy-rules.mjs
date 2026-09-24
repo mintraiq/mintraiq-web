@@ -26,7 +26,11 @@
 export const BLOCKED = [
     {
         id: 'data-sharing',
-        pattern: /\b(never (sell|share)|don'?t (sell|share)|stays with us|no third[- ]part|third parties:\s*none)\b/i,
+        // `(y|ies)?` is load-bearing: without it the `\b` after `part` falls
+        // inside "third-party", so the ordinary way anyone writes this claim
+        // slipped through. Found 22 Sep 2026 porting these rules to
+        // finance-ai-mobile/lib/copyClaims.ts, where the same hole existed.
+        pattern: /\b(never (sell|share)|don'?t (sell|share)|stays with us|no third[- ]part(y|ies)?|third parties:\s*none)\b/i,
         reason:
             'Transaction descriptions, receipt images and Mintor questions reach Google and Groq. ' +
             'Copy inventory F1.'

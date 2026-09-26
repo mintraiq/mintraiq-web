@@ -1,0 +1,38 @@
+# What this file is for
+#
+# vercel.json sets "outputDirectory": "." — the whole repo root is the site.
+# That means every committed file here becomes a public URL on mintraiq.com.
+# There is no build step that selects what ships; if it is in the repo, it is
+# on the internet.
+#
+# Everything listed below is internal working material that would otherwise be
+# published. Do not remove a line without checking what it exposes.
+#
+# marketing/ — content planning and compliance working files:
+#   pillars.md  states where our Fair Trading Act / FMCA Part 6 line sits, and
+#               records that the automated copy test cannot catch a novel false
+#               claim in fresh wording.
+#   calendar.md is the twelve-week content plan.
+#   reels/*/claims.md carry internal code references and, in at least one case,
+#               a written record of a past user-facing defect.
+# None of it is secret. All of it is material we would never choose to publish
+# under our own domain, permanently and indexably.
+#
+# Post images are uploaded to Meta directly and do not need to be served from
+# here, so the whole directory is excluded rather than picked over.
+#
+# Added 2026-09-21 alongside the week-1 social package merge (PRIORITIES G #63).
+
+marketing/
+
+#
+# legacy/ — 69 committed files: a superseded Flask-era application, including
+#   legacy/pages/{account-profile,budget-planner,cpi-guru,financial-score,
+#   forecast,goals}.html and legacy/static-flask/account.js, which POSTs to
+#   /api/create-checkout-session. Every one of them was a live public URL on
+#   mintraiq.com. legacy/templates/*.html are Jinja templates that render as
+#   broken markup but stay readable, exposing internal API shapes.
+#   Excluded 2026-09-22 alongside deleting that route (PRIORITIES G #65): with
+#   the route gone those pages' upgrade buttons would 404 in public.
+
+legacy/

@@ -63,9 +63,12 @@ Then report, briefly:
 - the beat, and the one thing this post claims
 - which claims are sourced and which are carrying an `Illustrative example` chip
 - anything under **For counsel** in `claims.md`
-- what Ram must do before Saturday: run the Veo prompts in Flow if it is a video
-  week, then schedule both posts in Meta Business Suite for Sunday 09:00 NZT
+- what Ram must do before Monday: run the Veo prompts in Flow if it is a video
+  week, then reply "approve week N" once he's happy with it — a Monday 7am NZT
+  scheduled task posts automatically from there, nothing to schedule manually
 
-**Do not post anything.** This command produces a package for review. Publishing
-is a human step in Business Suite, deliberately — there is no path from this
-command to a live post.
+**Do not post anything.** This command produces a package for review. A separate
+Monday-morning scheduled task (`weekly-social-publish`) posts it via
+`scripts/publish-social-package.mjs`, and only for a row Ram has explicitly
+flipped to `approved` in a chat reply — there is no path from this command to a
+live post.

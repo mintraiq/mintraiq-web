@@ -36,3 +36,54 @@ marketing/
 #   the route gone those pages' upgrade buttons would 404 in public.
 
 legacy/
+
+# --- Verified live on 27 Sep 2026, before this change ---------------------
+#
+# Each of these returned content, not a 404, at https://mintraiq.com/<path>.
+# Checked with a real browser: curl is rate-limited by the edge and returns 429,
+# which reads like "blocked" and is not.
+#
+#   /.cursor/security.md            our internal security and compliance standards
+#   /.github/workflows/cd.yml       the deploy workflow — env var and secret NAMES,
+#                                   Cloud Run service names, the whole pipeline
+#   /docs/openapi.json              the full dashboard API spec, every route
+#   /scripts/build-runtime-env.mjs  the build script and its endpoint defaults
+#
+# Vercel has a small denylist of its own: /.env.vars and /package.json already
+# 404. Do not infer from that that dotfiles are safe — dot-DIRECTORIES are
+# served, which is exactly how .cursor/ and .github/ were public.
+
+.cursor/
+.claude/
+.github/
+.agents/
+.superpowers/
+.cursorrules
+..cursorignore
+
+docs/
+e2e/
+test-results/
+
+README.md
+config.example.json
+env.public.example
+*.py
+
+# scripts/ is NOT excluded wholesale, and package.json is not excluded at all:
+# vercel.json sets "buildCommand": "npm run build", which runs
+# scripts/build-runtime-env.mjs to generate config/runtime-env.js. Ignoring
+# either breaks the build, not just the page. (package.json already 404s on its
+# own — Vercel denylists it — so leaving it is not an exposure.)
+#
+# Everything else in scripts/ is test-only and was being served.
+scripts/*.test.mjs
+scripts/social-copy-rules.mjs
+scripts/serve.sh
+
+# Deliberately NOT excluded, though they look internal: mock-dashboard.html,
+# designs.html, intro-neon-a/b/c.html, layout.html and home.html are each linked
+# from a shipped page, so ignoring them would break live links rather than hide
+# anything. intro.html points at the dashboard demo on purpose. Whether those
+# pages should be public at all is a content decision, not a config one — raise
+# it separately rather than fixing it here.

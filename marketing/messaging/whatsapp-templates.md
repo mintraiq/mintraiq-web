@@ -104,6 +104,33 @@ variables — both are rejection reasons at review.
 6. Approval is usually minutes, up to 24 hours if a human reviews it. An
    unapproved template cannot be scheduled.
 
+## What sending these costs
+
+WhatsApp is **not** covered by the Brevo email plan. It bills through separate
+**WhatsApp credits** — an add-on, bought pay-as-you-go, never expire, no setup or
+licence fee. One message consumes several credits.
+
+The rate depends on two things: the recipient's country code, and whether the
+template is **Marketing** or **Utility**. Both templates here are Marketing,
+which is the dearer of the two — Utility is for transactional messages like
+order or shipping updates, and neither of these qualifies.
+
+One trap worth knowing: **marketing and utility charges cumulate.** Send a
+marketing template and then restart the conversation, and you are billed for
+both.
+
+The NZ per-message rate is not published on Brevo's help pages — it lives in
+their pricing calculator and in-app under My Plan > SMS & WhatsApp messages.
+Get the actual number there before committing to a send; Meta repriced
+per-message on 1 July 2025 and again on 1 July 2026, moving rates in both
+directions by market, so any figure quoted second-hand ages badly.
+
+For scale when comparing: email through Brevo is effectively free at this
+volume, and WhatsApp is per-message. A survey invite to the whole list costs
+nothing by email and real money by WhatsApp, so the channel only pays for itself
+if the response rate is markedly better. Worth measuring on a small segment
+before a full send.
+
 ## Two things that are deliberate
 
 **Template 2 says the correction is *kept*, not that it retrains anything.**

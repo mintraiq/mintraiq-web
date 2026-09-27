@@ -67,10 +67,23 @@ async function readCaptions(dir) {
 }
 
 async function findImages(dir) {
-  const framesDir = path.join(dir, 'frames');
-  const files = (await fs.readdir(framesDir)).filter((f) => f.endsWith('.png')).sort();
-  if (files.length === 0) throw new Error(`No rendered PNGs found in ${framesDir}`);
-  return files.map((f) => path.join(framesDir, f));
+  // frames-feed/ is the feed-shaped (up to 4:5) render made for a `+ reel`
+  // week's static fallback; frames/ (1080x1920, reel/story shaped) would
+  // display cropped and oversized in a normal feed post. Prefer the former;
+  // a non-reel week only ever has frames/, already feed-shaped, so it still
+  // works unchanged.
+  for (const candidate of ['frames-feed', 'frames']) {
+    const framesDir = path.join(dir, candidate);
+    if (!(await fs.stat(framesDir).catch(() => false))) continue;
+    const files = (await fs.readdir(framesDir)).filter((f) => f.endsWith('.png')).sort();
+    if (files.length > 0) return files.map((f) => path.join(framesDir, f));
+  }
+  throw new Error(`No rendered PNGs found in ${path.join(dir, 'frames-feed')} or ${path.join(dir, 'frames')}`);
+}
+
+async function findVideo(dir) {
+  const videoPath = path.join(dir, 'reel.mp4');
+  return (await fs.stat(videoPath).catch(() => false)) ? videoPath : null;
 }
 
 // Meta rejects unpublished-photo uploads made with a System User token
@@ -121,16 +134,6 @@ async function publishToFacebook(photoIds, message, token) {
   });
 }
 
-async function waitUntilFinished(containerId, token) {
-  for (let attempt = 0; attempt < 10; attempt += 1) {
-    const { status_code } = await graph(`${containerId}?fields=status_code&access_token=${token}`);
-    if (status_code === 'FINISHED') return;
-    if (status_code === 'ERROR') throw new Error(`Instagram container ${containerId} failed to process`);
-    await new Promise((r) => setTimeout(r, 2000));
-  }
-  throw new Error(`Instagram container ${containerId} did not finish processing in time`);
-}
-
 async function publishToInstagram(cdnUrls, caption, token) {
   let creationId;
   if (cdnUrls.length === 1) {
@@ -154,7 +157,68 @@ async function publishToInstagram(cdnUrls, caption, token) {
     });
     creationId = id;
   }
-  await waitUntilFinished(creationId, token);
+  await waitUntilContainerFinished(creationId, token);
+  return graph(`${META_IG_BUSINESS_ID}/media_publish`, {
+    method: 'POST',
+    body: { creation_id: creationId, access_token: token },
+  });
+}
+
+// Facebook merged Video and Reels in mid-2025 — a plain video upload to a
+// Page now publishes as a Reel, no separate endpoint needed.
+async function uploadVideoToFacebook(videoPath, message, token) {
+  const buffer = await fs.readFile(videoPath);
+  const form = new FormData();
+  form.append('description', message);
+  form.append('access_token', token);
+  form.append('source', new Blob([buffer], { type: 'video/mp4' }), path.basename(videoPath));
+  const { id } = await graph(`${META_PAGE_ID}/videos`, { method: 'POST', body: form, isForm: true });
+  return id;
+}
+
+// Video processing takes longer than a photo upload — wait for Facebook to
+// finish transcoding before asking for a URL, and before Instagram tries to
+// fetch it.
+async function waitUntilVideoReady(videoId, token) {
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    const { status } = await graph(`${videoId}?fields=status&access_token=${token}`);
+    const videoStatus = status?.video_status;
+    if (videoStatus === 'ready') return;
+    if (videoStatus === 'error') throw new Error(`Facebook video ${videoId} failed to process: ${JSON.stringify(status)}`);
+    await new Promise((r) => setTimeout(r, 5000));
+  }
+  throw new Error(`Facebook video ${videoId} did not finish processing in time`);
+}
+
+// Same public-URL constraint as images: Instagram's Reels container needs a
+// video_url it can fetch itself. This reuses Facebook's own hosted copy,
+// same trick as the photo CDN reuse above — UNVERIFIED against a real post
+// as of this writing (no `+ reel` week has gone through this path yet). If
+// Instagram can't fetch it, this step is where to look first.
+async function getFacebookVideoUrl(videoId, token) {
+  const { source } = await graph(`${videoId}?fields=source&access_token=${token}`);
+  if (!source) throw new Error(`Facebook video ${videoId} has no fetchable "source" URL`);
+  return source;
+}
+
+async function waitUntilContainerFinished(containerId, token, maxAttempts = 10) {
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const { status_code } = await graph(`${containerId}?fields=status_code&access_token=${token}`);
+    if (status_code === 'FINISHED') return;
+    if (status_code === 'ERROR') throw new Error(`Instagram container ${containerId} failed to process`);
+    await new Promise((r) => setTimeout(r, 5000));
+  }
+  throw new Error(`Instagram container ${containerId} did not finish processing in time`);
+}
+
+async function publishReelToInstagram(videoUrl, caption, token) {
+  const { id: creationId } = await graph(`${META_IG_BUSINESS_ID}/media`, {
+    method: 'POST',
+    body: { media_type: 'REELS', video_url: videoUrl, caption, share_to_feed: true, access_token: token },
+  });
+  // Video containers can take minutes, not seconds — more, longer-spaced
+  // attempts than the image path's waitUntilFinished.
+  await waitUntilContainerFinished(creationId, token, 40);
   return graph(`${META_IG_BUSINESS_ID}/media_publish`, {
     method: 'POST',
     body: { creation_id: creationId, access_token: token },
@@ -174,33 +238,54 @@ async function updateCalendarStatus(row) {
 }
 
 const { facebook: fbCaption, instagram: igCaption } = await readCaptions(packageDir);
-const images = await findImages(packageDir);
+const video = await findVideo(packageDir);
+const images = video ? null : await findImages(packageDir);
 
 console.log(`Package: ${packageDir}`);
-console.log(`Images: ${images.map((i) => path.basename(i)).join(', ')}`);
+if (video) {
+  console.log(`Video: ${path.basename(video)}`);
+} else {
+  console.log(`Images: ${images.map((i) => path.basename(i)).join(', ')}`);
+}
 console.log(`Facebook caption:\n${fbCaption}\n`);
 console.log(`Instagram caption:\n${igCaption}\n`);
 
 if (dryRun) {
-  console.log('[dry-run] No network calls made. Would upload the above images, post to the Facebook Page, then the Instagram account.');
+  const action = video ? 'upload the video, publish it as a Facebook Reel, then post it as an Instagram Reel' : 'upload the above images, post to the Facebook Page, then the Instagram account';
+  console.log(`[dry-run] No network calls made. Would ${action}.`);
   process.exit(0);
 }
 
 const pageToken = await getPageAccessToken();
 
-console.log('Uploading images to Facebook (unpublished)...');
-const uploads = [];
-for (const image of images) {
-  uploads.push(await uploadUnpublishedPhoto(image, pageToken));
+if (video) {
+  console.log('Uploading video to Facebook (publishes as a Reel)...');
+  const fbVideoId = await uploadVideoToFacebook(video, fbCaption, pageToken);
+  console.log('Waiting for Facebook to finish processing the video...');
+  await waitUntilVideoReady(fbVideoId, pageToken);
+  console.log('Facebook Reel published:', fbVideoId);
+
+  console.log('Fetching the Facebook-hosted video URL for Instagram to reuse...');
+  const videoUrl = await getFacebookVideoUrl(fbVideoId, pageToken);
+
+  console.log('Publishing Instagram Reel (this can take a few minutes)...');
+  const igPost = await publishReelToInstagram(videoUrl, igCaption, pageToken);
+  console.log('Instagram Reel published:', igPost.id);
+} else {
+  console.log('Uploading images to Facebook (unpublished)...');
+  const uploads = [];
+  for (const image of images) {
+    uploads.push(await uploadUnpublishedPhoto(image, pageToken));
+  }
+
+  console.log('Publishing Facebook Page post...');
+  const fbPost = await publishToFacebook(uploads.map((u) => u.photoId), fbCaption, pageToken);
+  console.log('Facebook post published:', fbPost.id);
+
+  console.log('Publishing Instagram post...');
+  const igPost = await publishToInstagram(uploads.map((u) => u.cdnUrl), igCaption, pageToken);
+  console.log('Instagram post published:', igPost.id);
 }
-
-console.log('Publishing Facebook Page post...');
-const fbPost = await publishToFacebook(uploads.map((u) => u.photoId), fbCaption, pageToken);
-console.log('Facebook post published:', fbPost.id);
-
-console.log('Publishing Instagram post...');
-const igPost = await publishToInstagram(uploads.map((u) => u.cdnUrl), igCaption, pageToken);
-console.log('Instagram post published:', igPost.id);
 
 await updateCalendarStatus(calendarRow);
 console.log(`Calendar row ${calendarRow} marked posted.`);

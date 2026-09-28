@@ -38,6 +38,16 @@ Two things the skill's defaults do not know about this weekly cadence:
   gets the full gate. Do not let a `plain-english` week drift into telling the
   viewer what to do — explaining a term is education, recommending a response
   is regulated advice.
+- **A `+ reel` week also needs a feed-shaped fallback.** `frames/*.png`
+  (1080×1920, `class="frame reel"`) exist only as the first frame for each Flow
+  shot — they are the wrong aspect ratio for a normal feed post (feed tops out
+  around 4:5, 1080×1350) and will display cropped and oversized on mobile if
+  posted directly. So also render `frames-feed/`: the same beats' HTML with
+  `class="frame feed glow"` instead of `reel`, via `--preset feed`. This is the
+  set actually used if the Reel doesn't get assembled by Monday.
+  `publish-social-package.mjs` looks for `frames-feed/` first and only falls
+  back to `frames/` when it doesn't exist (a non-reel week's `frames/` is
+  already feed-shaped, so nothing changes for those).
 
 ## 3 — Check it
 
@@ -63,9 +73,12 @@ Then report, briefly:
 - the beat, and the one thing this post claims
 - which claims are sourced and which are carrying an `Illustrative example` chip
 - anything under **For counsel** in `claims.md`
-- what Ram must do before Saturday: run the Veo prompts in Flow if it is a video
-  week, then schedule both posts in Meta Business Suite for Sunday 09:00 NZT
+- what Ram must do before Monday: run the Veo prompts in Flow if it is a video
+  week, then reply "approve week N" once he's happy with it — a Monday 7am NZT
+  scheduled task posts automatically from there, nothing to schedule manually
 
-**Do not post anything.** This command produces a package for review. Publishing
-is a human step in Business Suite, deliberately — there is no path from this
-command to a live post.
+**Do not post anything.** This command produces a package for review. A separate
+Monday-morning scheduled task (`weekly-social-publish`) posts it via
+`scripts/publish-social-package.mjs`, and only for a row Ram has explicitly
+flipped to `approved` in a chat reply — there is no path from this command to a
+live post.

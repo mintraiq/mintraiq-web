@@ -1,700 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-NZ">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MintrAIQ — AI Financial Mentor</title>
-    <meta name="description" content="Stop guessing. Start Minting. MintrAIQ is the AI Financial Mentor for New Zealanders to track, save, and plan smarter.">
+    <title>MintrAIQ — Every line, sorted</title>
+    <meta name="description" content="Upload a bank statement or snap a receipt. MintrAIQ sorts each line into a category and shows you where the month went. Built in New Zealand, on iOS, Android and the web.">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
     <link rel="canonical" href="https://mintraiq.com/intro.html">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-dark: #0c1322;
-            --bg-deeper: #040913;
-            --bg-card: #171e2d;
-            --text-primary: #ffffff;
-            --text-secondary: #b8c2d4;
-            --accent-green: #00ff9d;
-            --accent-red: #ff4757;
-            --accent-blue: #2f80ed;
-            --accent-purple: #bb6bd9;
-            --gradient-brand: linear-gradient(105deg, #00d4aa 0%, #00c6ff 45%, #2f80ed 78%, #1e4fd6 100%);
-            --glow-teal: 0 0 40px rgba(0, 255, 157, 0.12);
-            --glow-blue: 0 0 50px rgba(47, 128, 237, 0.15);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Montserrat', 'Segoe UI', sans-serif;
-            background: var(--bg-deeper);
-            color: var(--text-primary);
-            min-height: 100vh;
-            line-height: 1.6;
-            text-rendering: optimizeLegibility;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        .gradient-text {
-            background: var(--gradient-brand);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .page-bg {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            background:
-                radial-gradient(ellipse 85% 55% at 50% -20%, rgba(0, 198, 255, 0.18), transparent 56%),
-                radial-gradient(ellipse 62% 45% at 100% 24%, rgba(47, 128, 237, 0.13), transparent 50%),
-                radial-gradient(ellipse 56% 38% at 0% 62%, rgba(0, 255, 157, 0.09), transparent 47%),
-                linear-gradient(180deg, var(--bg-deeper) 0%, var(--bg-dark) 45%, var(--bg-deeper) 100%);
-        }
-
-        .wrap {
-            position: relative;
-            z-index: 1;
-            max-width: 1120px;
-            margin: 0 auto;
-            padding: 0 24px 80px;
-        }
-
-        /* Nav */
-        .nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 22px 0 36px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .nav-brand {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.25rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            text-decoration: none;
-            color: var(--text-primary);
-        }
-
-        .nav-brand span {
-            font-weight: 800;
-        }
-
-        .brand-leaf {
-            height: 28px;
-            width: auto;
-            flex-shrink: 0;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            padding: 10px 18px;
-            border-radius: 10px;
-            transition: color 0.2s, background 0.2s;
-        }
-
-        .nav-links a:hover {
-            color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.06);
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-family: inherit;
-            font-weight: 700;
-            font-size: 0.95rem;
-            padding: 14px 26px;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, rgba(0, 255, 157, 0.15), rgba(47, 128, 237, 0.25));
-            color: var(--text-primary);
-            border: 1px solid rgba(0, 255, 157, 0.35);
-            box-shadow: var(--glow-teal);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--glow-teal), var(--glow-blue);
-        }
-
-        .btn-ghost {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-        }
-
-        .btn-ghost:hover {
-            color: var(--text-primary);
-            border-color: rgba(255, 255, 255, 0.22);
-        }
-
-        .btn-survey {
-            background: linear-gradient(135deg, rgba(187, 107, 217, 0.2), rgba(47, 128, 237, 0.22));
-            color: var(--text-primary);
-            border: 1px solid rgba(187, 107, 217, 0.45);
-            box-shadow: 0 0 30px rgba(187, 107, 217, 0.12);
-        }
-
-        .btn-survey:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 40px rgba(187, 107, 217, 0.22), var(--glow-blue);
-        }
-
-        /* Live demo frame */
-        .demo-frame {
-            display: block;
-            margin-top: 26px;
-            border-radius: 16px;
-            border: 1px solid rgba(122, 152, 205, 0.25);
-            overflow: hidden;
-            text-decoration: none;
-            background: var(--bg-card);
-            box-shadow: 0 14px 44px rgba(0, 0, 0, 0.4);
-            animation: fadeUp 0.6s ease 0.15s backwards;
-        }
-
-        .demo-frame-bar {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.04);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-        }
-
-        .demo-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.18);
-        }
-
-        .demo-frame-title {
-            margin-left: 10px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            letter-spacing: 0.04em;
-        }
-
-        .demo-frame-viewport {
-            position: relative;
-            height: 420px;
-            overflow: hidden;
-        }
-
-        .demo-frame-viewport iframe {
-            width: 200%;
-            height: 840px;
-            border: 0;
-            transform: scale(0.5);
-            transform-origin: top left;
-            pointer-events: none;
-        }
-
-        .demo-frame-overlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(180deg, transparent 30%, rgba(4, 9, 19, 0.85) 100%);
-            opacity: 0;
-            transition: opacity 0.25s ease;
-        }
-
-        .demo-frame:hover .demo-frame-overlay,
-        .demo-frame:focus-visible .demo-frame-overlay {
-            opacity: 1;
-        }
-
-        /* Survey CTA strip */
-        .cta-strip {
-            text-align: center;
-            padding: 44px 24px;
-            border-radius: 16px;
-            border: 1px solid rgba(187, 107, 217, 0.25);
-            background: radial-gradient(ellipse at center, rgba(187, 107, 217, 0.08) 0%, transparent 65%),
-                var(--bg-card);
-            animation: fadeUp 0.6s ease backwards;
-        }
-
-        .cta-strip h2 {
-            font-size: clamp(1.3rem, 3vw, 1.7rem);
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            margin-bottom: 10px;
-        }
-
-        .cta-strip p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            font-weight: 500;
-            max-width: 520px;
-            margin: 0 auto 22px;
-        }
-
-        /* Hero */
-        .hero {
-            display: grid;
-            grid-template-columns: minmax(260px, 420px) minmax(0, 1fr);
-            align-items: center;
-            gap: clamp(24px, 4vw, 52px);
-            padding: 34px 0 46px;
-            animation: fadeUp 0.7s ease backwards;
-        }
-
-        .hero-logo {
-            width: 100%;
-            max-width: 420px;
-            height: auto;
-            margin: 0;
-            display: block;
-            filter: drop-shadow(0 20px 50px rgba(0, 0, 0, 0.45));
-        }
-
-        .hero-copy {
-            text-align: left;
-        }
-
-        .hero-eyebrow {
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-
-        .hero h1 {
-            font-size: clamp(1.75rem, 4.5vw, 2.65rem);
-            font-weight: 800;
-            line-height: 1.2;
-            letter-spacing: -0.03em;
-            max-width: 18ch;
-            margin: 0 0 14px;
-            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 20px rgba(47, 128, 237, 0.12);
-        }
-
-        .hero-lead {
-            font-size: 1.1rem;
-            color: #c4ccdb;
-            max-width: 56ch;
-            margin: 0 0 14px;
-            font-weight: 500;
-        }
-
-        .tagline {
-            font-size: 1.05rem;
-            font-weight: 600;
-            margin-bottom: 22px;
-        }
-
-        .hero-ctas {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-            justify-content: flex-start;
-        }
-
-        /* Pillars */
-        .pillars {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 0;
-            background: linear-gradient(160deg, #171e2d 0%, #141b29 100%);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            overflow: hidden;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-            margin-bottom: 64px;
-            animation: fadeUp 0.7s ease 0.1s backwards;
-        }
-
-        .pillar {
-            padding: 28px 16px;
-            text-align: center;
-            border-right: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .pillar:last-child {
-            border-right: none;
-        }
-
-        .pillar-icon {
-            width: 52px;
-            height: 52px;
-            margin: 0 auto 14px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.35rem;
-            background: linear-gradient(145deg, rgba(0, 212, 170, 0.2), rgba(47, 128, 237, 0.25));
-            color: #7ee8ff;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-        }
-
-        .pillar-icon i {
-            background: var(--gradient-brand);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .pillar h3 {
-            font-size: 0.8rem;
-            font-weight: 800;
-            letter-spacing: 0.12em;
-            margin-bottom: 6px;
-            color: var(--text-primary);
-        }
-
-        .pillar p {
-            font-size: 0.72rem;
-            color: #bec7d9;
-            line-height: 1.45;
-            font-weight: 500;
-        }
-
-        /* Sections */
-        section {
-            margin-bottom: 56px;
-        }
-
-        .section-head {
-            margin-bottom: 28px;
-            animation: fadeUp 0.6s ease backwards;
-        }
-
-        .section-head h2 {
-            font-size: clamp(1.4rem, 3vw, 1.85rem);
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            margin-bottom: 10px;
-            color: #f7fbff;
-            text-shadow: 0 0 18px rgba(47, 128, 237, 0.1);
-        }
-
-        .section-head p {
-            color: #b9c2d2;
-            font-size: 1rem;
-            max-width: 640px;
-            font-weight: 500;
-        }
-
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-
-        .info-card {
-            background: linear-gradient(170deg, #171e2d 0%, #151c2a 100%);
-            border-radius: 15px;
-            padding: 26px 24px;
-            border: 1px solid rgba(122, 152, 205, 0.2);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-            transition: border-color 0.25s, box-shadow 0.25s;
-            animation: fadeUp 0.55s ease backwards;
-        }
-
-        .info-card:nth-child(1) { animation-delay: 0.05s; }
-        .info-card:nth-child(2) { animation-delay: 0.1s; }
-        .info-card:nth-child(3) { animation-delay: 0.15s; }
-        .info-card:nth-child(4) { animation-delay: 0.2s; }
-
-        .info-card:hover {
-            border-color: rgba(0, 255, 157, 0.15);
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
-        }
-
-        .info-card .icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 16px;
-            font-size: 1.1rem;
-            color: var(--accent-green);
-            background: rgba(0, 255, 157, 0.1);
-        }
-
-        .info-card:nth-child(2) .icon { color: var(--accent-blue); background: rgba(47, 128, 237, 0.12); }
-        .info-card:nth-child(3) .icon { color: var(--accent-purple); background: rgba(187, 107, 217, 0.12); }
-        .info-card:nth-child(4) .icon { color: var(--accent-red); background: rgba(255, 71, 87, 0.1); }
-
-        .info-card h3 {
-            font-size: 1.05rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: #f6f9ff;
-        }
-
-        .info-card p {
-            font-size: 0.9rem;
-            color: #bec7d7;
-            font-weight: 500;
-            line-height: 1.55;
-        }
-
-        /* Insights list */
-        .insights-panel {
-            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(30, 30, 36, 0.95) 50%, rgba(47, 128, 237, 0.08) 100%);
-            border-radius: 16px;
-            padding: 32px 28px;
-            border: 1px solid rgba(47, 128, 237, 0.2);
-            border-left: 4px solid var(--accent-blue);
-            animation: fadeUp 0.6s ease 0.1s backwards;
-        }
-
-        .insights-panel h2 {
-            font-size: 1.25rem;
-            font-weight: 800;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .insights-panel h2 i {
-            color: var(--accent-purple);
-        }
-
-        .insights-panel > p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            margin-bottom: 22px;
-            font-weight: 500;
-        }
-
-        .insights-list {
-            list-style: none;
-            display: grid;
-            gap: 14px;
-        }
-
-        .insights-list li {
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-            padding: 14px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            font-size: 0.92rem;
-            color: #d0d0d0;
-            font-weight: 500;
-        }
-
-        .insights-list li:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .insights-list .check {
-            flex-shrink: 0;
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            background: rgba(0, 255, 157, 0.12);
-            color: var(--accent-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-        }
-
-        /* Quote / mentor */
-        .mentor-block {
-            text-align: center;
-            padding: 48px 24px;
-            border-radius: 16px;
-            background: radial-gradient(ellipse at center, rgba(0, 255, 157, 0.06) 0%, transparent 65%),
-                var(--bg-card);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            animation: fadeUp 0.65s ease backwards;
-        }
-
-        .mentor-block p {
-            font-size: clamp(1.15rem, 2.5vw, 1.45rem);
-            font-weight: 700;
-            line-height: 1.45;
-            max-width: 720px;
-            margin: 0 auto 20px;
-        }
-
-        .mentor-block .sub {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            font-weight: 500;
-            max-width: 560px;
-            margin: 0 auto;
-        }
-
-        /* Footer pill */
-        .footer-pill {
-            text-align: center;
-            margin-top: 48px;
-        }
-
-        .footer-pill-inner {
-            display: inline-block;
-            padding: 14px 28px;
-            border-radius: 999px;
-            border: 1px solid transparent;
-            background: linear-gradient(var(--bg-deeper), var(--bg-deeper)) padding-box,
-                var(--gradient-brand) border-box;
-            font-size: 0.68rem;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            color: rgba(255, 255, 255, 0.85);
-            box-shadow: 0 0 24px rgba(0, 198, 255, 0.08);
-        }
-
-        .footer-note {
-            margin-top: 28px;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(22px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @media (max-width: 900px) {
-            .pillars {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .pillar {
-                border-right: 1px solid rgba(255, 255, 255, 0.06);
-                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            }
-
-            .pillar:nth-child(2n) {
-                border-right: none;
-            }
-
-            .pillar:nth-last-child(-n+2) {
-                border-bottom: none;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .nav {
-                flex-direction: column;
-                gap: 16px;
-                align-items: stretch;
-            }
-
-            .nav-links {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-
-            .card-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .hero {
-                grid-template-columns: 1fr;
-                text-align: center;
-                padding-top: 30px;
-            }
-
-            .hero-logo {
-                max-width: min(360px, 88vw);
-                margin: 0 auto 10px;
-            }
-
-            .hero-copy {
-                text-align: center;
-            }
-
-            .hero h1 {
-                max-width: 18ch;
-                margin-left: auto;
-                margin-right: auto;
-            }
-
-            .hero-lead {
-                margin-left: auto;
-                margin-right: auto;
-            }
-
-            .hero-ctas {
-                justify-content: center;
-            }
-
-            .pillars {
-                grid-template-columns: 1fr;
-            }
-
-            .pillar {
-                border-right: none;
-            }
-
-            .pillar:not(:last-child) {
-                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            }
-
-            .demo-frame-viewport {
-                height: 300px;
-            }
-
-            .demo-frame-viewport iframe {
-                width: 280%;
-                height: 840px;
-                transform: scale(0.357);
-            }
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/home.css">
+    <script>document.documentElement.classList.add('js');</script>
     <script>
         window.va = window.va || function () {
             (window.vaq = window.vaq || []).push(arguments);
@@ -703,187 +22,374 @@
     <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js"></script>
     <meta name="view-transition" content="same-origin">
+    <meta name="turbo-cache-control" content="no-cache">
     <script src="config/runtime-env.js"></script>
     <script defer src="js/analytics.js"></script>
     <script src="js/env-banner.js"></script>
     <script src="js/survey-link.js"></script>
+    <script defer src="js/home.js"></script>
 </head>
 <body>
-    <div class="page-bg" aria-hidden="true"></div>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="#top" aria-label="MintrAIQ home"><img src="assets/mintraiq-lockup-light.webp" alt="MintrAIQ" width="480" height="200"></a>
+  <nav class="nav-links" aria-label="Main">
+    <a class="hide-m" href="#how">How it works</a>
+    <a class="hide-m" href="#all-features">Features</a>
+    <a class="hide-m" href="#compare">Compare</a>
+    <a class="hide-m" href="#privacy">Privacy</a>
+    <a href="portal/index.html">Sign in</a>
+    <a class="btn btn-navy btn-sm" href="#get">Get the app</a>
+  </nav>
+</div></header>
 
-    <div class="wrap">
-        <header class="nav">
-            <a href="intro.html" class="nav-brand">
-                <img src="assets/mintr-leaf-mark.png" alt="" aria-hidden="true" class="brand-leaf" width="19" height="28">
-                <span>Mintr<span class="gradient-text">AIQ</span></span>
-            </a>
-            <div class="nav-links">
-                <a href="#product">Product</a>
-                <a href="#insights">Insights</a>
-                <a href="https://survey.mintraiq.com" data-survey-link>Survey</a>
-                <a href="https://play.google.com/store/apps/details?id=com.mintraiq.app">Play</a>
-                <a href="https://apps.apple.com/nz/app/mintraiq/id6782332605">iOS</a>
-                <a href="mock-dashboard.html" class="btn btn-ghost" style="padding: 10px 18px;">Dashboard</a>
-                <a href="portal/index.html" class="btn btn-primary" style="padding: 10px 20px;">Sign in</a>
-            </div>
-        </header>
-
-        <section class="hero">
-            <img class="hero-logo" src="assets/mintraiq-logo.png" alt="MintrAIQ — Smart Money. Stronger You." width="420" height="auto">
-            <div class="hero-copy">
-                <p class="hero-eyebrow">Your AI financial mentor</p>
-                <h1>Stop guessing. Start Minting.</h1>
-                <p class="hero-lead">
-                    Bank statements and receipts in. Clear insights, forecasts, and better habits out. Built in New Zealand, for New Zealanders.
-                </p>
-                <p class="tagline">
-                    Smart Money. <span class="gradient-text">Stronger You.</span>
-                </p>
-                <div class="hero-ctas">
-                    <a href="portal/join.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Start your 60-second setup</a>
-                    <a href="https://survey.mintraiq.com" data-survey-link class="btn btn-survey"><i class="fas fa-comment-dots"></i> Help shape Mintr</a>
-                </div>
-                <p style="margin-top: 20px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; color: var(--text-secondary);">GET THE APP</p>
-                <div class="hero-ctas" style="margin-top: 12px;">
-                    <a href="https://play.google.com/store/apps/details?id=com.mintraiq.app" class="btn btn-ghost" style="border-color: rgba(0, 255, 157, 0.35); color: var(--accent-green);"><i class="fab fa-google-play"></i> Google Play</a>
-                    <a href="https://apps.apple.com/nz/app/mintraiq/id6782332605" class="btn btn-ghost" style="border-color: rgba(47, 128, 237, 0.45); color: var(--accent-blue);"><i class="fab fa-apple"></i> App Store</a>
-                </div>
-            </div>
-        </section>
-
-        <div class="pillars" role="list">
-            <div class="pillar" role="listitem">
-                <div class="pillar-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-                <h3>Track</h3>
-                <p>Every transaction, sorted for you</p>
-            </div>
-            <div class="pillar" role="listitem">
-                <div class="pillar-icon"><i class="fas fa-chart-pie"></i></div>
-                <h3>Analyze</h3>
-                <p>Spot the patterns and leaks</p>
-            </div>
-            <div class="pillar" role="listitem">
-                <div class="pillar-icon"><i class="fas fa-bullseye"></i></div>
-                <h3>Discipline</h3>
-                <p>Nudges that build real habits</p>
-            </div>
-            <div class="pillar" role="listitem">
-                <div class="pillar-icon"><i class="fas fa-shield-halved"></i></div>
-                <h3>Plan</h3>
-                <p>Forecasts months ahead</p>
-            </div>
-            <div class="pillar" role="listitem">
-                <div class="pillar-icon"><i class="fas fa-arrow-trend-up"></i></div>
-                <h3>Grow</h3>
-                <p>Savings goals within reach</p>
-            </div>
-        </div>
-
-        <section id="product">
-            <div class="section-head">
-                <h2>Take control of your financial future</h2>
-                <p>
-                    One dashboard that simplifies, guides, and optimizes your money habits&mdash;from automatic categorization to forecasts that show where your money is headed.
-                </p>
-            </div>
-            <div class="card-grid">
-                <article class="info-card">
-                    <div class="icon"><i class="fas fa-cloud-arrow-up"></i></div>
-                    <h3>Upload &amp; scan, instantly organized</h3>
-                    <p>
-                        Upload bank statements or scan receipts to categorize transactions automatically with intelligent AI. See income vs expenses, category spending, recurring payments, and rich transaction detail in visual dashboards.
-                    </p>
-                </article>
-                <article class="info-card">
-                    <div class="icon"><i class="fas fa-wand-magic-sparkles"></i></div>
-                    <h3>Beautiful dashboards, real clarity</h3>
-                    <p>
-                        Track where your money goes with charts and breakdowns that match how you actually spend—so patterns, leaks, and wins are obvious at a glance.
-                    </p>
-                </article>
-                <article class="info-card">
-                    <div class="icon"><i class="fas fa-piggy-bank"></i></div>
-                    <h3>Goals, recurring bills, better habits</h3>
-                    <p>
-                        Set savings goals, manage recurring expenses, and stay consistent with nudges and plans tailored to your cash flow—not generic advice.
-                    </p>
-                </article>
-                <article class="info-card">
-                    <div class="icon"><i class="fas fa-globe"></i></div>
-                    <h3>Inflation, CPI &amp; everyday prices</h3>
-                    <p>
-                        Monitor economic trends that affect your spending with built-in inflation and CPI tracking, plus grocery price context so you understand how daily costs move your budget.
-                    </p>
-                </article>
-            </div>
-
-            <a href="mock-dashboard.html" class="demo-frame" aria-label="Open the live demo dashboard">
-                <div class="demo-frame-bar" aria-hidden="true">
-                    <span class="demo-dot"></span><span class="demo-dot"></span><span class="demo-dot"></span>
-                    <span class="demo-frame-title">mintraiq.com/dashboard — live demo</span>
-                </div>
-                <div class="demo-frame-viewport">
-                    <iframe src="mock-dashboard.html" title="MintrAIQ demo dashboard preview" loading="lazy" tabindex="-1" scrolling="no"></iframe>
-                    <div class="demo-frame-overlay"><span class="btn btn-primary"><i class="fas fa-play"></i> Explore the live demo</span></div>
-                </div>
-            </a>
-        </section>
-
-        <section id="insights">
-            <div class="insights-panel">
-                <h2><i class="fas fa-robot"></i> Stay ahead with smart insights</h2>
-                <p>Proactive signals and forecasts so you can adjust before small drift becomes big regret.</p>
-                <ul class="insights-list">
-                    <li>
-                        <span class="check"><i class="fas fa-check"></i></span>
-                        <span><strong>High-spend alerts</strong> warn you before budgets go off track.</span>
-                    </li>
-                    <li>
-                        <span class="check"><i class="fas fa-check"></i></span>
-                        <span><strong>Weekly and monthly spending plans</strong> personalized to your rhythm.</span>
-                    </li>
-                    <li>
-                        <span class="check"><i class="fas fa-check"></i></span>
-                        <span><strong>AI recommendations and nudges</strong> that guide smarter day-to-day decisions.</span>
-                    </li>
-                    <li>
-                        <span class="check"><i class="fas fa-check"></i></span>
-                        <span><strong>Yearly financial forecasts</strong> to predict where your money is headed.</span>
-                    </li>
-                </ul>
-            </div>
-        </section>
-
-        <section class="mentor-block" aria-labelledby="mentor-heading">
-            <p id="mentor-heading">This isn’t just a finance tracker. <span class="gradient-text">It’s your personal financial mentor.</span></p>
-            <p class="sub">
-                Intelligent insights designed to make money management effortless—so you can focus on life while your dashboard keeps you honest, informed, and moving forward.
-            </p>
-        </section>
-
-        <section class="cta-strip" aria-labelledby="cta-strip-heading">
-            <h2 id="cta-strip-heading">We&rsquo;re building this <span class="gradient-text">with you</span></h2>
-            <p>Mintr is in early access. Tell us how you manage money today&mdash;your answers decide what we build next.</p>
-            <a href="https://survey.mintraiq.com" data-survey-link class="btn btn-survey"><i class="fas fa-comment-dots"></i> Take the 60-second survey</a>
-        </section>
-
-        <div class="footer-pill">
-            <div class="footer-pill-inner">AI-powered financial intelligence for a better tomorrow</div>
-            <p class="footer-note">
-                © MintrAIQ ·
-                <a href="terms.html" data-turbo="false" style="color: var(--text-secondary); text-decoration: none; font-weight: 600;">Terms</a>
-                ·
-                <a href="privacy.html" data-turbo="false" style="color: var(--text-secondary); text-decoration: none; font-weight: 600;">Privacy</a>
-                ·
-                <a href="contact.html" data-turbo="false" style="color: var(--text-secondary); text-decoration: none; font-weight: 600;">Contact</a>
-                ·
-                <a href="https://survey.mintraiq.com" data-survey-link style="color: var(--accent-purple); text-decoration: none; font-weight: 600;">Survey</a>
-                ·
-                <a href="https://play.google.com/store/apps/details?id=com.mintraiq.app" style="color: var(--accent-green); text-decoration: none; font-weight: 600;">Google Play</a>
-                ·
-                <a href="https://apps.apple.com/nz/app/mintraiq/id6782332605" style="color: var(--accent-blue); text-decoration: none; font-weight: 600;">App Store</a>
-            </p>
-        </div>
+<main id="top">
+<!-- ======================= HERO ======================= -->
+<section class="hero" id="get">
+  <div class="wrap">
+    <p class="eyebrow">Built in New Zealand · iOS, Android and the web</p>
+    <h1>Every line, <span class="hl">sorted.</span></h1>
+    <p class="lead">Upload a bank statement or snap a receipt. MintrAIQ sorts each line into a category and shows you where the month went — with no connection to your bank.</p>
+    <div class="store">
+      <a class="storebtn" href="https://apps.apple.com/nz/app/mintraiq/id6782332605">
+        <svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.59 1.1 8.75.73 1.05 1.6 2.24 2.73 2.2 1.1-.05 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.4 1.2-2.46-.03-.01-2.3-.88-2.32-3.5zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.65-1.05 1.69-.92 2.69.97.07 1.96-.49 2.56-1.24z"/></svg>
+        <span><small>Download on the</small><strong>App Store</strong></span></a>
+      <a class="storebtn" href="https://play.google.com/store/apps/details?id=com.mintraiq.app">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#43D67A" d="M3.6 2.3 13.3 12l-9.7 9.7c-.4-.2-.6-.6-.6-1.1V3.4c0-.5.2-.9.6-1.1z"/><path fill="#2CC8F5" d="m16.6 15.3-3.3-3.3 3.3-3.3 3.8 2.2c1 .6 1 1.6 0 2.2z"/><path fill="#F1C40F" d="M13.3 12 3.6 2.3c.3-.2.8-.2 1.3.1l11.7 6.3z"/><path fill="#FF4757" d="M13.3 12 3.6 21.7c.3.2.8.2 1.3-.1l11.7-6.3z"/></svg>
+        <span><small>Get it on</small><strong>Google Play</strong></span></a>
     </div>
+    <a class="weblink" href="portal/join.html">or use it in your browser →</a>
+    <p class="fine">Free for your first 90 days. After that your account moves to our free plan — nothing is charged.</p>
+
+    <div class="stage" id="stage" aria-roledescription="carousel" aria-label="App screens"></div>
+    <div class="stage-ctl">
+      <button class="arrow" id="prev" type="button" aria-label="Previous screen">←</button>
+      <div class="cap" aria-live="polite"><b id="capT"></b><span id="capS"></span></div>
+      <button class="arrow" id="next" type="button" aria-label="Next screen">→</button>
+    </div>
+    <div class="dots" id="dots"></div>
+    <button class="pause" id="pause" type="button" aria-pressed="false">Pause</button>
+    <div class="illus">Illustrative example · sample data</div>
+  </div>
+</section>
+
+<div class="trust"><div class="wrap">
+  <span>No connection to your bank</span><span>Built in New Zealand</span><span>iOS, Android and the web</span>
+</div></div>
+
+<!-- ======================= HOW (signature) ======================= -->
+<section class="section" id="how"><div class="wrap">
+  <p class="eyebrow">How it works</p>
+  <h2 class="h2">Paper in. <span class="hl">Sorted out.</span></h2>
+  <p class="sub">That's the whole idea. You bring the statement or the receipt; MintrAIQ does the sorting.</p>
+
+  <div class="sorter" id="sorter">
+    <div class="tape-wrap"><div class="tape" aria-label="Illustrative supermarket receipt">
+      <h4>SUPERMARKET RECEIPT</h4><p class="meta">29/09/2026 · 12 items · illustrative</p>
+      <div class="ln"><i></i><span>CHICKEN THIGHS 1.2KG</span><span>14.40</span></div>
+      <div class="ln"><i></i><span>BANANAS CAVENDISH 1KG</span><span>3.49</span></div>
+      <div class="ln"><i></i><span>ROLLED OATS 1KG</span><span>4.20</span></div>
+      <div class="ln"><i></i><span>DISH LIQUID</span><span>4.50</span></div>
+      <div class="ln"><i></i><span>AGRIA POTATOES 2KG</span><span>5.99</span></div>
+      <div class="ln"><i></i><span>SALMON FILLETS 2PK</span><span>16.90</span></div>
+      <div class="ln"><i></i><span>CRACKERS</span><span>3.20</span></div>
+      <div class="ln"><i></i><span>BASMATI RICE 1KG</span><span>3.80</span></div>
+      <div class="ln"><i></i><span>TOILET PAPER 12PK</span><span>9.99</span></div>
+      <div class="ln"><i></i><span>BROCCOLI</span><span>2.50</span></div>
+      <div class="ln"><i></i><span>TINNED TOMATOES X4</span><span>5.20</span></div>
+      <div class="ln"><i></i><span>DARK CHOCOLATE</span><span>4.50</span></div>
+      <hr><div class="tot"><span>TOTAL</span><span>$78.67</span></div>
+    </div></div>
+    <div class="flow" aria-hidden="true"><span class="arr">→</span>reading</div>
+    <div class="dev"><div class="scr"><div class="isl"></div><div class="sb"><span>9:41</span><i>●●● ▮</i></div>
+      <div class="ah"><img class="lf" src="assets/mintr-leaf-mark.png" alt=""><b>Mintr<em>AIQ</em></b><span class="av"></span></div>
+      <div class="bd">
+        <div class="card-d"><p class="k">Receipt read · 12 lines</p><p class="big-d">$78.67</p><span class="chip-d">Groceries</span></div>
+        <div class="card-d" style="padding:2cqw 4.2cqw"><div class="row-d xl"><span>Chicken thighs 1.2kg</span><b>$14.40</b></div><div class="row-d xl"><span>Bananas Cavendish 1kg</span><b>$3.49</b></div><div class="row-d xl"><span>Rolled oats 1kg</span><b>$4.20</b></div><div class="row-d xl"><span>Dish liquid</span><b>$4.50</b></div><div class="row-d xl"><span>Agria potatoes 2kg</span><b>$5.99</b></div><div class="row-d xl"><span>Salmon fillets 2pk</span><b>$16.90</b></div><div class="row-d xl"><span>Crackers</span><b>$3.20</b></div><div class="row-d xl"><span>Basmati rice 1kg</span><b>$3.80</b></div><div class="row-d xl"><span>Toilet paper 12pk</span><b>$9.99</b></div><div class="row-d xl"><span>Broccoli</span><b>$2.50</b></div><div class="row-d xl"><span>Tinned tomatoes ×4</span><b>$5.20</b></div><div class="row-d xl"><span>Dark chocolate</span><b>$4.50</b></div></div>
+        <p style="text-align:center;color:var(--dink-2);font-size:3.8cqw;margin-top:5cqw">You typed nothing.</p>
+      </div>
+      <div class="tabs-b"><span class="on">⌂ MintrHome</span><span>▮ Intelligence Hub</span></div>
+    </div></div>
+  </div>
+  <div style="text-align:center"><button class="replay" id="replay" type="button">Run it again</button></div>
+
+  <div class="steps">
+    <div class="step"><h3>Snap or upload</h3><p>Photograph a receipt, or upload the statement you download from your bank's website.</p></div>
+    <div class="step"><h3>Everything gets sorted</h3><p>Each statement transaction gets a category, and every receipt line is read — no typing.</p></div>
+    <div class="step"><h3>See your month</h3><p>Totals by category, on your phone or in your browser.</p></div>
+  </div>
+</div></section>
+
+<!-- ======================= FEATURES ======================= -->
+<section class="section features" id="features"><div class="wrap">
+  <p class="eyebrow">What MintrAIQ does</p>
+  <h2 class="h2">Five things it helps with.</h2>
+  <p class="sub">Tap a number on the phone to see what each part does and how it helps. Everything here is included in your first 90 days; after that, a few parts need a paid plan — they're marked.</p>
+
+  <div class="ptabs" role="tablist" aria-label="Feature groups">
+    <button class="ptab" role="tab" id="tab-track" aria-controls="p-track" aria-selected="true">Track<small>Get it all in</small></button>
+    <button class="ptab" role="tab" id="tab-analyse" aria-controls="p-analyse" aria-selected="false" tabindex="-1">Analyse<small>See the month</small></button>
+    <button class="ptab" role="tab" id="tab-discipline" aria-controls="p-discipline" aria-selected="false" tabindex="-1">Discipline<small>Keep it up</small></button>
+    <button class="ptab" role="tab" id="tab-plan" aria-controls="p-plan" aria-selected="false" tabindex="-1">Plan<small>This week</small></button>
+    <button class="ptab" role="tab" id="tab-grow" aria-controls="p-grow" aria-selected="false" tabindex="-1">Grow<small>Aim higher</small></button>
+  </div>
+
+  <!-- TRACK -->
+  <div class="panel" role="tabpanel" id="p-track" aria-labelledby="tab-track">
+    <div class="dwrap" data-screen="receipt">
+      <button class="spot" data-t=".big-d" data-s="r" data-i="1" aria-label="1: Receipt total and date">1</button>
+      <button class="spot" data-t=".card-d:nth-of-type(2)" data-s="r" data-i="2" aria-label="2: Every line read">2</button>
+      <button class="spot" data-t=".qa > div:nth-child(2)" data-s="t" data-i="3" aria-label="3: Statements too">3</button>
+      <button class="spot" data-t=".qa > div:nth-child(3)" data-s="t" data-i="4" aria-label="4: Review and fix">4</button>
+    </div>
+    <div>
+      <h3 class="ptitle">Get everything in, without typing.</h3>
+      <ol class="plist">
+        <li data-i="1"><span class="n">1</span><div><h4>Receipt total and date</h4><dl><dt>Does</dt><dd>Reads the total and date straight off the photo.</dd><dt>Helps</dt><dd>No keying in amounts after a shop.</dd></dl></div></li>
+        <li data-i="2"><span class="n">2</span><div><h4>Every line, read</h4><dl><dt>Does</dt><dd>Lists each item on the receipt with its quantity and price.</dd><dt>Helps</dt><dd>See what a shop was actually made of.</dd></dl></div></li>
+        <li data-i="3"><span class="n">3</span><div><h4>Statements too</h4><dl><dt>Does</dt><dd>Upload a bank statement and each transaction is sorted the same way.</dd><dt>Helps</dt><dd>All your spending in one list.</dd></dl></div></li>
+        <li data-i="4"><span class="n">4</span><div><h4>Review and fix</h4><dl><dt>Does</dt><dd>Lists the transactions marked for review, so you can change a category in a tap.</dd><dt>Helps</dt><dd>Fix the ones the app wasn&#39;t sure about.</dd></dl></div></li>
+      </ol>
+      <p class="planline">Free plan: 3 statement uploads and 3 receipt scans a month.</p>
+    </div>
+  </div>
+
+  <!-- ANALYSE -->
+  <div class="panel" role="tabpanel" id="p-analyse" aria-labelledby="tab-analyse" hidden>
+    <div class="dwrap" data-screen="hub">
+      <button class="spot" data-t=".hub2 > div:nth-child(1)" data-s="l" data-i="1" aria-label="1: Breakdown">1</button>
+      <button class="spot" data-t=".hub2 > div:nth-child(2)" data-s="r" data-i="2" aria-label="2: AI forecast">2</button>
+      <button class="spot" data-t=".ask" data-s="r" data-i="3" aria-label="3: Ask the MintrAIQ assistant">3</button>
+    </div>
+    <div>
+      <h3 class="ptitle">See where the month went — and where it&#39;s heading.</h3>
+      <ol class="plist">
+        <li data-i="1"><span class="n">1</span><div><h4>Breakdown</h4><dl><dt>Does</dt><dd>Splits your spending across categories like rent, groceries and fuel.</dd><dt>Helps</dt><dd>See where most of it goes, at a glance.</dd></dl></div></li>
+        <li data-i="2"><span class="n">2</span><div><h4>AI forecast</h4><dl><dt>Does</dt><dd>Projects where your money is heading, with an end-of-year figure.</dd></dl></div></li>
+        <li data-i="3"><span class="n">3</span><div><h4>Ask the MintrAIQ assistant</h4><dl><dt>Does</dt><dd>Answers questions about your own transactions in plain English.</dd><dt>Helps</dt><dd>Find a figure without digging for it.</dd></dl></div></li>
+      </ol>
+      <p class="planline">AI forecast: in the pilot and on Forecast Pro. The assistant: pilot, Cashflow Essential (5 messages a month) and Forecast Pro (150).</p>
+    </div>
+  </div>
+
+  <!-- DISCIPLINE -->
+  <div class="panel" role="tabpanel" id="p-discipline" aria-labelledby="tab-discipline" hidden>
+    <div class="dwrap" data-screen="habit">
+      <button class="spot" data-t=".card-d:nth-of-type(1)" data-s="r" data-i="1" aria-label="1: Money Minute">1</button>
+      <button class="spot" data-t=".card-d:nth-of-type(2)" data-s="l" data-i="2" aria-label="2: Daily streak">2</button>
+      <button class="spot" data-t=".card-d:nth-of-type(3)" data-s="r" data-i="3" aria-label="3: Badges and levels">3</button>
+    </div>
+    <div>
+      <h3 class="ptitle">Small habits, kept up.</h3>
+      <ol class="plist">
+        <li data-i="1"><span class="n">1</span><div><h4>Money Minute</h4><dl><dt>Does</dt><dd>Gives you one short task — about 30 seconds.</dd><dt>Helps</dt><dd>Keeps your spending picture accurate without a big sit-down.</dd></dl></div></li>
+        <li data-i="2"><span class="n">2</span><div><h4>Daily streak</h4><dl><dt>Does</dt><dd>Counts the days in a row you open MintrAIQ.</dd><dt>Helps</dt><dd>A small reason to look in each day.</dd></dl></div></li>
+        <li data-i="3"><span class="n">3</span><div><h4>Badges and levels</h4><dl><dt>Does</dt><dd>Marks your progress as you go, starting from Seed.</dd><dt>Helps</dt><dd>Makes the routine feel like progress.</dd></dl></div></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- PLAN -->
+  <div class="panel" role="tabpanel" id="p-plan" aria-labelledby="tab-plan" hidden>
+    <div class="dwrap" data-screen="week">
+      <button class="spot" data-t=".card-d .big-d" data-s="r" data-i="1" aria-label="1: Weekly spending guide">1</button>
+      <button class="spot" data-t=".card-d > p:nth-of-type(3)" data-s="l" data-i="2" aria-label="2: Daily pace">2</button>
+      <button class="spot" data-t=".card-d > p:nth-of-type(4)" data-s="r" data-i="3" aria-label="3: Fixed costs set aside">3</button>
+    </div>
+    <div>
+      <h3 class="ptitle">A plan for this week.</h3>
+      <ol class="plist">
+        <li data-i="1"><span class="n">1</span><div><h4>Weekly spending guide</h4><dl><dt>Does</dt><dd>Suggests a day-to-day amount for the week, based on your past spending.</dd><dt>Helps</dt><dd>A figure to plan the week around.</dd></dl></div></li>
+        <li data-i="2"><span class="n">2</span><div><h4>Daily pace</h4><dl><dt>Does</dt><dd>That weekly amount divided by seven.</dd><dt>Helps</dt><dd>A simple number for each day.</dd></dl></div></li>
+        <li data-i="3"><span class="n">3</span><div><h4>Fixed costs set aside</h4><dl><dt>Does</dt><dd>Keeps rent, power and other fixed bills out of the flex amount.</dd><dt>Helps</dt><dd>Fixed bills don't get mixed into day-to-day spending.</dd></dl></div></li>
+      </ol>
+      <p class="planline">Planners: in the pilot, Cashflow Essential and Forecast Pro.</p>
+    </div>
+  </div>
+
+  <!-- GROW -->
+  <div class="panel" role="tabpanel" id="p-grow" aria-labelledby="tab-grow" hidden>
+    <div class="dwrap" data-screen="goals">
+      <button class="spot" data-t=".goal" data-s="r" data-i="1" aria-label="1: Pick a goal">1</button>
+      <button class="spot" data-t="> p:nth-of-type(2)" data-s="l" data-i="2" aria-label="2: A rough aim is fine">2</button>
+    </div>
+    <div>
+      <h3 class="ptitle">Aim at something.</h3>
+      <ol class="plist">
+        <li data-i="1"><span class="n">1</span><div><h4>Pick a goal</h4><dl><dt>Does</dt><dd>Start from an emergency fund, a house deposit or paying down debt.</dd><dt>Helps</dt><dd>Choose a starting point and set a savings target.</dd></dl></div></li>
+        <li data-i="2"><span class="n">2</span><div><h4>A rough aim is fine</h4><dl><dt>Does</dt><dd>Lets you set a target without exact figures.</dd><dt>Helps</dt><dd>Start today and refine it later.</dd></dl></div></li>
+      </ol>
+    </div>
+  </div>
+</div></section>
+
+<!-- ======================= FEATURE INDEX ======================= -->
+<section class="section" id="all-features" style="padding-bottom:0"><div class="wrap">
+  <p class="eyebrow">Everything in MintrAIQ</p>
+  <h2 class="h2">The full list.</h2>
+  <p class="sub">Grouped the way the app groups them. Everything is included in your first 90 days.</p>
+  <div class="findex">
+    <div class="fcol"><h3>Track</h3><div class="fitem"><b>Statement upload</b><p>Upload the statement you download from your bank&#39;s website.</p><span class="st st-live">In the app</span></div><div class="fitem"><b>Receipt scan</b><p>Photograph a receipt and every line is read.</p><span class="st st-live">In the app</span></div><div class="fitem"><b>Automatic categories</b><p>Each transaction goes into a category; each receipt is filed under one.</p><span class="st st-live">In the app</span></div><div class="fitem"><b>Receipt &amp; transaction review</b><p>See what&#39;s marked for review and change a category in a tap.</p><span class="st st-live">In the app</span></div></div>
+    <div class="fcol"><h3>Analyse</h3><div class="fitem"><b>Intelligence Hub</b><p>Your spending by category and by month.</p><span class="st st-live">In the app</span></div><div class="fitem"><b>AI forecast</b><p>Where your money is heading, with an end-of-year projection.</p><span class="st st-plan">Pilot &amp; Pro</span></div><div class="fitem"><b>The MintrAIQ assistant</b><p>Ask about your own transactions in plain English.</p><span class="st st-plan">Pilot &amp; paid plans</span></div></div>
+    <div class="fcol"><h3>Discipline</h3><div class="fitem"><b>Money Minute</b><p>One short task at a time — about 30 seconds.</p><span class="st st-live">In the app</span></div><div class="fitem"><b>Streaks and badges</b><p>Progress you can see, day by day.</p><span class="st st-live">In the app</span></div><div class="fitem"><b>Hidden leaks</b><p>Flags categories where small, regular amounts add up.</p><span class="st st-plan">Pilot &amp; paid plans</span></div><div class="fitem"><b>Notifications</b><p>Reminders you can switch on or off in Settings.</p><span class="st st-live">In the app</span></div></div>
+    <div class="fcol"><h3>Plan</h3><div class="fitem"><b>Weekly planner</b><p>A suggested day-to-day amount for the week.</p><span class="st st-plan">Pilot &amp; paid plans</span></div><div class="fitem"><b>Budget planner</b><p>Your month, category by category.</p><span class="st st-plan">Pilot &amp; paid plans</span></div></div>
+    <div class="fcol"><h3>Grow</h3><div class="fitem"><b>Savings goals</b><p>Pick a goal — a rough aim is enough to start.</p><span class="st st-live">In the app</span></div><div class="fitem"><b>Product price tracker</b><p>Unit prices for things you buy often, over time.</p><span class="st st-plan">Pilot &amp; Pro</span></div></div>
+  </div>
+  <div class="legend"><span class="st st-live">In the app</span> available now <span class="st st-plan">Pilot &amp; paid plans</span> first 90 days, then Cashflow Essential or Forecast Pro <span class="st st-plan">Pilot &amp; Pro</span> first 90 days, then Forecast Pro</div>
+</div></section>
+
+<!-- ======================= COMPARE ======================= -->
+<section class="section" id="compare"><div class="wrap">
+  <p class="eyebrow">How it compares</p>
+  <h2 class="h2">Four ways to keep track.<br>Here's how they differ.</h2>
+  <p class="sub">Including where MintrAIQ isn't the right fit.</p>
+
+  <div class="ledger"><table>
+    <thead><tr><th scope="col"></th><th scope="col">A spreadsheet</th><th scope="col">Your bank's app</th><th scope="col">Bank-feed budgeting apps</th><th scope="col" class="us">MintrAIQ</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Connects to your bank</th><td><span class="cp">No</span></td><td><span class="cp">It is your bank</span></td><td><span class="cp">Yes</span></td><td class="us"><span class="cp">No</span></td></tr>
+      <tr><th scope="row">Reads receipts line by line</th><td><span class="cn">No</span></td><td><span class="cp">Varies</span></td><td><span class="cp">Varies</span></td><td class="us"><span class="cy">Yes</span></td></tr>
+      <tr><th scope="row">Sorts spending into categories</th><td><span class="cp">By hand</span></td><td><span class="cp">Some banks</span></td><td><span class="cy">Yes</span></td><td class="us"><span class="cy">Yes</span></td></tr>
+      <tr><th scope="row">Updates on its own from your bank</th><td><span class="cp">Varies</span></td><td><span class="cy">Yes</span></td><td><span class="cy">Yes</span></td><td class="us"><span class="cn">You upload statements</span></td></tr>
+      <tr><th scope="row">Forecasts where your money is heading</th><td><span class="cp">By hand</span></td><td><span class="cp">Varies</span></td><td><span class="cp">Varies</span></td><td class="us"><span class="cy">AI forecast (pilot &amp; Forecast Pro)</span></td></tr>
+      <tr><th scope="row">Free to start</th><td><span class="cp">Varies</span></td><td><span class="cy">Yes</span></td><td><span class="cp">Varies</span></td><td class="us"><span class="cy">90 days of everything, then a free plan</span></td></tr>
+      <tr><th scope="row">On your phone and the web</th><td><span class="cp">Varies</span></td><td><span class="cy">Yes</span></td><td><span class="cp">Varies</span></td><td class="us"><span class="cy">Yes</span></td></tr>
+    </tbody>
+  </table>
+  <p class="foot">Columns describe kinds of tools, not any particular product — features vary between providers. MintrAIQ row as at 1 Oct 2026.</p></div>
+</div></section>
+
+<!-- ======================= PLANS ======================= -->
+<section class="section" id="plans" style="padding-top:0"><div class="wrap">
+  <p class="eyebrow">Plans</p>
+  <h2 class="h2">Start with everything, free.</h2>
+  <p class="sub">Your first 90 days include every feature. After that your account moves to the free plan — nothing is charged unless you choose a paid plan.</p>
+  <div class="plans">
+    <div class="plan lead-p"><p class="tag">First 90 days</p><h3>Pilot</h3><p class="price">NZ$0</p><ul><li>Every Forecast Pro feature</li><li>150 assistant messages a month</li><li>Moves to the free plan on day 91</li></ul></div>
+    <div class="plan"><p class="tag">Free plan</p><h3>Insight Starter</h3><p class="price">NZ$0</p><ul><li>3-month dashboard</li><li>3 statement uploads a month</li><li>3 receipt scans a month</li></ul></div>
+    <div class="plan"><p class="tag">Paid plan</p><h3>Cashflow Essential</h3><p class="price">NZ$3.99<small>/month</small></p><ul><li>Weekly and budget planners</li><li>5 uploads, 15 scans a month</li><li>5 assistant messages a month</li></ul></div>
+    <div class="plan"><p class="tag">Paid plan</p><h3>Forecast Pro</h3><p class="price">NZ$6.99<small>/month</small></p><ul><li>Everything in Cashflow Essential</li><li>AI forecast</li><li>Product price tracker</li><li>150 assistant messages a month</li></ul></div>
+  </div>
+</div></section>
+
+<!-- ======================= PRIVACY ======================= -->
+<section class="section privacy" id="privacy"><div class="wrap">
+  <p class="eyebrow">Privacy</p>
+  <h2 class="h2">What happens to your data.</h2>
+  <p class="sub">Plainly, and before you sign up.</p>
+  <div class="pcards">
+    <div class="pcard"><h3>No bank login</h3><p>MintrAIQ has no connection to your bank. You decide which statements and receipts to give it.</p></div>
+    <div class="pcard"><h3>The AI services we use</h3><p>The same sentence you'll see in the app:</p>
+      <q>To categorise transactions, read receipts and answer your questions, MintrAIQ sends some of your data to AI services run by Google and Groq.</q></div>
+    <div class="pcard"><h3>The full detail</h3><p>Our Privacy Policy sets out what we collect and why.</p><p style="margin-top:12px"><a href="privacy.html" data-turbo="false">Read the Privacy Policy →</a></p></div>
+  </div>
+</div></section>
+
+<!-- ======================= SURVEY / FAQ ======================= -->
+<section class="section"><div class="wrap">
+  <div class="shape">
+    <div><h2>MintrAIQ is new. Tell us what's missing.</h2><p>Your answers go straight to the people building it.</p></div>
+    <a class="btn btn-navy" href="https://survey.mintraiq.com" data-survey-link>Help shape MintrAIQ <span class="glyph">→</span></a>
+  </div>
+
+  <div id="faq" style="margin-top:96px">
+    <p class="eyebrow">Questions</p>
+    <h2 class="h2">Before you start.</h2>
+    <div class="faq">
+      <details open><summary>Do I have to connect my bank?</summary><p>No. You upload statements you download from your bank's website, or photograph receipts. MintrAIQ never asks for your online banking login.</p></details>
+      <details><summary>What happens after the first 90 days?</summary><p>Your account moves to the free Insight Starter plan. Nothing is charged. You can choose a paid plan at any time.</p></details>
+      <details><summary>Can I use it on my computer?</summary><p>Yes. Sign in on the web with the same account you use on your phone.</p></details>
+      <details><summary>Which AI services see my data?</summary><p>Google and Groq. Our Privacy Policy has the detail.</p></details>
+    </div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <a class="logo" href="#top" aria-label="MintrAIQ home"><img src="assets/mintraiq-lockup-light.webp" alt="MintrAIQ" width="480" height="200"></a>
+  <nav aria-label="Footer"><a href="terms.html" data-turbo="false">Terms</a><a href="privacy.html" data-turbo="false">Privacy</a><a href="contact.html" data-turbo="false">Contact</a><a href="https://survey.mintraiq.com" data-survey-link>Survey</a><a href="https://apps.apple.com/nz/app/mintraiq/id6782332605">App Store</a><a href="https://play.google.com/store/apps/details?id=com.mintraiq.app">Google Play</a></nav>
+  <span>Made in Aotearoa New Zealand</span>
+</div></footer>
+
+<!-- ======================= SCREEN TEMPLATES ======================= -->
+<template id="t-receipt"><div class="dev"><div class="scr"><div class="isl"></div><div class="sb"><span>9:41</span><i>●●● ▮</i></div>
+  <div class="ah"><img class="lf" src="assets/mintr-leaf-mark.png" alt=""><b>Mintr<em>AIQ</em></b><span class="av"></span></div>
+  <div class="bd"><div class="card-d"><p class="k">Receipt read · 29 Sep</p><p class="big-d">$78.67</p><span class="chip-d">Groceries · 12 lines</span></div>
+    <div class="card-d" style="padding:2cqw 4.2cqw"><div class="row-d"><span>Salmon fillets 2pk</span><b>$16.90</b></div><div class="row-d"><span>Chicken thighs 1.2kg</span><b>$14.40</b></div><div class="row-d"><span>Toilet paper 12pk</span><b>$9.99</b></div><div class="row-d"><span>Agria potatoes 2kg</span><b>$5.99</b></div><div class="row-d"><span style="color:var(--dink-2)">+ 8 more lines</span><b></b></div></div>
+    <div class="qa"><div><span class="ic">◉</span>Scan</div><div><span class="ic">⇪</span>Upload</div><div><span class="ic">≡</span>Review</div></div></div>
+  <div class="tabs-b"><span class="on">⌂ MintrHome</span><span>▮ Intelligence Hub</span></div></div></div></template>
+
+<template id="t-home"><div class="dev"><div class="scr"><div class="isl"></div><div class="sb"><span>9:41</span><i>●●● ▮</i></div>
+  <div class="ah"><img class="lf" src="assets/mintr-leaf-mark.png" alt=""><b>Mintr<em>AIQ</em></b><span class="av"></span></div>
+  <div class="bd"><p style="color:var(--dink-2);margin-bottom:3cqw">Welcome back</p>
+    <div class="card-d"><p class="k">Money Minute · about 30 seconds</p><p style="font-family:var(--display);font-weight:800;font-size:6cqw;margin:1.5cqw 0">Categorise 3 transactions</p>
+      <p style="color:var(--dink-2);font-size:3.6cqw;margin-bottom:3cqw">Sorting these keeps your spending picture accurate.</p><span class="btn-d">Start</span><span class="btn-d o">Mark done</span></div>
+    <p class="k" style="margin:2cqw 0 2.6cqw">Quick actions</p>
+    <div class="qa"><div><span class="ic">◉</span>Scan</div><div><span class="ic">⇪</span>Upload</div><div><span class="ic">≡</span>Review</div></div></div>
+  <div class="tabs-b"><span class="on">⌂ MintrHome</span><span>▮ Intelligence Hub</span></div></div></div></template>
+
+<template id="t-tx"><div class="dev"><div class="scr"><div class="isl"></div><div class="sb"><span>9:41</span><i>●●● ▮</i></div>
+  <div class="ah"><img class="lf" src="assets/mintr-leaf-mark.png" alt=""><b>Mintr<em>AIQ</em></b><span class="av"></span></div>
+  <div class="bd"><p class="k" style="margin-bottom:2.6cqw">Transactions · September</p>
+    <div class="card-d" style="padding:2cqw 4.2cqw">
+      <div class="row-d"><span>Supermarket<small>Groceries</small></span><b>−$78.67</b></div>
+      <div class="row-d"><span>Power bill<small>Utilities</small></span><b>−$142.30</b></div>
+      <div class="row-d"><span>Fuel station<small>Transport</small></span><b>−$71.00</b></div>
+      <div class="row-d"><span>Café<small>Dining out</small></span><b>−$6.50</b></div>
+      <div class="row-d"><span>Pharmacy<small>Health</small></span><b>−$23.40</b></div>
+      <div class="row-d"><span>Salary<small>Income</small></span><b class="mint">+$2,640.00</b></div>
+      <div class="row-d"><span>Bus fare<small>Transport</small></span><b>−$4.20</b></div></div></div>
+  <div class="tabs-b"><span>⌂ MintrHome</span><span class="on">▮ Intelligence Hub</span></div></div></div></template>
+
+<template id="t-hub"><div class="dev"><div class="scr"><div class="isl"></div><div class="sb"><span>9:41</span><i>●●● ▮</i></div>
+  <div class="ah"><img class="lf" src="assets/mintr-leaf-mark.png" alt=""><b>Mintr<em>AIQ</em></b><span class="av"></span></div>
+  <div class="bd"><div class="card-d" style="padding:3.4cqw 3.6cqw">
+      <p class="k" style="margin-bottom:1.6cqw"><span style="color:var(--mint)">●</span> Income &nbsp; <span style="color:var(--red)">●</span> Expenses</p>
+      <svg viewBox="0 0 120 40" style="width:100%;height:auto;display:block" aria-hidden="true">
+        <polyline points="4,14 24,11 44,12 64,13 84,12 104,10 116,11" fill="none" stroke="#43D67A" stroke-width="1.6"/>
+        <polyline points="4,16 24,21 44,9 64,15 84,10 104,13 116,12" fill="none" stroke="#FF4757" stroke-width="1.6"/>
+        <line x1="4" y1="38" x2="116" y2="38" stroke="#334155" stroke-width=".6"/></svg>
+      <p style="display:flex;justify-content:space-between;font-size:2.6cqw;color:var(--dink-2);margin-top:1cqw"><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span></p></div>
+    <div class="hub2">
+      <div><h5>Breakdown</h5><div class="pie"></div><div class="lg">
+        <span><i style="background:var(--mint)"></i>Rent</span><span><i style="background:var(--ai)"></i>Groceries</span>
+        <span><i style="background:var(--purple)"></i>Shopping</span><span><i style="background:var(--yellow)"></i>Fuel</span>
+        <span><i style="background:var(--red)"></i>Savings</span></div></div>
+      <div class="fc"><h5>▣ AI Forecast</h5>
+        <svg viewBox="0 0 60 30" aria-hidden="true"><path d="M2,16 L9,13 L16,17 L23,19 L30,12 L37,15 L44,9 L51,6 L58,7 L58,29 L2,29Z" fill="rgba(187,107,217,.18)"/>
+          <polyline points="2,16 9,13 16,17 23,19 30,12 37,15 44,9 51,6 58,7" fill="none" stroke="#BB6BD9" stroke-width="1.2"/>
+          <g fill="#BB6BD9"><circle cx="2" cy="16" r="1.6"/><circle cx="16" cy="17" r="1.6"/><circle cx="30" cy="12" r="1.6"/><circle cx="44" cy="9" r="1.6"/><circle cx="58" cy="7" r="1.6"/></g></svg>
+        <small>EOY projection</small><strong>$12,934</strong></div>
+    </div>
+    <div class="ask">Ask about your spending…<i>➤</i></div></div>
+  <div class="tabs-b"><span>⌂ MintrHome</span><span class="on">▮ Intelligence Hub</span></div></div></div></template>
+
+<template id="t-goals"><div class="dev"><div class="scr"><div class="isl"></div><div class="sb"><span>9:41</span><i>●●● ▮</i></div>
+  <div class="ah"><img class="lf" src="assets/mintr-leaf-mark.png" alt=""><b>Mintr<em>AIQ</em></b><span class="av"></span></div>
+  <div class="bd"><p style="font-family:var(--display);font-weight:800;font-size:8.4cqw;letter-spacing:-.03em;line-height:1.1;margin-bottom:2.4cqw">Savings goals</p>
+    <p style="color:var(--dink-2);font-size:3.7cqw;margin-bottom:4cqw">No perfect answer needed — a rough aim is enough to start.</p>
+    <div class="goal"><span class="e">🏝️</span>Build an Emergency Fund<span class="ch">›</span></div>
+    <div class="goal"><span class="e">🏠</span>Save for a House<span class="ch">›</span></div>
+    <div class="goal"><span class="e">📉</span>Crush Debt<span class="ch">›</span></div>
+    <p style="text-align:center;color:var(--dink-2);text-decoration:underline;margin-top:5cqw;font-size:3.7cqw">Skip to Dashboard</p></div>
+  <div class="tabs-b"><span class="on">⌂ MintrHome</span><span>▮ Intelligence Hub</span></div></div></div></template>
+
+<template id="t-habit"><div class="dev"><div class="scr"><div class="isl"></div><div class="sb"><span>9:41</span><i>●●● ▮</i></div>
+  <div class="ah"><img class="lf" src="assets/mintr-leaf-mark.png" alt=""><b>Mintr<em>AIQ</em></b><span class="av"></span></div>
+  <div class="bd"><div class="card-d"><p class="k">Money Minute · about 30 seconds</p><p style="font-family:var(--display);font-weight:800;font-size:6cqw;margin:1.5cqw 0">Categorise 3 transactions</p><span class="btn-d">Start</span><span class="btn-d o">Mark done</span></div>
+    <div class="card-d" style="display:flex;gap:3cqw;align-items:center"><span style="font-size:7cqw">🔥</span><div><p style="font-weight:800;font-size:4.6cqw">12-day streak</p><p style="color:var(--dink-2);font-size:3.4cqw">Days in a row you&#39;ve opened MintrAIQ.</p></div></div>
+    <div class="card-d"><div style="display:flex;justify-content:space-between;align-items:center"><div><p style="font-family:var(--display);font-weight:800;font-size:6.4cqw">Seed</p><p style="color:var(--dink-2);font-size:3.4cqw">200 XP to sprout</p></div><b class="mint" style="font-family:var(--mono)">100 XP</b></div>
+      <div class="bar-d"><span style="width:33%;background:var(--mint)"></span></div>
+      <span class="chip-d" style="margin-right:1.4cqw">First Light</span><span class="chip-d">Steady Hand</span></div></div>
+  <div class="tabs-b"><span class="on">⌂ MintrHome</span><span>▮ Intelligence Hub</span></div></div></div></template>
+
+<template id="t-week"><div class="dev"><div class="scr"><div class="isl"></div><div class="sb"><span>9:41</span><i>●●● ▮</i></div>
+  <div class="ah"><img class="lf" src="assets/mintr-leaf-mark.png" alt=""><b>Mintr<em>AIQ</em></b><span class="av"></span></div>
+  <div class="bd"><p style="font-family:var(--display);font-weight:800;font-size:6.4cqw;letter-spacing:-.02em;margin-bottom:3cqw">Week of 28 Sep – 4 Oct</p>
+    <div class="card-d" style="text-align:center"><p class="k">Flex cash for this week</p><p class="big-d mint" style="margin:2cqw 0">$412.60</p>
+      <div class="bar-d"><span style="width:100%;background:var(--ai)"></span></div>
+      <p style="color:var(--dink-2);font-size:3.5cqw">Daily pace $58.94 · controllable categories only</p>
+      <p style="color:var(--dink-2);font-size:3.2cqw;margin-top:1.4cqw">ⓘ Fixed foundations are excluded from this flex pool.</p></div>
+    <div class="days"><div>MON<b>28</b></div><div>TUE<b>29</b></div><div>WED<b>30</b></div><div class="now">THU<b>01</b></div><div>FRI<b>02</b></div></div></div>
+  <div class="tabs-b"><span class="on">⌂ MintrHome</span><span>▮ Intelligence Hub</span></div></div></div></template>
 </body>
 </html>

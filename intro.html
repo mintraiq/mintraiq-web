@@ -11,8 +11,8 @@
     <link rel="canonical" href="https://mintraiq.com/intro.html">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/home.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" data-turbo-track="dynamic">
+    <link rel="stylesheet" href="css/home.css" data-turbo-track="dynamic">
     <script>document.documentElement.classList.add('js');</script>
     <script>
         window.va = window.va || function () {
@@ -23,6 +23,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js"></script>
     <meta name="view-transition" content="same-origin">
     <meta name="turbo-cache-control" content="no-cache">
+    <!-- Turbo keeps the previous page's stylesheets when it swaps pages. Arriving here by Turbo
+         (e.g. the sign-in page's "Back to marketing site") left that page's dark theme on top of
+         this one, so always load the homepage fresh; "dynamic" removes our styles on the way out. -->
+    <meta name="turbo-visit-control" content="reload">
     <script src="config/runtime-env.js"></script>
     <script defer src="js/analytics.js"></script>
     <script src="js/env-banner.js"></script>

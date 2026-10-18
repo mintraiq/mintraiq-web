@@ -1,0 +1,164 @@
+{
+ "about": "What the hardened gate flags in packages shipped BEFORE it existed (snapshot 18 Oct 2026). Not an exclusion: the test fails if a package gains or loses any finding, and fails for a package not listed here. Fix the package (a person edits it, never the gate) and delete its entries. brand-retired-names: the retired name Mintr; numbers: literal figures and number words instead of register placeholders; bank-connection: \"bank feed\" wording; links: #mintr hashtag or a bare mintraiq.com that is not one of the three constant URLs. data-sharing on script.md: an internal note reading \"No third-party data on this post\", flagged by the widened no-third-party pattern; reword the note. Each entry also pins the SHA-256 of the flagged file, so any edit to it forces a re-pin.",
+ "packages": {
+  "reels/2026-09-20-food-index": {
+   "captions.md": {
+    "rules": [
+     "brand-retired-names",
+     "numbers"
+    ],
+    "sha256": "1b4f9908fa2b1cb7dd5575e3130db98bf6ae55f2d013f0a1b075987a6ae84f9d"
+   },
+   "frames/01-hook.html": {
+    "rules": [
+     "brand-retired-names",
+     "numbers"
+    ],
+    "sha256": "267db776a1ae9d66fb5a4bfc17f21c14fb4abd2ad6c7573c32f706caee4e57d0"
+   },
+   "frames/02-spread.html": {
+    "rules": [
+     "brand-retired-names",
+     "numbers"
+    ],
+    "sha256": "d4fee0453d5dc5396b9312766e1e6d7907a2a072633dbdaff5ca3a5ebfea9e3e"
+   },
+   "frames/03-point.html": {
+    "rules": [
+     "brand-retired-names",
+     "numbers"
+    ],
+    "sha256": "8964d8873374d9c68834115cf3a9b01ddf6023c318442c1f278cc0022e4fe907"
+   },
+   "frames/04-close.html": {
+    "rules": [
+     "brand-retired-names",
+     "numbers"
+    ],
+    "sha256": "6a6547358af1b4da17a2715de0fd012892ca29450f3c61295033cecf16fc10dd"
+   },
+   "script.md": {
+    "rules": [
+     "brand-retired-names",
+     "numbers"
+    ],
+    "sha256": "19f2025e5b9d6e83a95e397606f4076d4fef0f286eff71cd9dcb5485b4dcfc8f"
+   }
+  },
+  "reels/2026-09-27-forgotten-subscription": {
+   "captions.md": {
+    "rules": [
+     "bank-connection",
+     "brand-retired-names",
+     "links",
+     "numbers"
+    ],
+    "sha256": "bb43c41cc298a19f9d2b911fa1c6fb5a418851d02e4748bb0ee178762d538185"
+   },
+   "frames/01-hook.html": {
+    "rules": [
+     "bank-connection",
+     "brand-retired-names"
+    ],
+    "sha256": "95be0f75e68158cd6a3e0b7a56e6a88351031df0df0980663640b7e6d735f5f0"
+   },
+   "frames/02-ache.html": {
+    "rules": [
+     "brand-retired-names",
+     "numbers"
+    ],
+    "sha256": "833eccfdb773f2985759394dbcf8b6469bc27c8238f2bfc627b8c6ddaff4cfb5"
+   },
+   "frames/03-reveal.html": {
+    "rules": [
+     "brand-retired-names",
+     "numbers"
+    ],
+    "sha256": "a32672930ba98ded8edbb985be09d21b7963bca5c8b7df6cf0a3a92a4de4479d"
+   },
+   "frames/04-proof.html": {
+    "rules": [
+     "brand-retired-names",
+     "numbers"
+    ],
+    "sha256": "c29d17e775b2d3f79e8cc8a570334aeb5dd3d0ee11e67c0953d5fe48609e4891"
+   },
+   "frames/05-close.html": {
+    "rules": [
+     "brand-retired-names",
+     "numbers"
+    ],
+    "sha256": "fb968fa1c56af5f34a2b30e3dd8451ac1f7747888554523241ede06d5dffc8f8"
+   },
+   "prompts.md": {
+    "rules": [
+     "brand-retired-names",
+     "numbers"
+    ],
+    "sha256": "fcbe340134732506c9fcfeb7169d9196b30382df6d70c76f3d201093194d64ba"
+   },
+   "script.md": {
+    "rules": [
+     "bank-connection",
+     "brand-retired-names",
+     "data-sharing",
+     "numbers"
+    ],
+    "sha256": "9447cc7edab86d93dbf9605e239bbd033f9939787b099295fbe4e1569f41dd8d"
+   }
+  },
+  "features/receipt-scan": {
+   "captions.md": {
+    "rules": [
+     "brand-retired-names",
+     "links",
+     "numbers"
+    ],
+    "sha256": "d9d8af1fc81a5f5b8f2a83282eabaeecd1bbb4074b67d8b024c8a76f0485baf4"
+   },
+   "frames/01-hook.html": {
+    "rules": [
+     "numbers"
+    ],
+    "sha256": "d41d2987dfd9b7c2ee429631c92c770feebdc0c7e36932a65cf00552cdf595c6"
+   },
+   "frames/02-ache.html": {
+    "rules": [
+     "numbers"
+    ],
+    "sha256": "57f1d1d1c6376a28279d89d829a77a9c827462e669bba4c0a32f66afa96d4f98"
+   },
+   "frames/03-scan.html": {
+    "rules": [
+     "numbers"
+    ],
+    "sha256": "e8d5033e7579d5a17bf8eee3d5ff34ee6fc9da680c8050173332fd948b854eda"
+   },
+   "frames/04-sorted.html": {
+    "rules": [
+     "numbers"
+    ],
+    "sha256": "753f6ffb04e471b54f9caf8f0e07645e2e63fca9dbc45af2509b28f279576044"
+   },
+   "frames/05-close.html": {
+    "rules": [
+     "links"
+    ],
+    "sha256": "358966cb9a87aa060ecdfa148409b1498f349f5474f471e8c86c9cbf33b5660e"
+   },
+   "prompts.md": {
+    "rules": [
+     "numbers"
+    ],
+    "sha256": "b08d0d6f5e3bab82b1d2737a0603681f8f3d7d6a6069f8d3b9a206a5c0f8e23d"
+   },
+   "script.md": {
+    "rules": [
+     "brand-retired-names",
+     "numbers"
+    ],
+    "sha256": "d99249483c7f1a0ebf56028dc443543bbebb9ebea049e37ffcecc20729092b52"
+   }
+  }
+ }
+}

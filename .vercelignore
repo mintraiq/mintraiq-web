@@ -79,6 +79,7 @@ env.public.example
 # Everything else in scripts/ is test-only and was being served.
 scripts/*.test.mjs
 scripts/social-copy-rules.mjs
+scripts/social-package.mjs
 scripts/serve.sh
 
 # Deliberately NOT excluded, though they look internal: mock-dashboard.html,

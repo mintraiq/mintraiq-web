@@ -13,8 +13,8 @@ import { queryKeys } from './queryKeys';
 export function ForecastAnalyticsApp(): JSX.Element {
     const forecast = useFinancialForecast();
 
-    // Current-month context (income + live category spend) for the
-    // safe-to-spend copy and trend alert comparisons.
+    // Current-month category spend for trend alert comparisons. Income is
+    // deliberately not read from here: the sample's figure is not the user's.
     const dashboard = useQuery({
         queryKey: queryKeys.samples.dashboard(),
         queryFn: fetchDashboardSample
@@ -65,7 +65,6 @@ export function ForecastAnalyticsApp(): JSX.Element {
         <ForecastAnalyticsSummary
             projections={forecast.projections}
             currentSpendByCategory={currentSpendByCategory}
-            predictedIncome={monthly?.predicted_income}
         />
     );
 }

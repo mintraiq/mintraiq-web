@@ -77,8 +77,8 @@ export function ForecastAnalyticsSummary({
                     </>
                 ) : (
                     <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
-                        Your usual bills add up to about {money(totalPredicted)} a month. Connect
-                        income tracking to see your weekly safe-to-spend amount.
+                        Your usual bills add up to about {money(totalPredicted)} a month. Income
+                        isn&apos;t tracked yet, so there is no weekly safe-to-spend amount to show.
                     </p>
                 )}
             </div>

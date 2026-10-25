@@ -1,9 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
-import { fetchDashboardSample } from './api/samples';
 import { ForecastAnalyticsSummary } from './components/ForecastAnalyticsSummary';
 import { ForecastLoadingPlaceholder } from './components/ForecastLoadingPlaceholder';
 import { useFinancialForecast } from './hooks/useFinancialForecast';
-import { queryKeys } from './queryKeys';
 
 /**
  * Dashboard analytics page: pulls the raw projection array from
@@ -12,13 +9,6 @@ import { queryKeys } from './queryKeys';
  */
 export function ForecastAnalyticsApp(): JSX.Element {
     const forecast = useFinancialForecast();
-
-    // Current-month context (income + live category spend) for the
-    // safe-to-spend copy and trend alert comparisons.
-    const dashboard = useQuery({
-        queryKey: queryKeys.samples.dashboard(),
-        queryFn: fetchDashboardSample
-    });
 
     if (forecast.error) {
         return (
@@ -56,16 +46,9 @@ export function ForecastAnalyticsApp(): JSX.Element {
         );
     }
 
-    const monthly = dashboard.data?.monthly;
-    const currentSpendByCategory = Object.fromEntries(
-        (monthly?.top_categories ?? []).map((c) => [c.category, c.amount])
-    );
-
     return (
-        <ForecastAnalyticsSummary
-            projections={forecast.projections}
-            currentSpendByCategory={currentSpendByCategory}
-            predictedIncome={monthly?.predicted_income}
-        />
+        // No live current-month spend is available here, so trend alerts stay
+        // off: comparing a live projection with sample spend would invent them.
+        <ForecastAnalyticsSummary projections={forecast.projections} />
     );
 }

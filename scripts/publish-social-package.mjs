@@ -1,11 +1,18 @@
 #!/usr/bin/env node
 // Publish a generated marketing/reels/<slug>/ package to the Facebook Page
-// and Instagram Business account. Read-only until a human has approved the
-// package (see marketing/calendar.md status column) — this script never
-// decides that on its own.
+// and Instagram Business account.
+//
+// Approval is a hash, not a markdown cell (marketing-agent design section 6.3).
+// Every run first scans EVERY text surface of the package with the claims gate
+// and refuses on any violation. --dry-run then prints the SHA-256 of the
+// package's text surfaces; a live run refuses unless --approve-sha equals the
+// hash recomputed now, so the person who read the dry-run output pins exactly
+// what he read and any later edit fails closed. marketing/calendar.md is only
+// written to after a real post, never read as approval.
 //
 // Usage:
-//   node scripts/publish-social-package.mjs <package-dir> --row <calendar-row-number> [--dry-run]
+//   node scripts/publish-social-package.mjs <package-dir> --dry-run
+//   node scripts/publish-social-package.mjs <package-dir> --row <calendar-row-number> --approve-sha <hex>
 //
 // Instagram's Content Publishing API only accepts a public image_url, and it
 // cannot receive an uploaded file directly. Rather than hosting images on
@@ -15,7 +22,11 @@
 // image_url for the Instagram container. Both platforms end up showing the
 // same asset; nothing is hosted by us.
 
-process.loadEnvFile();
+import { existsSync } from 'node:fs';
+
+import { packageHash, readSurfaces, scanPackage } from './social-package.mjs';
+
+if (existsSync('.env')) process.loadEnvFile();
 
 const GRAPH_VERSION = 'v21.0';
 const { META_PAGE_ID, META_IG_BUSINESS_ID, META_PAGE_ACCESS_TOKEN } = process.env;
@@ -24,20 +35,44 @@ const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 const rowFlagIndex = args.indexOf('--row');
 const calendarRow = rowFlagIndex !== -1 ? args[rowFlagIndex + 1] : null;
-const packageDir = args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--row');
+const shaFlagIndex = args.indexOf('--approve-sha');
+const approvedSha = shaFlagIndex !== -1 ? args[shaFlagIndex + 1] : null;
+const packageDir = args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--row' && args[i - 1] !== '--approve-sha');
 
 if (!packageDir) {
-  console.error('Usage: node scripts/publish-social-package.mjs <package-dir> --row <N> [--dry-run]');
+  console.error('Usage: node scripts/publish-social-package.mjs <package-dir> --dry-run | --row <N> --approve-sha <hex>');
   process.exit(1);
 }
 if (!calendarRow && !dryRun) {
   console.error('Missing --row <calendar-row-number> — required so the calendar can be flipped to `posted` after a real post.');
   process.exit(1);
 }
-for (const [name, value] of Object.entries({ META_PAGE_ID, META_IG_BUSINESS_ID, META_PAGE_ACCESS_TOKEN })) {
-  if (!value) {
-    console.error(`Missing ${name} in .env`);
+
+// The gate sees every text surface, on every run. It runs before the hash is
+// shown or checked, so a package that fails it can never be approved.
+const { coverageGaps, violations } = scanPackage(packageDir);
+if (coverageGaps.length > 0 || violations.length > 0) {
+  console.error('Claims gate FAILED — nothing to approve or publish:');
+  for (const gap of coverageGaps) console.error(`  coverage: ${gap}`);
+  for (const v of violations) console.error(`  ${v.surface}: ${v.id} — ${v.reason}`);
+  process.exit(1);
+}
+const currentSha = packageHash(readSurfaces(packageDir));
+
+if (!dryRun) {
+  if (!approvedSha) {
+    console.error(`Live run needs --approve-sha <hex>. Run with --dry-run, read the output, then pass the hash it prints (currently ${currentSha}).`);
     process.exit(1);
+  }
+  if (approvedSha.toLowerCase() !== currentSha) {
+    console.error(`--approve-sha does not match the package as it is now (${currentSha}). The package changed after it was read; run --dry-run again and re-read it.`);
+    process.exit(1);
+  }
+  for (const [name, value] of Object.entries({ META_PAGE_ID, META_IG_BUSINESS_ID, META_PAGE_ACCESS_TOKEN })) {
+    if (!value) {
+      console.error(`Missing ${name} in .env`);
+      process.exit(1);
+    }
   }
 }
 
@@ -251,6 +286,8 @@ console.log(`Facebook caption:\n${fbCaption}\n`);
 console.log(`Instagram caption:\n${igCaption}\n`);
 
 if (dryRun) {
+  console.log(`Approval hash (SHA-256): ${currentSha}`);
+  console.log(`To publish exactly this: --row <N> --approve-sha ${currentSha}`);
   const action = video ? 'upload the video, publish it as a Facebook Reel, then post it as an Instagram Reel' : 'upload the above images, post to the Facebook Page, then the Instagram account';
   console.log(`[dry-run] No network calls made. Would ${action}.`);
   process.exit(0);

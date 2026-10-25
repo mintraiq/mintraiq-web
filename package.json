@@ -17,7 +17,7 @@
     "test:analytics-config": "node --test scripts/analytics-config.test.mjs",
     "test:price-overlay": "node --test scripts/price-overlay-copy.test.mjs",
     "test:consent-copy": "node --test scripts/marketing-consent-copy.test.mjs",
-    "test:social-copy": "node --test scripts/social-copy.test.mjs",
+    "test:social-copy": "node --test scripts/social-copy.test.mjs scripts/social-copy-gate.test.mjs scripts/publish-social-package.test.mjs",
     "test:categorisation-copy": "node --test scripts/categorisation-learning-copy.test.mjs",
     "test:site-claims": "node --test scripts/site-claims.test.mjs"
   },

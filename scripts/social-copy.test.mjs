@@ -14,9 +14,10 @@
  *      have a fixture, and `every rule has a fixture` fails if one is added
  *      without one.
  *
- *   2. The scan checks the packages that exist under marketing/reels/. With no
- *      packages on disk it SKIPS rather than passes, because a silent green on
- *      an empty directory is exactly how a guard stops guarding.
+ *   2. The scan checks the link contract of every package under marketing/reels/.
+ *      The claims themselves are scanned, on every text surface, in
+ *      social-copy-gate.test.mjs. With no packages on disk this FAILS: a silent
+ *      green on an empty directory is exactly how a guard stops guarding.
  *
  * The honest limit: these patterns catch the claims already known to be false
  * and the advice verbs already identified. A novel false claim in fresh wording
@@ -55,7 +56,7 @@ const FIXTURES = {
 };
 
 const SAFE_COPY = `
-Groceries went up again this month. Mintr shows you where it went —
+Groceries went up again this month. MintrAIQ shows you where it went —
 scan a receipt, see the categories, spot the subscription you forgot.
 Get it: ${GO_URL}
 `;
@@ -67,7 +68,7 @@ test('every rule has a fixture, so no rule ships untested', () => {
         [],
         'add a fixture to FIXTURES for each new rule'
     );
-    assert.ok(ids.length >= 8, 'rule set shrank — a claim guard was removed');
+    assert.equal(ids.length, 8, 'the original eight rules changed — a claim guard was added or removed');
 });
 
 for (const [id, phrase] of Object.entries(FIXTURES)) {
@@ -86,20 +87,11 @@ test('empty and missing input are not violations', () => {
     assert.deepEqual(findViolations(null), []);
 });
 
-test('scans every package under marketing/reels', (t) => {
-    if (!existsSync(REELS_DIR)) {
-        t.skip('no marketing/reels yet — nothing generated');
-        return;
-    }
-
+test('every package under marketing/reels carries the link contract', () => {
     const packages = readdirSync(REELS_DIR, { withFileTypes: true })
         .filter((entry) => entry.isDirectory())
         .map((entry) => entry.name);
-
-    if (packages.length === 0) {
-        t.skip('marketing/reels is empty — nothing generated');
-        return;
-    }
+    assert.ok(packages.length > 0, 'marketing/reels is empty: the link contract is not being checked');
 
     for (const name of packages) {
         const dir = join(REELS_DIR, name);
@@ -109,12 +101,6 @@ test('scans every package under marketing/reels', (t) => {
         assert.ok(existsSync(captionsPath), `${name}: captions.md is missing`);
 
         const captions = readFileSync(captionsPath, 'utf8');
-        const violations = findViolations(captions);
-        assert.deepEqual(
-            violations,
-            [],
-            `${name}: ${violations.map((v) => `${v.id} — ${v.reason}`).join(' | ')}`
-        );
 
         // Instagram cannot render a link in a caption, so the bio page is the
         // only route off the post. Facebook takes the store URLs directly.

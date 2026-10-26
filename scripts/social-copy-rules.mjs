@@ -22,6 +22,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { PLACEHOLDER, REGISTER, findEntry, isStale, literalPattern, numericEntries, todayIso } from './claims-register.mjs';
+
 export const RULES_PATH = join(import.meta.dirname, '..', 'marketing', 'claims', 'rules.json');
 
 export const CONFIG = JSON.parse(readFileSync(RULES_PATH, 'utf8'));
@@ -76,6 +78,8 @@ const NUMBER_PATTERN = new RegExp(
     'i'
 );
 
+const DIGIT_PATTERN = /[\d%$]/;
+
 const LINK_PATTERNS = [
     /https?:\/\//i,
     /\bwww\./i,
@@ -84,6 +88,13 @@ const LINK_PATTERNS = [
 ];
 
 const HASHTAG = /#[a-z]\w*/gi;
+
+/** Valid {{fig:id}} placeholders and the literal text of registered numeric figures are not claims the numbers rule can see. */
+function withoutRegistered(text, register = REGISTER) {
+    const known = (id) => Boolean(findEntry(id, register));
+    const placeholders = text.replace(PLACEHOLDER, (whole, id) => (known(id) ? ' ' : whole));
+    return numericEntries(register).reduce((rest, entry) => rest.replace(literalPattern(entry.text), ' '), placeholders);
+}
 
 const MATCHERS = {
     regex: (m) => {
@@ -105,7 +116,32 @@ const MATCHERS = {
             });
         };
     },
-    numbers: () => (text) => NUMBER_PATTERN.test(withoutAllowedUrls(text)),
+    numbers: () => (text, ctx) => NUMBER_PATTERN.test(withoutRegistered(withoutAllowedUrls(text), ctx.register)),
+    // Registered figures only: a placeholder must name a known, fresh entry, and a literal that
+    // equals a registered figure must be fresh. An illustrative entry needs the chip on its surface.
+    figures: () => (text, ctx) => {
+        const register = ctx.register ?? REGISTER;
+        const used = [];
+        // Braces left once valid placeholders are removed would be published as written.
+        if (/\{\{|\}\}/.test(text.replace(PLACEHOLDER, ' '))) return 'malformed {{fig:...}} placeholder';
+        for (const [, id] of text.matchAll(PLACEHOLDER)) {
+            const entry = findEntry(id, register);
+            if (!entry) return `unknown figure {{fig:${id}}}`;
+            used.push(entry);
+        }
+        for (const entry of numericEntries(register)) if (literalPattern(entry.text).test(text)) used.push(entry);
+        const stale = used.find((entry) => isStale(entry, ctx.today));
+        if (stale) return `figure ${stale.id} was verified ${stale.verified_at} and is past its ${stale.max_age_days}-day shelf life`;
+        const needsChip = used.find((entry) => entry.type === 'illustrative');
+        if (needsChip && !text.includes(normalise(register.illustrative_chip))) return `figure ${needsChip.id} is illustrative and needs the "${register.illustrative_chip}" chip`;
+        return false;
+    },
+    // Veo/Flow prompts: timing, aspect and shot numbering are spec, any other digit, $ or % is a figure
+    // a video model could burn into frame. Number words describe the picture ("five rows"), not a claim.
+    prompt_figures: (m) => {
+        const spec = m.strip.map((pattern) => new RegExp(pattern, 'gi'));
+        return (text) => DIGIT_PATTERN.test(spec.reduce((rest, re) => rest.replace(re, ' '), withoutAllowedUrls(text)));
+    },
     links: () => (text) => {
         const rest = withoutAllowedUrls(text);
         const hashtags = rest.match(HASHTAG) ?? [];
@@ -116,7 +152,10 @@ const MATCHERS = {
 
 function compile(rule) {
     const tests = rule.match.map((m) => MATCHERS[m.type](m));
-    return { id: rule.id, class: rule.class, reason: rule.reason, matches: (text) => tests.some((t) => t(text)) };
+    const applies = (ctx) => !rule.skip_surfaces?.includes(ctx.surface) && (!rule.only_surfaces || rule.only_surfaces.includes(ctx.surface));
+    // A matcher returns false, true, or a string that says what exactly matched.
+    const matches = (text, ctx) => (applies(ctx) ? tests.map((t) => t(text, ctx)).find(Boolean) : false);
+    return { id: rule.id, class: rule.class, reason: rule.reason, matches };
 }
 
 const textRules = CONFIG.rules.filter((rule) => rule.match);
@@ -135,12 +174,14 @@ export const ADVICE = legacyList('ADVICE');
 
 const legacyRules = textRules.filter((rule) => rule.legacy_group);
 
-function run(text, rules) {
+function run(text, rules, ctx = {}) {
     const clean = normalise(text);
+    const context = { ...ctx, today: ctx.today ?? todayIso() };
     return rules
         .map(compile)
-        .filter((rule) => rule.matches(clean))
-        .map(({ id, class: ruleClass, reason }) => ({ id, class: ruleClass, reason }));
+        .map((rule) => ({ rule, hit: rule.matches(clean, context) }))
+        .filter(({ hit }) => hit)
+        .map(({ rule, hit }) => ({ id: rule.id, class: rule.class, reason: rule.reason, ...(typeof hit === 'string' ? { detail: hit } : {}) }));
 }
 
 /**
@@ -149,13 +190,13 @@ function run(text, rules) {
  * legitimately carries figures, so it must not inherit the social-only rules.
  * Returns [] for compliant copy.
  */
-export const findViolations = (text, rules = legacyRules) => run(text, rules);
+export const findViolations = (text, rules = legacyRules, ctx) => run(text, rules, ctx);
 
 /**
  * The full social gate: every rule in rules.json. `rules` lets tests run a
  * mutated rule set.
  */
-export const findSocialViolations = (text, rules = textRules) => run(text, rules);
+export const findSocialViolations = (text, rules = textRules, ctx) => run(text, rules, ctx);
 
 /** Gaps in a package's file list: missing required surfaces, or text the gate cannot read. */
 export function findCoverageGaps(files) {

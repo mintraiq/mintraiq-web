@@ -80,6 +80,7 @@ env.public.example
 scripts/*.test.mjs
 scripts/social-copy-rules.mjs
 scripts/social-package.mjs
+scripts/claims-register.mjs
 scripts/serve.sh
 
 # Deliberately NOT excluded, though they look internal: mock-dashboard.html,

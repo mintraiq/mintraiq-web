@@ -29,7 +29,14 @@ const SHIPPED = JSON.parse(readFileSync(join(MARKETING, 'claims', 'shipped-findi
 const MIN_POSITIVES_PER_RULE = 3;
 
 const MIN_CORPUS_POSITIVES = 60;
-const ids = (text, rules) => findSocialViolations(text, rules).map((v) => v.id);
+// A fixed clock: figure freshness must not make the suite time-dependent.
+const TODAY = '2026-09-25';
+// A fixture or corpus entry is a string or {text, surface?, today?}.
+const asEntry = (entry) => (typeof entry === 'string' ? { text: entry } : entry);
+const ids = (entry, rules) => {
+    const { text, surface, today } = asEntry(entry);
+    return findSocialViolations(text, rules, { surface, today: today ?? TODAY }).map((v) => v.id);
+};
 const fixturePackage = (overrides = {}) => {
     const dir = mkdtempSync(join(tmpdir(), 'pkg-'));
     mkdirSync(join(dir, 'frames'));
@@ -51,7 +58,7 @@ const fixturePackage = (overrides = {}) => {
 // --- vacuous-pass guards ---------------------------------------------------
 
 test('every rule has an id, class, reason and at least one positive and one negative fixture', () => {
-    const required = ['brand-retired-names', 'bank-names', 'bank-connection', 'data-sharing', 'encryption-spec', 'training-claim', 'retention-period', 'deletion-completeness', 'guarantee', 'forecast-tense', 'product-recommendation', 'directive-framing', 'advice-verb-object', 'advice-comparative', 'user-score', 'numbers', 'links', 'injection-echo', 'coverage'];
+    const required = ['brand-retired-names', 'bank-names', 'bank-connection', 'data-sharing', 'encryption-spec', 'training-claim', 'retention-period', 'deletion-completeness', 'guarantee', 'forecast-tense', 'product-recommendation', 'directive-framing', 'advice-verb-object', 'advice-comparative', 'user-score', 'numbers', 'links', 'injection-echo', 'blocked-inflation-guru', 'blocked-reserves', 'blocked-bank-sync', 'blocked-smart-zone', 'blocked-explore-tab', 'blocked-receipt-line-categories', 'names', 'figure-resolution', 'video-prompts', 'coverage'];
     const present = CONFIG.rules.map((r) => r.id);
     assert.deepEqual(required.filter((id) => !present.includes(id)), [], 'a gate rule was removed from rules.json');
     for (const rule of CONFIG.rules) {
@@ -74,8 +81,8 @@ test('each rule fires on its own positive fixtures and not on its negatives', ()
             for (const fx of rule.test.negative) assert.deepEqual(findCoverageGaps(fx.files), []);
             continue;
         }
-        for (const text of rule.test.positive) assert.ok(ids(text).includes(rule.id), `${rule.id} should fire on: ${text}`);
-        for (const text of rule.test.negative) assert.ok(!ids(text).includes(rule.id), `${rule.id} should not fire on: ${text}`);
+        for (const fx of rule.test.positive) assert.ok(ids(fx).includes(rule.id), `${rule.id} should fire on: ${JSON.stringify(fx)}`);
+        for (const fx of rule.test.negative) assert.ok(!ids(fx).includes(rule.id), `${rule.id} should not fire on: ${JSON.stringify(fx)}`);
     }
 });
 
@@ -95,7 +102,7 @@ test('corpus is large, seeded with the 14 probes, and touches every text rule', 
 
 test('recall is 100% on the labelled corpus (previous gate: 1 of 14 probes)', () => {
     const misses = CORPUS.positives.filter((p) => {
-        const hit = ids(p.text);
+        const hit = ids(p);
         return !p.rules.every((id) => hit.includes(id));
     });
     assert.deepEqual(misses.map((p) => p.text), []);
@@ -105,7 +112,7 @@ test('recall is 100% on the labelled corpus (previous gate: 1 of 14 probes)', ()
 
 test('hard negatives raise nothing', () => {
     assert.ok(CORPUS.hard_negatives.length >= 10, 'hard negatives shrank');
-    for (const text of CORPUS.hard_negatives) assert.deepEqual(ids(text), [], `false positive on: ${text}`);
+    for (const text of CORPUS.hard_negatives) assert.deepEqual(ids(text), [], `false positive on: ${JSON.stringify(text)}`);
 });
 
 test('shipped link lines (the three constant URLs with utm) are clean', () => {
@@ -121,12 +128,37 @@ test('shipped link lines (the three constant URLs with utm) are clean', () => {
 for (const rule of RULES) {
     test(`mutation: neutering ${rule.id} lets its corpus positives through, so recall fails`, () => {
         const neutered = RULES.map((r) => (r.id === rule.id ? { ...r, match: [] } : r));
-        const stillCaught = CORPUS.positives.filter((p) => p.rules.includes(rule.id) && ids(p.text, neutered).includes(rule.id));
-        assert.deepEqual(stillCaught, [], 'neutered rule still fires: the mutation is not reaching the matcher');
-        const lost = CORPUS.positives.filter((p) => p.rules.includes(rule.id) && !p.rules.every((id) => ids(p.text, neutered).includes(id)));
+        const unmutated = CORPUS.positives.filter((p) => p.rules.includes(rule.id) && ids(p).includes(rule.id));
+        assert.ok(unmutated.length >= MIN_POSITIVES_PER_RULE, `${rule.id} does not fire on its own corpus positives before mutation`);
+        const lost = CORPUS.positives.filter((p) => p.rules.includes(rule.id) && !p.rules.every((id) => ids(p, neutered).includes(id)));
         assert.ok(lost.length >= MIN_POSITIVES_PER_RULE, `${rule.id} could be gutted with fewer than ${MIN_POSITIVES_PER_RULE} recall failures`);
     });
 }
+
+// A rule with several matchers is only as strong as its least-exercised one: drop each in turn.
+for (const rule of RULES) {
+    rule.match.forEach((_, index) => {
+        test(`mutation: ${rule.id} matcher ${index} is exercised by the corpus`, () => {
+            const mutated = RULES.map((r) => (r.id === rule.id ? { ...r, match: r.match.filter((_m, j) => j !== index) } : r));
+            const lost = CORPUS.positives.filter((p) => p.rules.includes(rule.id) && ids(p).includes(rule.id) && !ids(p, mutated).includes(rule.id));
+            assert.ok(lost.length >= 1, `${rule.id} matcher ${index} can be removed without a corpus positive noticing: add one`);
+        });
+    });
+}
+
+// --- surfaces -----------------------------------------------------------------------
+
+test('hard negatives stay clean on prompts.md too, where video-prompts applies', () => {
+    for (const text of CORPUS.hard_negatives) assert.deepEqual(ids({ text, surface: 'prompts.md' }), [], `false positive on prompts.md: ${JSON.stringify(text)}`);
+});
+
+test('numbers applies to captions and not to prompts.md, where video-prompts takes over', () => {
+    const line = 'Trusted by 9 in 10 Kiwi households.';
+    assert.ok(ids({ text: line, surface: 'captions.md' }).includes('numbers'));
+    assert.ok(!ids({ text: line, surface: 'prompts.md' }).includes('numbers'));
+    assert.ok(ids({ text: line, surface: 'prompts.md' }).includes('video-prompts'));
+    assert.ok(!ids({ text: line, surface: 'captions.md' }).includes('video-prompts'));
+});
 
 // --- normalisation -------------------------------------------------------------------
 
@@ -156,7 +188,7 @@ test('captions scan skips only the preamble and Posting notes', () => {
 
 test('a clean fixture package passes with every surface read', () => {
     const dir = fixturePackage();
-    assert.deepEqual(scanPackage(dir), { coverageGaps: [], violations: [] });
+    assert.deepEqual(scanPackage(dir, { today: TODAY }), { coverageGaps: [], violations: [] });
     assert.deepEqual(readSurfaces(dir).map((s) => s.name), ['captions.md', 'frames/01-hook.html', 'script.md']);
 });
 
@@ -168,7 +200,7 @@ for (const [surface, content] of [
 ]) {
     test(`the gate reads ${surface}, not just caption blocks`, () => {
         const dir = fixturePackage({ [surface]: content });
-        const hit = scanPackage(dir).violations.filter((v) => v.surface === surface);
+        const hit = scanPackage(dir, { today: TODAY }).violations.filter((v) => v.surface === surface);
         assert.ok(hit.length > 0, `${surface} was not scanned`);
     });
 }
@@ -176,13 +208,13 @@ for (const [surface, content] of [
 test('a package missing a required surface fails coverage instead of passing or skipping', () => {
     for (const missing of ['captions.md', 'script.md', 'claims.md', 'frames/01-hook.html']) {
         const dir = fixturePackage({ [missing]: null });
-        assert.ok(scanPackage(dir).coverageGaps.length > 0, `missing ${missing} must be a coverage gap`);
+        assert.ok(scanPackage(dir, { today: TODAY }).coverageGaps.length > 0, `missing ${missing} must be a coverage gap`);
     }
 });
 
 test('a text file the gate cannot read fails coverage', () => {
     const dir = fixturePackage({ 'notes.txt': 'unscanned Mintor copy' });
-    assert.deepEqual(scanPackage(dir).coverageGaps, ['unscanned text surface notes.txt']);
+    assert.deepEqual(scanPackage(dir, { today: TODAY }).coverageGaps, ['unscanned text surface notes.txt']);
 });
 
 // --- the shipped packages -----------------------------------------------------------------
@@ -197,7 +229,7 @@ test('every shipped package is pinned, and the hardened gate finds exactly what 
     assert.deepEqual(Object.keys(SHIPPED).sort(), packages.sort(), 'shipped-findings.json out of step with marketing/');
     for (const name of packages) {
         const dir = join(MARKETING, name);
-        const { coverageGaps, violations } = scanPackage(dir);
+        const { coverageGaps, violations } = scanPackage(dir, { today: TODAY });
         assert.deepEqual(coverageGaps, [], `${name}: coverage`);
         const found = {};
         for (const v of violations) (found[v.surface] ??= new Set()).add(v.id);
@@ -214,7 +246,7 @@ test('every shipped package is pinned, and the hardened gate finds exactly what 
 });
 
 test('the 27 Sep captions still say Mintr, so the gate must fail them (known positive, not excluded)', () => {
-    const { violations } = scanPackage(join(MARKETING, 'reels', '2026-09-27-forgotten-subscription'));
+    const { violations } = scanPackage(join(MARKETING, 'reels', '2026-09-27-forgotten-subscription'), { today: TODAY });
     const caption = violations.filter((v) => v.surface === 'captions.md').map((v) => v.id);
     assert.ok(caption.includes('brand-retired-names'), 'retired name Mintr must fail this file until the posted captions are corrected');
 });
@@ -223,7 +255,7 @@ test('the 27 Sep captions still say Mintr, so the gate must fail them (known pos
 
 test('the rules, the corpus and the evaluators stay off the public site', () => {
     const ignored = readFileSync(join(ROOT, '.vercelignore'), 'utf8').split('\n').map((l) => l.trim());
-    for (const entry of ['marketing/', 'scripts/social-copy-rules.mjs', 'scripts/social-package.mjs']) {
+    for (const entry of ['marketing/', 'scripts/social-copy-rules.mjs', 'scripts/social-package.mjs', 'scripts/claims-register.mjs']) {
         assert.ok(ignored.includes(entry), `.vercelignore must list ${entry}`);
     }
 });

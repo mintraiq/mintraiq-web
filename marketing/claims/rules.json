@@ -346,9 +346,9 @@
     {
       "id": "names",
       "class": "brand",
-      "reason": "The mascot working name is Kiko; Tui, Tipu, Tilly and Kiko are being searched and none may appear in public copy until the name search clears. The brand is MintrAIQ in any casing or spacing. The assistant is unnamed: 'the MintrAIQ assistant'.",
+      "reason": "Kiko is the final mascot name and may appear. Tui, Tipu and Tilly were working names that were not chosen and may not appear in public copy. The brand is MintrAIQ in any casing or spacing. The assistant is unnamed: 'the MintrAIQ assistant'.",
       "match": [
-        {"type": "regex", "pattern": "\\b(?:Tui|Tipu|Tilly|Kiko)\\b", "flags": ""},
+        {"type": "regex", "pattern": "\\b(?:Tui|Tipu|Tilly)\\b", "flags": ""},
         {
           "type": "regex",
           "pattern": "\\b(?:assistant|AI|chatbot|bot) (?:called|named|nicknamed)\\b",
@@ -358,7 +358,7 @@
       ],
       "test": {
         "positive": [
-          "Meet Kiko, your money mascot.",
+          "Meet Tipu, your money mascot.",
           "Say hi to Tui.",
           "Our assistant called Kiko answers questions.",
           "Mintr AIQ reads receipts.",
@@ -368,7 +368,8 @@
           "MintrAIQ reads receipts.",
           "Ask the MintrAIQ assistant.",
           "Get it at mintraiq.com/go",
-          "The tui bird sings."
+          "The tui bird sings.",
+          "Meet Kiko, your money mascot."
         ]
       }
     },

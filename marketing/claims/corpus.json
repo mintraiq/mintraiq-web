@@ -781,7 +781,9 @@
   },
   {
    "text": "Meet Kiko, your savings sidekick.",
-   "rules": []
+   "rules": [
+    "names"
+   ]
   },
   {
    "text": "Say hi to Tui, the MintrAIQ mascot.",

@@ -10,7 +10,7 @@
     "test:legal": "node --test scripts/legal-dates.test.mjs scripts/analytics-config.test.mjs scripts/marketing-consent-copy.test.mjs scripts/categorisation-learning-copy.test.mjs",
     "test:bank-sync": "node --test scripts/bank-sync-copy.test.mjs",
     "test:forecast-sample": "node --test scripts/forecast-analytics-no-sample.test.mjs",
-    "test:copy": "npm run test:legal && npm run test:bank-sync && npm run test:forecast-sample && npm run test:price-overlay && npm run test:social-copy && npm run test:site-claims",
+    "test:copy": "npm run test:legal && npm run test:bank-sync && npm run test:forecast-sample && npm run test:price-overlay && npm run test:social-copy && npm run test:site-claims && npm run test:render-frames",
     "test:e2e": "playwright test --config=e2e/playwright.config.js",
     "test:e2e:ui": "playwright test --config=e2e/playwright.config.js --ui",
     "test:e2e:install": "playwright install chromium",
@@ -19,7 +19,8 @@
     "test:consent-copy": "node --test scripts/marketing-consent-copy.test.mjs",
     "test:social-copy": "node --test scripts/social-copy.test.mjs scripts/social-copy-gate.test.mjs scripts/publish-social-package.test.mjs",
     "test:categorisation-copy": "node --test scripts/categorisation-learning-copy.test.mjs",
-    "test:site-claims": "node --test scripts/site-claims.test.mjs"
+    "test:site-claims": "node --test scripts/site-claims.test.mjs",
+    "test:render-frames": "node --test marketing/render/render-frames.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.51.0"

@@ -84,7 +84,7 @@ body::before {
 .chip {
   padding: 10px 22px; border-radius: ${t.radiusFull};
   background: rgba(255,255,255,0.10); border: 2px solid rgba(255,255,255,0.28);
-  font-size: 26px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  font-size: 28px; font-weight: 700; letter-spacing: .01em;
 }
 .main { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 32px; }
 .headline {

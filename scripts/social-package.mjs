@@ -74,10 +74,10 @@ export function readSurfaces(dir) {
 }
 
 /** The gate over a whole package: coverage gaps plus rule violations per surface. */
-export function scanPackage(dir) {
+export function scanPackage(dir, { today } = {}) {
     const coverageGaps = findCoverageGaps(listFiles(dir));
     const violations = readSurfaces(dir).flatMap((surface) =>
-        findSocialViolations(surface.scanned).map((v) => ({ surface: surface.name, id: v.id, reason: v.reason }))
+        findSocialViolations(surface.scanned, undefined, { surface: surface.name, today }).map((v) => ({ surface: surface.name, id: v.id, reason: v.detail ? `${v.reason} (${v.detail})` : v.reason }))
     );
     return { coverageGaps, violations };
 }

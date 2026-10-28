@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "about": "Claims register (marketing-agent design 01-design section 4.3). Every figure or capability a post may state. Copy refers to an entry as {{fig:<id>}} or writes its text exactly; any other number fails the gate. 'text' is stored in normalised form (ASCII hyphen-minus, no markup). published_stat entries name their source; capability and name entries carry an assert that scripts/claims-register.mjs checks against origin/main. An entry older than max_age_days at post time is stale and fails. No user-derived statistic may ever be an entry. The source url is the Stats NZ release index; the release page itself was not fetched when this was seeded.",
+  "illustrative_chip": "Illustrative example",
+  "figures": [
+    {
+      "id": "cpi-food-annual",
+      "type": "published_stat",
+      "text": "1.9%",
+      "value": "1.9",
+      "description": "Food group, annual change to August 2026",
+      "source": {
+        "kind": "stats-nz-release",
+        "title": "Selected price indexes: August 2026",
+        "published": "2026-09-18",
+        "url": "https://www.stats.govt.nz/information-releases/",
+        "retrieved": "2026-09-20"
+      },
+      "verified_at": "2026-09-20",
+      "max_age_days": 35
+    },
+    {
+      "id": "cpi-meat-poultry-fish-annual",
+      "type": "published_stat",
+      "text": "+3.4%",
+      "value": "3.4",
+      "description": "Meat, poultry and fish, annual change to August 2026",
+      "source": {
+        "kind": "stats-nz-release",
+        "title": "Selected price indexes: August 2026",
+        "published": "2026-09-18",
+        "url": "https://www.stats.govt.nz/information-releases/",
+        "retrieved": "2026-09-20"
+      },
+      "verified_at": "2026-09-20",
+      "max_age_days": 35
+    },
+    {
+      "id": "cpi-restaurant-meals-annual",
+      "type": "published_stat",
+      "text": "+3.2%",
+      "value": "3.2",
+      "description": "Restaurant meals, annual change to August 2026",
+      "source": {
+        "kind": "stats-nz-release",
+        "title": "Selected price indexes: August 2026",
+        "published": "2026-09-18",
+        "url": "https://www.stats.govt.nz/information-releases/",
+        "retrieved": "2026-09-20"
+      },
+      "verified_at": "2026-09-20",
+      "max_age_days": 35
+    },
+    {
+      "id": "cpi-fruit-veg-annual",
+      "type": "published_stat",
+      "text": "-1.6%",
+      "value": "-1.6",
+      "description": "Fruit and vegetables, annual change to August 2026",
+      "source": {
+        "kind": "stats-nz-release",
+        "title": "Selected price indexes: August 2026",
+        "published": "2026-09-18",
+        "url": "https://www.stats.govt.nz/information-releases/",
+        "retrieved": "2026-09-20"
+      },
+      "verified_at": "2026-09-20",
+      "max_age_days": 35
+    },
+    {
+      "id": "cpi-food-monthly",
+      "type": "published_stat",
+      "text": "0.3%",
+      "value": "0.3",
+      "description": "Food group, monthly change August 2026 on July 2026",
+      "source": {
+        "kind": "stats-nz-release",
+        "title": "Selected price indexes: August 2026",
+        "published": "2026-09-18",
+        "url": "https://www.stats.govt.nz/information-releases/",
+        "retrieved": "2026-09-20"
+      },
+      "verified_at": "2026-09-20",
+      "max_age_days": 35
+    },
+    {
+      "id": "price-chart-legend",
+      "type": "capability",
+      "text": "Stats NZ food price index avg",
+      "description": "The product price chart labels its national line with CPI_LEGEND_LABEL",
+      "assert": {
+        "repo": "mintraiq-web",
+        "ref": "origin/main",
+        "path": "portal/js/price-overlay-copy.js",
+        "contains": "CPI_LEGEND_LABEL = 'Stats NZ food price index avg'"
+      },
+      "verified_at": "2026-09-20",
+      "max_age_days": 90
+    },
+    {
+      "id": "price-chart-attribution",
+      "type": "capability",
+      "text": "Stats NZ attribution",
+      "description": "The price chart carries the prescribed Stats NZ attribution sentence",
+      "assert": {
+        "repo": "mintraiq-web",
+        "ref": "origin/main",
+        "path": "portal/js/price-overlay-copy.js",
+        "contains": "export const STATS_NZ_ATTRIBUTION"
+      },
+      "verified_at": "2026-09-20",
+      "max_age_days": 90
+    }
+  ]
+}

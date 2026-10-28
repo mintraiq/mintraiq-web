@@ -664,6 +664,233 @@
    "rules": [
     "training-claim"
    ]
+  },
+  {
+   "text": "Ask the inflation guru what rising prices mean for you.",
+   "rules": [
+    "blocked-inflation-guru"
+   ]
+  },
+  {
+   "text": "Your own inflation rate, worked out from your spending.",
+   "rules": [
+    "blocked-inflation-guru"
+   ]
+  },
+  {
+   "text": "See your personal CPI next to the headline number.",
+   "rules": [
+    "blocked-inflation-guru"
+   ]
+  },
+  {
+   "text": "AI Reserves set money aside before the bill lands.",
+   "rules": [
+    "blocked-reserves"
+   ]
+  },
+  {
+   "text": "Build a savings reserve for the big annual costs.",
+   "rules": [
+    "blocked-reserves"
+   ]
+  },
+  {
+   "text": "Bill reserves keep your rent safe.",
+   "rules": [
+    "blocked-reserves"
+   ]
+  },
+  {
+   "text": "Bank sync keeps everything up to date.",
+   "rules": [
+    "blocked-bank-sync"
+   ]
+  },
+  {
+   "text": "Read only access to your bank, nothing more.",
+   "rules": [
+    "blocked-bank-sync"
+   ]
+  },
+  {
+   "text": "Your transactions appear automatically, no typing.",
+   "rules": [
+    "blocked-bank-sync"
+   ]
+  },
+  {
+   "text": "Turn on bank sync and stop typing things in.",
+   "rules": [
+    "blocked-bank-sync"
+   ]
+  },
+  {
+   "text": "Smart Zone nudges you near a shop.",
+   "rules": [
+    "blocked-smart-zone"
+   ]
+  },
+  {
+   "text": "Geofencing keeps you on budget.",
+   "rules": [
+    "blocked-smart-zone"
+   ]
+  },
+  {
+   "text": "A nudge when you walk into a store.",
+   "rules": [
+    "blocked-smart-zone"
+   ]
+  },
+  {
+   "text": "Open the Explore tab.",
+   "rules": [
+    "blocked-explore-tab"
+   ]
+  },
+  {
+   "text": "Find it on the explore screen.",
+   "rules": [
+    "blocked-explore-tab"
+   ]
+  },
+  {
+   "text": "Check the Explore section.",
+   "rules": [
+    "blocked-explore-tab"
+   ]
+  },
+  {
+   "text": "Every line item is sorted for you.",
+   "rules": [
+    "blocked-receipt-line-categories"
+   ]
+  },
+  {
+   "text": "Receipts sorted into categories.",
+   "rules": [
+    "blocked-receipt-line-categories"
+   ]
+  },
+  {
+   "text": "Sorted line items from your receipt.",
+   "rules": [
+    "blocked-receipt-line-categories"
+   ]
+  },
+  {
+   "text": "Meet Kiko, your savings sidekick.",
+   "rules": [
+    "names"
+   ]
+  },
+  {
+   "text": "Say hi to Tui, the MintrAIQ mascot.",
+   "rules": [
+    "names"
+   ]
+  },
+  {
+   "text": "Our assistant called Tilly answers questions.",
+   "rules": [
+    "names"
+   ]
+  },
+  {
+   "text": "Welcome to Mintr: spend smarter.",
+   "rules": [
+    "brand-retired-names"
+   ]
+  },
+  {
+   "text": "Food prices rose {{fig:made-up-figure}} this year.",
+   "rules": [
+    "figure-resolution"
+   ]
+  },
+  {
+   "text": "Food prices are up 1.9% on a year ago.",
+   "rules": [
+    "figure-resolution"
+   ],
+   "today": "2027-01-01"
+  },
+  {
+   "text": "Food prices are up {{fig:cpi-food-annual}} on a year ago.",
+   "rules": [
+    "figure-resolution"
+   ],
+   "today": "2027-01-01"
+  },
+  {
+   "text": "On-screen text: Kiwis waste $847 a year",
+   "rules": [
+    "video-prompts"
+   ],
+   "surface": "prompts.md"
+  },
+  {
+   "text": "The card reads 72%",
+   "rules": [
+    "video-prompts"
+   ],
+   "surface": "prompts.md"
+  },
+  {
+   "text": "A banner says 3 months free",
+   "rules": [
+    "video-prompts"
+   ],
+   "surface": "prompts.md"
+  },
+  {
+   "text": "Trusted by 9 in 10 Kiwi households.",
+   "rules": [
+    "numbers"
+   ]
+  },
+  {
+   "text": "Set money aside with #mintr this week.",
+   "rules": [
+    "brand-retired-names"
+   ]
+  },
+  {
+   "text": "Keep reserves for bills, set aside automatically.",
+   "rules": [
+    "blocked-reserves"
+   ]
+  },
+  {
+   "text": "All your connected accounts, in one view.",
+   "rules": [
+    "blocked-bank-sync"
+   ]
+  },
+  {
+   "text": "See live balances the moment you open it.",
+   "rules": [
+    "blocked-bank-sync"
+   ]
+  },
+  {
+   "text": "Location aware alerts nudge you at the till.",
+   "rules": [
+    "blocked-smart-zone"
+   ]
+  },
+  {
+   "text": "Meet our assistant called Sage.",
+   "rules": [
+    "names"
+   ]
+  },
+  {
+   "text": "Say hi to Mint R AIQ.",
+   "rules": [
+    "names"
+   ]
   }
  ],
  "hard_negatives": [
@@ -685,6 +912,28 @@
   "#budgeting #newzealand",
   "A projected balance, based on your recent history.",
   "Spot the recurring bill you forgot was still going.",
-  "Scan a receipt and see the categories."
+  "Scan a receipt and see the categories.",
+  "Scan a receipt and it is filed under a category.",
+  "Explore your receipts at your own pace.",
+  "Zone out with a coffee.",
+  "Reserve a table for the weekend.",
+  "The MintrAIQ assistant can answer questions about your spending.",
+  "MintrAIQ keeps your spending together.",
+  {
+   "text": "Food prices are up {{fig:cpi-food-annual}} on a year ago.",
+   "today": "2026-09-25"
+  },
+  {
+   "text": "Food prices are up 1.9% on a year ago.",
+   "today": "2026-09-25"
+  },
+  {
+   "text": "## Shot 1 - Hook (0-2s). If shot 3 or 4 runs short, use Extend. Total 24s, 9:16, 85mm, frames/01-hook.png",
+   "surface": "prompts.md"
+  },
+  {
+   "text": "Five bars fill left to right and one soft tick lands on each.",
+   "surface": "prompts.md"
+  }
  ]
 }

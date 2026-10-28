@@ -92,8 +92,7 @@
    },
    "prompts.md": {
     "rules": [
-     "brand-retired-names",
-     "numbers"
+     "brand-retired-names"
     ],
     "sha256": "fcbe340134732506c9fcfeb7169d9196b30382df6d70c76f3d201093194d64ba"
    },
@@ -110,6 +109,7 @@
   "features/receipt-scan": {
    "captions.md": {
     "rules": [
+     "blocked-receipt-line-categories",
      "brand-retired-names",
      "links",
      "numbers"
@@ -136,6 +136,7 @@
    },
    "frames/04-sorted.html": {
     "rules": [
+     "blocked-receipt-line-categories",
      "numbers"
     ],
     "sha256": "753f6ffb04e471b54f9caf8f0e07645e2e63fca9dbc45af2509b28f279576044"
@@ -148,12 +149,13 @@
    },
    "prompts.md": {
     "rules": [
-     "numbers"
+     "blocked-receipt-line-categories"
     ],
     "sha256": "b08d0d6f5e3bab82b1d2737a0603681f8f3d7d6a6069f8d3b9a206a5c0f8e23d"
    },
    "script.md": {
     "rules": [
+     "blocked-receipt-line-categories",
      "brand-retired-names",
      "numbers"
     ],
